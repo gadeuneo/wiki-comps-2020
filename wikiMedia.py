@@ -20,23 +20,6 @@ def printJsonTree(d, indent=0):
             print(); printJsonTree(value, indent+1)
         else:
             print(": " + str(type(d[key])).split("'")[1] + " - " + str(len(str(d[key]))))
-
-def print_json_tree(d, indent=0):
-    """Print tree of keys in JSON object.
-    
-    Prints the different levels of nested keys in a JSON object. When there
-    are no more dictionaries to key into, prints objects type and byte-size.
-
-    Input
-    -----
-    d : dict
-    """
-    for key,value in d.iteritems():
-        print('    ' * indent + unicode(key)),
-        if isinstance(value, dict):
-            print; print_json_tree(value, indent+1)
-        else:
-            print(":", str(type(d[key])).split("'")[1], "-", str(len(unicode(d[key]))))
             
 # Example
 import requests as rq
