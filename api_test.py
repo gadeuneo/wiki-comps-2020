@@ -58,7 +58,12 @@ prop=revisions -- which properties to get; in this case the revision information
 rvprop=content -- what revision property to get; in this case the content
 rvslots=* -- which pieces of content to get; * denotes all content
 '''
-query = "format=json&action=query&titles=Batman&prop=revisions&rvprop=content&rvslots=*"
+
+# Can either be the url itself or use the requests package to separate params
+# in a dictionary.
+
+# returns errors -- see below for comments
+query = "format=json&action=query&titles=Batman&prop=revisions&rvprop=content"
 
 params = {
     "action": "query",
@@ -76,6 +81,49 @@ r = rq.get(url=baseEng, params=params).json()
 printJsonTree(result)
 printJsonTree(r)
 
+# Note that there should be no warnings or errors in the JSON tree if the query
+# was sucessful. However, if they appear in the leftmost column, use the below
+# code to help read the error messages and resolve them.
 
-# print(result['warnings']['main'])
-# print(result['warnings']['revisions'])
+def printQueryErrors(requestObject):
+    warn = False
+    error = False
+    try:
+        warnings = requestObject['warnings']
+        warn = True
+        print("WARNINGS FROM API! READ MESSAGE TO RESOLVE!")
+        print("*"*80)
+        for key in warnings.keys():
+            print("KEY: " + str(key) + "\n")
+            print(requestObject['warnings'][key])
+            print("")
+    except:
+        pass
+
+    try:
+        errors = requestObject['errors']
+        error = True
+        print("ERRORS FROM API! READ MESSAGE TO RESOLVE!")
+        print("*"*80)
+        for key in errors.keys():
+            print("KEY: " + str(key) + "\n")
+            print(requestObject['errors'][key])
+            print("")
+    except:
+        pass
+
+    if (warn and error):
+        print("*"*80)
+        print("WARNINGS AND ERRORS IN QUERY! READ MESSAGE TO RESOLVE!")
+    elif (warn and not error):
+        print("*"*80)
+        print("WARNINGS IN QUERY! READ MESSAGE TO RESOLVE!")
+    elif (not warn and error):
+        print("*"*80)
+        print("ERRORS IN QUERY! READ MESSAGE TO RESOLVE!")
+    else:
+        print("*"*80)
+        print("QUERY SUCESSFUL!")
+
+printQueryErrors(result)
+printQueryErrors(r)
