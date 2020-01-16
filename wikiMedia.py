@@ -9,6 +9,7 @@ def printJsonTree(d, indent=0):
     
     Prints the different levels of nested keys in a JSON object. When there
     are no more dictionaries to key into, prints objects type and byte-size.
+    Also iterates through lists of dictionaries.
 
     Input
     -----
@@ -18,6 +19,12 @@ def printJsonTree(d, indent=0):
         print("\t"*indent + str(key),end=" ")
         if isinstance(value, dict):
             print(); printJsonTree(value, indent+1)
+        elif isinstance(value, list):
+            for item in value:
+                if isinstance(item, dict):
+                    print(); printJsonTree(item, indent+1)
+                else:
+                    print(": " + str(type(d[key])).split("'")[1] + " - " + str(len(str(d[key]))))
         else:
             print(": " + str(type(d[key])).split("'")[1] + " - " + str(len(str(d[key]))))
             
