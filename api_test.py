@@ -53,8 +53,12 @@ baseEng = "https://en.wikipedia.org/w/api.php?"
 # https://meta.wikimedia.org/wiki/User-Agent_policy
 # EX: User-Agent: CoolToolName/0.0 (https://example.org/CoolTool/; CoolTool@example.org) UsedBaseLibrary/0.0
 # Generic format: <client name>/<version> (<contact information>) <library/framework name>/<version> [<library name>/<version> ...]
+
+# user agent for WikiMedia API proper usage
+# closes TCP connection after query
 headers = {
-    'User-Agent': 'CarletonComps2020/0.1 (http://www.cs.carleton.edu/cs_comps/1920/wikipedia/index.php) Python/3.6.9 Requests/2.18.14'
+    "User-Agent": "CarletonComps2020/0.1 (http://www.cs.carleton.edu/cs_comps/1920/wikipedia/index.php) Python/3.6.9 Requests/2.18.14",
+    "Connection": "close"
 }
 
 
@@ -89,7 +93,6 @@ r = rq.get(url=baseEng, params=params, headers=headers).json()
 
 printJsonTree(result)
 printJsonTree(r)
-printJsonTree(badr)
 
 # Note that there should be no warnings or errors in the JSON tree if the query
 # was sucessful. However, if they appear in the leftmost column, use the below
