@@ -48,6 +48,16 @@ baseEng = "https://en.wikipedia.org/w/api.php?"
 
 # will be using baseEng for now
 
+# request headers
+# https://en.wikipedia.org/wiki/List_of_HTTP_header_fields#Request_fields
+# https://meta.wikimedia.org/wiki/User-Agent_policy
+# EX: User-Agent: CoolToolName/0.0 (https://example.org/CoolTool/; CoolTool@example.org) UsedBaseLibrary/0.0
+# Generic format: <client name>/<version> (<contact information>) <library/framework name>/<version> [<library name>/<version> ...]
+headers = {
+    'User-Agent': 'CarletonComps2020/0.1 (http://www.cs.carleton.edu/cs_comps/1920/wikipedia/index.php) Python/3.6.9 Requests/2.18.14'
+}
+
+
 '''
 sample query -- returns contents of Batman Wiki article
 Breakdown:
@@ -60,11 +70,10 @@ rvslots=* -- which pieces of content to get; * denotes all content
 '''
 
 # Can either be the url itself or use the requests package to separate params
-# in a dictionary.
+# in a dictionary. Preferred is requests package parameter as dictionary.
 
-# returns errors -- see below for comments
+# returns errors; -- see below for comments
 query = "format=json&action=query&titles=Batman&prop=revisions&rvprop=content"
-
 params = {
     "action": "query",
     "prop": "revisions",
@@ -74,12 +83,13 @@ params = {
     "format": "json"
 }
 
-result = rq.get(baseEng+query).json()
 
-r = rq.get(url=baseEng, params=params).json()
+result = rq.get(baseEng+query, headers=headers).json()
+r = rq.get(url=baseEng, params=params, headers=headers).json()
 
 printJsonTree(result)
 printJsonTree(r)
+printJsonTree(badr)
 
 # Note that there should be no warnings or errors in the JSON tree if the query
 # was sucessful. However, if they appear in the leftmost column, use the below
@@ -95,7 +105,8 @@ def printQueryErrors(requestObject):
         print("*"*80)
         for key in warnings.keys():
             print("KEY: " + str(key) + "\n")
-            print(requestObject['warnings'][key])
+            for id in requestObject['warnings'][key].keys():
+                print(requestObject['warnings'][key][id])
             print("")
     except:
         pass
@@ -107,7 +118,9 @@ def printQueryErrors(requestObject):
         print("*"*80)
         for key in errors.keys():
             print("KEY: " + str(key) + "\n")
-            print(requestObject['errors'][key])
+            print("KEY: " + str(key) + "\n")
+            for id in requestObject['errors'][key].keys():
+                print(requestObject['errors'][key][id])
             print("")
     except:
         pass
