@@ -76,23 +76,34 @@ rvslots=* -- which pieces of content to get; * denotes all content
 # Can either be the url itself or use the requests package to separate params
 # in a dictionary. Preferred is requests package parameter as dictionary.
 
-# returns errors; -- see below for comments
+# returns errors; -- see output for comments
 query = "format=json&action=query&titles=Batman&prop=revisions&rvprop=content"
+
+# Returns data in Wikitext format
 params = {
     "action": "query",
     "prop": "revisions",
-    "titles": "Batman",
+    "titles": "Hong Kong",
     "rvprop": "timestamp|user|comment|content",
     "rvslots": "*",
     "format": "json"
 }
 
+# https://www.mediawiki.org/wiki/API:Parsing_wikitext
+# Returns data in HTML format
+parse = {
+    "action": "parse",
+    "page": "Hong Kong",
+    "format": "json"
+}
 
-result = rq.get(baseEng+query, headers=headers).json()
+
+# result = rq.get(baseEng+query, headers=headers).json()
 r = rq.get(url=baseEng, params=params, headers=headers).json()
+p = rq.get(url=baseEng, params=parse, headers=headers).json()
 
-printJsonTree(result)
-printJsonTree(r)
+# printJsonTree(result)
+# printJsonTree(r)
 
 # Note that there should be no warnings or errors in the JSON tree if the query
 # was sucessful. However, if they appear in the leftmost column, use the below
@@ -115,15 +126,13 @@ def printQueryErrors(requestObject):
         pass
 
     try:
-        errors = requestObject['errors']
+        errors = requestObject['error']
         error = True
         print("ERRORS FROM API! READ MESSAGE TO RESOLVE!")
         print("*"*80)
         for key in errors.keys():
             print("KEY: " + str(key) + "\n")
-            print("KEY: " + str(key) + "\n")
-            for id in requestObject['errors'][key].keys():
-                print(requestObject['errors'][key][id])
+            print(requestObject['error'][key])
             print("")
     except:
         pass
@@ -141,5 +150,15 @@ def printQueryErrors(requestObject):
         print("*"*80)
         print("QUERY SUCESSFUL!")
 
-printQueryErrors(result)
-printQueryErrors(r)
+# printQueryErrors(result)
+# printQueryErrors(r)
+
+# WikiMedia Markup
+# print(r['query']['pages']['13404']['revisions'][0]['slots']['main']['*'])
+
+# Warning, do not print JSON tree for p! It is VERY long!
+# printJsonTree(p)
+# printQueryErrors(p)
+
+# HTML format -- PRINT AT OWN RISK
+# print(p['parse']['text']['*'])

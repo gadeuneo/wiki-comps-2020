@@ -25,3 +25,7 @@
 
 ##### Short Tutorial Page
 [https://www.mediawiki.org/wiki/API:Tutorial#How_to_use_it](https://www.mediawiki.org/wiki/API:Tutorial#How_to_use_it)
+
+
+##### Wiki Markup/Wikicode/Wikitext Formatting
+[https://en.wikipedia.org/wiki/Help:Wikitext](https://en.wikipedia.org/wiki/Help:Wikitext)
