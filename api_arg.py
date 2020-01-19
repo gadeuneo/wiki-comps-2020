@@ -7,10 +7,9 @@ James Gardner
 
 '''
 
-import sys
+
 import json
 import requests as rq
-import sys
 
 
 
@@ -21,7 +20,7 @@ def main():
         "Connection": "close"
     }
 
-    # page = str(sys.argv[1])
+
     valid = False
     while (not valid):
         print("Enter page to export to HTML. Separate words with underscore (_). Single page only.: ")

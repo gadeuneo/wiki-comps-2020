@@ -13,8 +13,6 @@ James Gardner
 import requests as rq
 # allows Python to read JSON files (similar to a dictionary)
 import json
-# allows Python to use regular expressions to search results
-import re
 
 # helper function to visualize json file -- best for small examples
 
