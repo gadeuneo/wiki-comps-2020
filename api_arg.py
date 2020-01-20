@@ -33,14 +33,38 @@ def main():
         else:
             valid = True
 
+    valid = False
+    while (not valid):
+        print("Enter revision ID (oldid) of page. Numbers only.")
+        id = input()
+        numargs = len(id.split())
+        try:
+            id = int(id)
+            isNum = True
+        except:
+            isNum = False
+        if (numargs != 1 and isNum == False):
+            valid = False
+            print("Invalid input. Please enter revision ID (oldid) of page. Numbers only.")
+            id = input()
+            try:
+                id = int(id)
+                isNum = True
+            except:
+                isNum = False
+        else:
+            valid = True
+
 
     params = {
         "action": "parse",
-        "page": page,
+        # "text": page,
+        "oldid": id,
         "format": "json"
     }
     data = rq.get(url=url, headers=headers, params=params).json()
-
+    # for key in data['error'].keys():
+    #     print(data['error'][key])
     f = data['parse']['text']['*']
 
     filename = page + ".html"
