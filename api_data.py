@@ -76,7 +76,7 @@ def printQueryErrors(requestObject):
 
 url = "https://en.wikipedia.org/w/api.php?"
 headers = {
-    "User-Agent": "CarletonComps2020/0.1 (http://www.cs.carleton.edu/cs_comps/1920/wikipedia/index.php) Python/3.6.9 Requests/2.18.14",
+    "User-Agent": "CarletonComps2020/0.5 (http://www.cs.carleton.edu/cs_comps/1920/wikipedia/index.php) Python/3.6.9 Requests/2.18.14",
     "Connection": "close"
 }
 
@@ -198,14 +198,17 @@ for revid in revids:
         "maxlag": 10,
         "format": "json"
     }
+    try:
+        webpage = rq.get(url=url, headers=headers, params=parse).json()
 
-    webpage = rq.get(url=url, headers=headers, params=parse).json()
+        if(hasError(webpage)):
+            printQueryErrors(webpage)
+        else:
+            page = webpage['parse']['text']['*']
+            filename = str(revid) + ".html"
 
-    if(hasError(webpage)):
-        printQueryErrors(webpage)
-    else:
-        page = webpage['parse']['text']['*']
-        filename = str(revid) + ".html"
+            with open(os.path.join(path, filename), 'w', encoding='utf-8') as file:
+                file.write(page)
 
-        with open(os.path.join(path, filename), 'w', encoding='utf-8') as file:
-            file.write(page)
+    except:
+        pass
