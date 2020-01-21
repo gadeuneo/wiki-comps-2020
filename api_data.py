@@ -6,6 +6,7 @@ James Gardner
 
 import requests as rq
 import json
+import os
 
 
 def printJsonTree(d, indent=0):
@@ -133,7 +134,7 @@ params = { 'action': 'query',
 
 
 # printQueryErrors(data)
-# printJsonTree(data)
+
 
 # print(data['query']['pages']['61008894']['revisions'][0]['revid'])
 
@@ -141,13 +142,15 @@ params = { 'action': 'query',
 # print(data['continue']['continue'])
 
 numRev = 0
-
+revids = []
 done = False
 while (not done):
     data = rq.get(url=url, params=params, headers=headers).json()
 
     for id in data['query']['pages']:
         numRev += len(data['query']['pages'][id]['revisions'])
+        for i in range(len(data['query']['pages'][id]['revisions'])):
+            revids.append(data['query']['pages'][id]['revisions'][i]['revid'])
 
     if ('continue') in data:
         params['continue'] = data['continue']['continue']
@@ -156,3 +159,29 @@ while (not done):
         done = True
 
 print("NUMBER OF REVISIONS: " + str(numRev))
+# printJsonTree(data)
+print(len(revids))
+
+
+
+
+os.mkdir(title)
+
+path = title
+
+
+
+for revid in revids:
+    parse = {
+        "action": "parse",
+        "oldid": revid,
+        "maxlag": 5,
+        "format": "json"
+    }
+
+    webpage = rq.get(url=url, headers=headers, params=parse).json()
+    page = webpage['parse']['text']['*']
+    filename = str(revid) + ".html"
+
+    with open(os.path.join(path, filename), 'w', encoding='utf-8') as file:
+        file.write(page)
