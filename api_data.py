@@ -80,6 +80,26 @@ headers = {
     "Connection": "close"
 }
 
+def hasError(requestObject):
+    warn = False
+    error = False
+    try:
+        warnings = requestObject['warnings']
+        warn = True
+    except:
+        pass
+
+    try:
+        errors = requestObject['error']
+        error = True
+    except:
+        pass
+
+    if (warn or error):
+        return True
+    else:
+        return False
+
 title = "2019–20_Hong_Kong_protests"
 
 # as of 03:29am January 20, 2020
@@ -175,13 +195,17 @@ for revid in revids:
     parse = {
         "action": "parse",
         "oldid": revid,
-        "maxlag": 5,
+        "maxlag": 10,
         "format": "json"
     }
 
     webpage = rq.get(url=url, headers=headers, params=parse).json()
-    page = webpage['parse']['text']['*']
-    filename = str(revid) + ".html"
 
-    with open(os.path.join(path, filename), 'w', encoding='utf-8') as file:
-        file.write(page)
+    if(hasError(webpage)):
+        printQueryErrors(webpage)
+    else:
+        page = webpage['parse']['text']['*']
+        filename = str(revid) + ".html"
+
+        with open(os.path.join(path, filename), 'w', encoding='utf-8') as file:
+            file.write(page)
