@@ -9,6 +9,10 @@ import requests as rq
 import json
 import os
 
+'''
+    Begin Helper Functions
+'''
+
 def printJsonTree(d, indent=0):
     """Print tree of keys in JSON object.
     
@@ -33,16 +37,16 @@ def printJsonTree(d, indent=0):
         else:
             print(": " + str(type(d[key])).split("'")[1] + " - " + str(len(str(d[key]))))
 
-url = "https://en.wikipedia.org/w/api.php?"
+'''
+    Begin Bot Login Code.
+'''
 
-# url = "https://www.mediawiki.org/w/api.php?"
+url = "https://en.wikipedia.org/w/api.php?"
 
 headers = {
     "User-Agent": "BotCarletonComps2020/0.5 (http://www.cs.carleton.edu/cs_comps/1920/wikipedia/index.php) Python/3.6.9 Requests/2.18.14"
     # "Connection": "close"
 }
-title = "2019–20_Hong_Kong_protests"
-# https://stackoverflow.com/questions/7136343/wikipedia-api-how-to-get-the-number-of-revisions-of-a-page
 
 getToken = {
     "action": "query",
@@ -76,6 +80,55 @@ login = {
 
 botLogin = S.post(url=url, data=login).json()
 
-printJsonTree(botLogin)
+# printJsonTree(botLogin)
 
 # print(botLogin['login']['result'])
+
+'''
+    Begin Data Collection Code
+'''
+
+# Will be list of titles? Or page IDs?
+title = "2019–20_Hong_Kong_protests"
+# https://stackoverflow.com/questions/7136343/wikipedia-api-how-to-get-the-number-of-revisions-of-a-page
+
+
+params = { 'action': 'query',
+           'format': 'json',
+           'continue': '',
+           'titles': title,
+           'prop': 'revisions',
+           'rvprop': 'ids',
+           'rvlimit': 'max'}
+
+def getData(title):
+    revisions = {
+        "action": "query",
+        "prop": "revisions",
+        # "prop": "pageviews",
+        "titles": title,
+        "rvprop": "timestamp|user|userid|comment|ids|size",
+        "rvslots": "*",
+        "rvlimit": "max",
+        "format": "json",
+        "continue": ""
+    }
+
+    pageviews = {
+        "action": "query",
+        "prop": "pageviews",
+        "titles": title,
+        "format": "json",
+        "continue": ""
+    }
+
+    revs = S.get(url=url, headers=headers, params=revisions).json()
+    views = S.get(url=url, headers=headers, params=pageviews).json()
+
+    return revs, views
+
+revisions, pageviews = getData(title)
+
+# printJsonTree(pageviews)
+# printJsonTree(revisions)
+
