@@ -101,11 +101,10 @@ params = { 'action': 'query',
            'rvprop': 'ids',
            'rvlimit': 'max'}
 
-def getData(title):
+def getRevisions(title):
     revisions = {
         "action": "query",
         "prop": "revisions",
-        # "prop": "pageviews",
         "titles": title,
         "rvprop": "timestamp|user|userid|comment|ids|size",
         "rvslots": "*",
@@ -114,21 +113,38 @@ def getData(title):
         "continue": ""
     }
 
+    revs = S.get(url=url, headers=headers, params=revisions).json()
+    # printJsonTree(revs)
+    revList = revs['query']['pages']['61008894']['revisions']
+    allRevs = {}
+    for rev in revList:
+        allRevs.update(rev)
+    # return dictionary or tuple?
+    return allRevs
+
+def getPageviews(title):
     pageviews = {
         "action": "query",
         "prop": "pageviews",
         "titles": title,
         "format": "json",
-        "continue": ""
+        "pvipcontinue": ""
     }
 
-    revs = S.get(url=url, headers=headers, params=revisions).json()
     views = S.get(url=url, headers=headers, params=pageviews).json()
+    # printJsonTree(views)
+    pageList = views['query']['pages']['61008894']['pageviews']
+    allViews = {}
+    allViews.update(pageList)
+    # dictionary or tuple pairs? Which is better?
+    return allViews
 
-    return revs, views
 
-revisions, pageviews = getData(title)
+revisions = getRevisions(title)
+pageviews = getPageviews(title)
 
 # printJsonTree(pageviews)
-# printJsonTree(revisions)
+
+# Nonetype for pageviews???
+print(pageviews['2019-11-24'])
 
