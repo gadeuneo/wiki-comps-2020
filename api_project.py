@@ -8,6 +8,7 @@ James Gardner
 import requests as rq
 import json
 import os
+from datetime import datetime as dt
 
 '''
     Begin Helper Functions
@@ -37,6 +38,47 @@ def printJsonTree(d, indent=0):
         else:
             print(": " + str(type(d[key])).split("'")[1] + " - " + str(len(str(d[key]))))
 
+def printQueryErrors(requestObject):
+    warn = False
+    error = False
+    try:
+        warnings = requestObject['warnings']
+        warn = True
+        print("WARNINGS FROM API! READ MESSAGE TO RESOLVE!")
+        print("*"*80)
+        for key in warnings.keys():
+            print("KEY: " + str(key) + "\n")
+            for id in requestObject['warnings'][key].keys():
+                print(requestObject['warnings'][key][id])
+            print("")
+    except:
+        pass
+
+    try:
+        errors = requestObject['error']
+        error = True
+        print("ERRORS FROM API! READ MESSAGE TO RESOLVE!")
+        print("*"*80)
+        for key in errors.keys():
+            print("KEY: " + str(key) + "\n")
+            print(requestObject['error'][key])
+            print("")
+    except:
+        pass
+
+    if (warn and error):
+        print("*"*80)
+        print("WARNINGS AND ERRORS IN QUERY! READ MESSAGE TO RESOLVE!")
+    elif (warn and not error):
+        print("*"*80)
+        print("WARNINGS IN QUERY! READ MESSAGE TO RESOLVE!")
+    elif (not warn and error):
+        print("*"*80)
+        print("ERRORS IN QUERY! READ MESSAGE TO RESOLVE!")
+    else:
+        print("*"*80)
+        print("QUERY SUCESSFUL!")
+
 '''
     Begin Bot Login Code.
 '''
@@ -44,7 +86,8 @@ def printJsonTree(d, indent=0):
 url = "https://en.wikipedia.org/w/api.php?"
 
 headers = {
-    "User-Agent": "BotCarletonComps2020/0.5 (http://www.cs.carleton.edu/cs_comps/1920/wikipedia/index.php) Python/3.6.9 Requests/2.18.14"
+    "User-Agent": "BotCarletonComps2020/0.5 (http://www.cs.carleton.edu/cs_comps/1920/wikipedia/index.php) Python/3.6.9 Requests/2.18.14",
+    "connection": "keep-alive"
     # "Connection": "close"
 }
 
@@ -93,13 +136,13 @@ title = "2019–20_Hong_Kong_protests"
 # https://stackoverflow.com/questions/7136343/wikipedia-api-how-to-get-the-number-of-revisions-of-a-page
 
 
-params = { 'action': 'query',
-           'format': 'json',
-           'continue': '',
-           'titles': title,
-           'prop': 'revisions',
-           'rvprop': 'ids',
-           'rvlimit': 'max'}
+# params = { 'action': 'query',
+#            'format': 'json',
+#            'continue': '',
+#            'titles': title,
+#            'prop': 'revisions',
+#            'rvprop': 'ids',
+#            'rvlimit': 'max'}
 
 def getRevisions(title):
     revisions = {
@@ -110,7 +153,8 @@ def getRevisions(title):
         "rvslots": "*",
         "rvlimit": "max",
         "format": "json",
-        "continue": ""
+        "continue": "",
+        "maxlag": 5
     }
 
     revs = S.get(url=url, headers=headers, params=revisions).json()
@@ -128,7 +172,9 @@ def getPageviews(title):
         "prop": "pageviews",
         "titles": title,
         "format": "json",
-        "pvipcontinue": ""
+        "pvipmetric": "pageviews",
+        "pvipcontinue": "",
+        "maxlag": 5
     }
 
     views = S.get(url=url, headers=headers, params=pageviews).json()
@@ -139,6 +185,32 @@ def getPageviews(title):
     # dictionary or tuple pairs? Which is better?
     return allViews
 
+def getDeletedRevisions(title, start, end):
+    
+    revisions = {
+        "action": "query",
+        "prop": "deletedrevisions",
+        "titles": title,
+        "drvprop": "timestamp|user|userid|ids|size",
+        "drvslots": "*",
+        "drvlimit": "max",
+        "format": "json",
+        "continue": "",
+        "maxlag": 5,
+        "drvstart": start,
+        "drvend": end
+    }
+
+    revs = S.get(url=url, headers=headers, params=revisions).json()
+    # printQueryErrors(revs)
+    # printJsonTree(revs)
+    revList = revs['query']['pages']['61008894']['deletedrevisions']
+    allRevs = {}
+    for rev in revList:
+        allRevs.update(rev)
+    # return dictionary or tuple?
+    return allRevs
+
 
 revisions = getRevisions(title)
 pageviews = getPageviews(title)
@@ -147,4 +219,14 @@ pageviews = getPageviews(title)
 
 # Nonetype for pageviews???
 print(pageviews['2019-11-24'])
+# 2008-08-23T18:05:46Z
 
+
+
+startDate = dt.strptime("2020-01-31", "%Y-%m-%d").isoformat() + "Z"
+endDate = dt.strptime("2019-01-31", "%Y-%m-%d").isoformat() + "Z"
+
+deleted = getDeletedRevisions(title, startDate, endDate)
+
+printJsonTree(deleted)
+print(deleted)
