@@ -9,6 +9,7 @@ import requests as rq
 import json
 import os
 from datetime import datetime as dt
+import time
 
 '''
     Begin Helper Functions
@@ -128,43 +129,57 @@ botLogin = S.post(url=url, data=login).json()
 # print(botLogin['login']['result'])
 
 '''
-    Begin Data Collection Code
+    Begin Data Collection Functions
 '''
 
-# Will be list of titles? Or page IDs?
-title = "2019–20_Hong_Kong_protests"
-# https://stackoverflow.com/questions/7136343/wikipedia-api-how-to-get-the-number-of-revisions-of-a-page
+def getRevisions(title, start=None, end=None):
+    if (start == None or end == None):
+        revisions = {
+            "action": "query",
+            "prop": "revisions",
+            "titles": title,
+            "rvprop": "timestamp|user|userid|comment|ids|size",
+            "rvslots": "*",
+            "rvlimit": "max",
+            "format": "json",
+            "continue": "",
+            "maxlag": 5
+        }
 
+        revs = S.get(url=url, headers=headers, params=revisions).json()
+        # printJsonTree(revs)
+        revList = revs['query']['pages']['61008894']['revisions']
+        allRevs = {}
+        for rev in revList:
+            allRevs.update(rev)
+        # return dictionary or tuple?
+        return allRevs
+    else:
+        # Fails? does not return revision property???
+        revisions = {
+            "action": "query",
+            "prop": "revisions",
+            "titles": title,
+            "rvprop": "timestamp|user|userid|comment|ids|size",
+            "rvslots": "*",
+            "rvlimit": "5",
+            "rvstart": start,
+            "rvend": end,
+            # "rvcontinue": "",
+            "format": "json",
+            "continue": "",
+            "maxlag": 5
+        }
 
-# params = { 'action': 'query',
-#            'format': 'json',
-#            'continue': '',
-#            'titles': title,
-#            'prop': 'revisions',
-#            'rvprop': 'ids',
-#            'rvlimit': 'max'}
-
-def getRevisions(title):
-    revisions = {
-        "action": "query",
-        "prop": "revisions",
-        "titles": title,
-        "rvprop": "timestamp|user|userid|comment|ids|size",
-        "rvslots": "*",
-        "rvlimit": "max",
-        "format": "json",
-        "continue": "",
-        "maxlag": 5
-    }
-
-    revs = S.get(url=url, headers=headers, params=revisions).json()
-    # printJsonTree(revs)
-    revList = revs['query']['pages']['61008894']['revisions']
-    allRevs = {}
-    for rev in revList:
-        allRevs.update(rev)
-    # return dictionary or tuple?
-    return allRevs
+        revs = S.get(url=url, headers=headers, params=revisions).json()
+        printJsonTree(revs)
+        printQueryErrors(revs)
+        revList = revs['query']['pages']['61008894']['revisions']
+        allRevs = {}
+        for rev in revList:
+            allRevs.update(rev)
+        # return dictionary or tuple?
+        return allRevs
 
 def getPageviews(title):
     pageviews = {
@@ -186,7 +201,6 @@ def getPageviews(title):
     return allViews
 
 def getDeletedRevisions(title, start, end):
-    
     revisions = {
         "action": "query",
         "prop": "deletedrevisions",
@@ -204,6 +218,7 @@ def getDeletedRevisions(title, start, end):
     revs = S.get(url=url, headers=headers, params=revisions).json()
     # printQueryErrors(revs)
     # printJsonTree(revs)
+    # print(revs['limits'])
     revList = revs['query']['pages']['61008894']['deletedrevisions']
     allRevs = {}
     for rev in revList:
@@ -212,21 +227,17 @@ def getDeletedRevisions(title, start, end):
     return allRevs
 
 
-revisions = getRevisions(title)
-pageviews = getPageviews(title)
-
-# printJsonTree(pageviews)
-
-# Nonetype for pageviews???
-print(pageviews['2019-11-24'])
-# 2008-08-23T18:05:46Z
 
 
+# Will be list of titles? Or page IDs?
+title = "2019–20_Hong_Kong_protests"
+# Convert date to Unix Timestamp
+startDate = int(time.mktime(dt.strptime("2019-12-31", "%Y-%m-%d").timetuple()))
+endDate = int(time.mktime(dt.strptime("2020-01-20", "%Y-%m-%d").timetuple()))
+today = int(time.mktime(dt.today().timetuple()))
+# Assertions for proper date args
+assert(startDate <= endDate)
+assert(endDate <= today)
 
-startDate = dt.strptime("2020-01-31", "%Y-%m-%d").isoformat() + "Z"
-endDate = dt.strptime("2019-01-31", "%Y-%m-%d").isoformat() + "Z"
-
-deleted = getDeletedRevisions(title, startDate, endDate)
-
-printJsonTree(deleted)
-print(deleted)
+# Fails to properly grab all data based on date?
+rev = getRevisions(title, startDate, endDate)
