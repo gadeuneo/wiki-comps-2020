@@ -155,26 +155,26 @@ def getRevisions(title, start=None, end=None):
         # return dictionary or tuple?
         return allRevs
     else:
-        # Fails? does not return revision property???
         revisions = {
             "action": "query",
             "prop": "revisions",
-            "titles": title,
+            # "titles": title,
+            "pageids": 61008894,
             "rvprop": "timestamp|user|userid|comment|ids|size",
             "rvslots": "*",
-            "rvlimit": "5",
+            "rvlimit": "max",
             "rvstart": start,
-            "rvend": end,
+            # "rvend": end,
             # "rvcontinue": "",
             "format": "json",
             "continue": "",
+            "formatversion": 2,
             "maxlag": 5
         }
 
         revs = S.get(url=url, headers=headers, params=revisions).json()
-        printJsonTree(revs)
-        printQueryErrors(revs)
-        revList = revs['query']['pages']['61008894']['revisions']
+        # printJsonTree(revs)
+        revList = revs['query']['pages'][0]['revisions']
         allRevs = {}
         for rev in revList:
             allRevs.update(rev)
@@ -230,7 +230,7 @@ def getDeletedRevisions(title, start, end):
 
 
 # Will be list of titles? Or page IDs?
-title = "2019–20_Hong_Kong_protests"
+title = "2019–20 Hong Kong protests"
 # Convert date to Unix Timestamp
 startDate = int(time.mktime(dt.strptime("2019-12-31", "%Y-%m-%d").timetuple()))
 endDate = int(time.mktime(dt.strptime("2020-01-20", "%Y-%m-%d").timetuple()))
@@ -239,5 +239,5 @@ today = int(time.mktime(dt.today().timetuple()))
 assert(startDate <= endDate)
 assert(endDate <= today)
 
-# Fails to properly grab all data based on date?
+# Only one date can be used as parameter...
 rev = getRevisions(title, startDate, endDate)
