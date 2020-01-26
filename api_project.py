@@ -148,7 +148,8 @@ def getRevisions(title, start=None, end=None):
 
         revs = S.get(url=url, headers=headers, params=revisions).json()
         # printJsonTree(revs)
-        revList = revs['query']['pages']['61008894']['revisions']
+        pageid = list(revs['query']['pages'].keys())[0]
+        revList = revs['query']['pages'][pageid]['revisions']
         allRevs = {}
         for rev in revList:
             allRevs.update(rev)
@@ -240,4 +241,4 @@ assert(startDate <= endDate)
 assert(endDate <= today)
 
 # Only one date can be used as parameter...
-rev = getRevisions(title, startDate, endDate)
+rev = getRevisions(title)
