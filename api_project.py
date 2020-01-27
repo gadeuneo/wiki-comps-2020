@@ -12,6 +12,8 @@ import sys
 from datetime import datetime as dt
 import time
 
+start = time.time()
+
 '''
     Begin Helper Functions
 '''
@@ -193,46 +195,46 @@ def getPageviews(pageid):
     allViews.update(pageList)
     return allViews
 
-def getDeletedRevisions(pageid, start=None, end=None):
-    if (start == None or end == None):
-        print("Start and End date required!")
-        sys.exit(1)
-    else:
-        revisions = {
-            "action": "query",
-            "prop": "deletedrevisions",
-            # "titles": title,
-            "pageids": pageid,
-            "drvprop": "timestamp|user|userid|ids|size|comment",
-            "drvslots": "*",
-            "drvlimit": "max",
-            "format": "json",
-            "continue": "",
-            "maxlag": 5,
-            "drvstart": start,
-            "drvend": end,
-            "drvdir": "newer",
-            "formatversion": 2,
-            "maxlag": 5
-        }
+# def getDeletedRevisions(pageid, start=None, end=None):
+#     if (start == None or end == None):
+#         print("Start and End date required!")
+#         sys.exit(1)
+#     else:
+#         revisions = {
+#             "action": "query",
+#             "prop": "deletedrevisions",
+#             # "titles": title,
+#             "pageids": pageid,
+#             "drvprop": "timestamp|user|userid|ids|size|comment",
+#             "drvslots": "*",
+#             "drvlimit": "max",
+#             "format": "json",
+#             "continue": "",
+#             "maxlag": 5,
+#             "drvstart": start,
+#             "drvend": end,
+#             "drvdir": "newer",
+#             "formatversion": 2,
+#             "maxlag": 5
+#         }
 
-        done = False
-        allRevs = []
-        while (not done):
-            revs = S.get(url=url, headers=headers, params=revisions).json()
-            # Permission error????
-            # printQueryErrors(revs)
-            revList = revs['query']['pages'][0]['deletedrevisions']
-            for rev in revList:
-                allRevs.append(rev)
+#         done = False
+#         allRevs = []
+#         while (not done):
+#             revs = S.get(url=url, headers=headers, params=revisions).json()
+#             # Permission error????
+#             # printQueryErrors(revs)
+#             revList = revs['query']['pages'][0]['deletedrevisions']
+#             for rev in revList:
+#                 allRevs.append(rev)
             
-            if ("continue" in revs):
-                revisions['continue'] = revs['continue']['continue']
-                revisions['rvcontinue'] = revs['continue']['rvcontinue']
-            else:
-                done = True
+#             if ("continue" in revs):
+#                 revisions['continue'] = revs['continue']['continue']
+#                 revisions['rvcontinue'] = revs['continue']['rvcontinue']
+#             else:
+#                 done = True
     
-        return allRevs
+#         return allRevs
 
 def getPageId(title):
     page = {
@@ -260,6 +262,27 @@ assert(endDate <= today)
 # returns list of dictionaries
 protests = getRevisions(getPageId(title), start=startDate, end=endDate)
 
+
+master = {
+    "revid": [],
+    "timestamp": [],
+    "user": [],
+    "userid": [],
+    "size": [],
+    "comment": []
+}
+print(len(protests))
+
+print(protests[0]['revid'])
+
+for d in protests:
+    for key in master.keys():
+        try:
+            master[key].append(d[key])
+        except:
+            print(d)
+
+
 # exits program to prevent creating files for now...
 sys.exit(0)
 
@@ -271,14 +294,22 @@ except:
     # safety to avoid overwriting existing files
     sys.exit(1)
 
+# with open("test.csv", "w", encoding="utf-8") as f:
+#     f.write("revid\n")
+#     for id in master['revid']:
+#         f.write(str(id)+"\n")
 
-with open(os.path.join(path, title), "w", encoding="utf-8") as f:
-    f.write(json.dumps(protests))
+with open(os.path.join(path, title+".csv"), "w", encoding="utf-8") as f:
+    f.write("revid, timestamp, user, userid, size, comment\n")
+    for i in range(len(master['comment'])):
+        f.write(str(master['revid'][i]) + "," + str(master['timestamp'][i]) + "," \
+            + str(master['user'][i]) + "," + str(master['userid'][i]) + "," \
+                + str(master['size'][i]) + "," + str(master['comment'][i]) + "\n")
 
-test = ""
 
-with open(os.path.join(path, title), "r", encoding="utf-8") as f:
-    test = json.loads(f.read())
+with open(os.path.join(path, title+".csv"), "r", encoding="utf-8") as f:
+    csv = f.read()
 
-# reading file as list of dictionaries
-# printJsonTree(test[0])
+end = time.time()
+
+print("Time Elapsed: " + str(end-start))
