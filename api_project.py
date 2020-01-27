@@ -8,6 +8,7 @@ James Gardner
 import requests as rq
 import json
 import os
+import sys
 from datetime import datetime as dt
 import time
 
@@ -132,113 +133,152 @@ botLogin = S.post(url=url, data=login).json()
     Begin Data Collection Functions
 '''
 
-def getRevisions(title, start=None, end=None):
+def getRevisions(pageid, start=None, end=None):
     if (start == None or end == None):
-        revisions = {
-            "action": "query",
-            "prop": "revisions",
-            "titles": title,
-            "rvprop": "timestamp|user|userid|comment|ids|size",
-            "rvslots": "*",
-            "rvlimit": "max",
-            "format": "json",
-            "continue": "",
-            "maxlag": 5
-        }
-
-        revs = S.get(url=url, headers=headers, params=revisions).json()
-        # printJsonTree(revs)
-        pageid = list(revs['query']['pages'].keys())[0]
-        revList = revs['query']['pages'][pageid]['revisions']
-        allRevs = {}
-        for rev in revList:
-            allRevs.update(rev)
-        # return dictionary or tuple?
-        return allRevs
+        print("ERROR, need start and end date!")
+        sys.exit(1)
     else:
         revisions = {
             "action": "query",
             "prop": "revisions",
             # "titles": title,
-            "pageids": 61008894,
-            "rvprop": "timestamp|user|userid|comment|ids|size",
+            "pageids": pageid,
+            "rvprop": "timestamp|user|userid|ids|size|comment",
             "rvslots": "*",
             "rvlimit": "max",
             "rvstart": start,
-            # "rvend": end,
+            "rvend": end,
+            "rvdir": "newer",
             # "rvcontinue": "",
             "format": "json",
             "continue": "",
             "formatversion": 2,
             "maxlag": 5
         }
+        done = False
+        allRevs = []
+        while (not done):
+            revs = S.get(url=url, headers=headers, params=revisions).json()
+            # pageid = list(revs['query']['pages'].keys())[0]
+            # revList = revs['query']['pages'][pageid]['revisions']
+            revList = revs['query']['pages'][0]['revisions']
+            for rev in revList:
+                allRevs.append(rev)
+            
+            if ("continue" in revs):
+                revisions['continue'] = revs['continue']['continue']
+                revisions['rvcontinue'] = revs['continue']['rvcontinue']
+            else:
+                done = True
 
-        revs = S.get(url=url, headers=headers, params=revisions).json()
-        # printJsonTree(revs)
-        revList = revs['query']['pages'][0]['revisions']
-        allRevs = {}
-        for rev in revList:
-            allRevs.update(rev)
-        # return dictionary or tuple?
         return allRevs
 
-def getPageviews(title):
+def getPageviews(pageid):
     pageviews = {
         "action": "query",
         "prop": "pageviews",
-        "titles": title,
+        # "titles": title,
+        "pageids": pageid,
         "format": "json",
         "pvipmetric": "pageviews",
         "pvipcontinue": "",
         "maxlag": 5
     }
-
+    
+    done = False
     views = S.get(url=url, headers=headers, params=pageviews).json()
-    # printJsonTree(views)
-    pageList = views['query']['pages']['61008894']['pageviews']
+    printJsonTree(views)
+    pageList = views['query']['pages'][pageid]['pageviews']
     allViews = {}
     allViews.update(pageList)
-    # dictionary or tuple pairs? Which is better?
     return allViews
 
-def getDeletedRevisions(title, start, end):
-    revisions = {
-        "action": "query",
-        "prop": "deletedrevisions",
-        "titles": title,
-        "drvprop": "timestamp|user|userid|ids|size",
-        "drvslots": "*",
-        "drvlimit": "max",
-        "format": "json",
-        "continue": "",
-        "maxlag": 5,
-        "drvstart": start,
-        "drvend": end
-    }
+def getDeletedRevisions(pageid, start=None, end=None):
+    if (start == None or end == None):
+        print("Start and End date required!")
+        sys.exit(1)
+    else:
+        revisions = {
+            "action": "query",
+            "prop": "deletedrevisions",
+            # "titles": title,
+            "pageids": pageid,
+            "drvprop": "timestamp|user|userid|ids|size|comment",
+            "drvslots": "*",
+            "drvlimit": "max",
+            "format": "json",
+            "continue": "",
+            "maxlag": 5,
+            "drvstart": start,
+            "drvend": end,
+            "drvdir": "newer",
+            "formatversion": 2,
+            "maxlag": 5
+        }
 
-    revs = S.get(url=url, headers=headers, params=revisions).json()
-    # printQueryErrors(revs)
-    # printJsonTree(revs)
-    # print(revs['limits'])
-    revList = revs['query']['pages']['61008894']['deletedrevisions']
-    allRevs = {}
-    for rev in revList:
-        allRevs.update(rev)
-    # return dictionary or tuple?
-    return allRevs
+        done = False
+        allRevs = []
+        while (not done):
+            revs = S.get(url=url, headers=headers, params=revisions).json()
+            # Permission error????
+            # printQueryErrors(revs)
+            revList = revs['query']['pages'][0]['deletedrevisions']
+            for rev in revList:
+                allRevs.append(rev)
+            
+            if ("continue" in revs):
+                revisions['continue'] = revs['continue']['continue']
+                revisions['rvcontinue'] = revs['continue']['rvcontinue']
+            else:
+                done = True
+    
+        return allRevs
+
+def getPageId(title):
+    page = {
+            "action": "query",
+            "prop": "revisions",
+            "titles": title,
+            "format": "json"
+        }
+    
+    data = S.get(url=url, headers=headers, params=page).json()
+    pageid = list(data['query']['pages'].keys())[0]
+    return pageid
 
 
-
-
-# Will be list of titles? Or page IDs?
+# Subject to change as script needs
 title = "2019–20 Hong Kong protests"
 # Convert date to Unix Timestamp
-startDate = int(time.mktime(dt.strptime("2019-12-31", "%Y-%m-%d").timetuple()))
-endDate = int(time.mktime(dt.strptime("2020-01-20", "%Y-%m-%d").timetuple()))
+startDate = int(time.mktime(dt.strptime("2019-06-10", "%Y-%m-%d").timetuple()))
+endDate = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
 today = int(time.mktime(dt.today().timetuple()))
 # Assertions for proper date args
 assert(startDate <= endDate)
 assert(endDate <= today)
 
-# Only one date can be used as parameter...
-rev = getRevisions(title)
+# returns list of dictionaries
+protests = getRevisions(getPageId(title), start=startDate, end=endDate)
+
+# exits program to prevent creating files for now...
+sys.exit(0)
+
+try:
+    os.mkdir(title)
+    path = title
+except:
+    print("DIRECTORY ALREADY EXISTS!")
+    # safety to avoid overwriting existing files
+    sys.exit(1)
+
+
+with open(os.path.join(path, title), "w", encoding="utf-8") as f:
+    f.write(json.dumps(protests))
+
+test = ""
+
+with open(os.path.join(path, title), "r", encoding="utf-8") as f:
+    test = json.loads(f.read())
+
+# reading file as list of dictionaries
+# printJsonTree(test[0])
