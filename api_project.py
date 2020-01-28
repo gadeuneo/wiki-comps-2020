@@ -276,39 +276,55 @@ print(len(protests))
 print(protests[0]['revid'])
 
 for d in protests:
-    for key in master.keys():
-        try:
-            master[key].append(d[key])
-        except:
-            print(d)
+    try:
+        master['comment'].append(d['comment'])
+        master['revid'].append(d['revid'])
+        master['timestamp'].append(d['timestamp'])
+        master['user'].append(d['user'])
+        master['userid'].append(d['userid'])
+        master['size'].append(d['size'])
+    except:
+        print(d)
+    # for key in master.keys():
+    #     try:
+    #         master[key].append(d[key])
+    #     except:
+    #         print(d)
 
+
+# Should be same size; if not there's missing data that should have
+# printed from the try-except block above.
+# print(len(master['revid']))
+# print(len(master['timestamp']))
+# print(len(master['user']))
+# print(len(master['userid']))
+# print(len(master['size']))
+# print(len(master['comment']))
 
 # exits program to prevent creating files for now...
-sys.exit(0)
+# sys.exit(0)
 
 try:
-    os.mkdir(title)
-    path = title
+    os.mkdir("data")
+    path = "data"
 except:
-    print("DIRECTORY ALREADY EXISTS!")
-    # safety to avoid overwriting existing files
-    sys.exit(1)
+    print("WARNING: DIRECTORY ALREADY EXISTS!")
 
 # with open("test.csv", "w", encoding="utf-8") as f:
 #     f.write("revid\n")
 #     for id in master['revid']:
 #         f.write(str(id)+"\n")
 
+
 with open(os.path.join(path, title+".csv"), "w", encoding="utf-8") as f:
     f.write("revid, timestamp, user, userid, size, comment\n")
     for i in range(len(master['comment'])):
         f.write(str(master['revid'][i]) + "," + str(master['timestamp'][i]) + "," \
-            + str(master['user'][i]) + "," + str(master['userid'][i]) + "," \
-                + str(master['size'][i]) + "," + str(master['comment'][i]) + "\n")
+            + str(master['user'][i]).replace(",", "") + "," + str(master['userid'][i]) + "," \
+                + str(master['size'][i]) + "," + str(master['comment'][i]).replace(",", "") + "\n") 
 
-
-with open(os.path.join(path, title+".csv"), "r", encoding="utf-8") as f:
-    csv = f.read()
+# with open(os.path.join(path, title+".csv"), "r", encoding="utf-8") as f:
+#     csv = f.read()
 
 end = time.time()
 
