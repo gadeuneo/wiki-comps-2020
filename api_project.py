@@ -11,6 +11,7 @@ import os
 import sys
 from datetime import datetime as dt
 import time
+import pandas as pd
 
 start = time.time()
 
@@ -83,6 +84,25 @@ def printQueryErrors(requestObject):
         print("*"*80)
         print("QUERY SUCESSFUL!")
 
+def hasError(requestObject):
+    warn = False
+    error = False
+    try:
+        warnings = requestObject['warnings']
+        warn = True
+    except:
+        pass
+
+    try:
+        errors = requestObject['error']
+        error = True
+    except:
+        pass
+
+    if (warn or error):
+        return True
+    else:
+        return False
 '''
     Begin Bot Login Code.
 '''
@@ -145,7 +165,7 @@ def getRevisions(pageid, start=None, end=None):
             "prop": "revisions",
             # "titles": title,
             "pageids": pageid,
-            "rvprop": "timestamp|user|userid|ids|size|comment",
+            "rvprop": "timestamp|user|userid|ids|size",
             "rvslots": "*",
             "rvlimit": "max",
             "rvstart": start,
@@ -195,47 +215,6 @@ def getPageviews(pageid):
     allViews.update(pageList)
     return allViews
 
-# def getDeletedRevisions(pageid, start=None, end=None):
-#     if (start == None or end == None):
-#         print("Start and End date required!")
-#         sys.exit(1)
-#     else:
-#         revisions = {
-#             "action": "query",
-#             "prop": "deletedrevisions",
-#             # "titles": title,
-#             "pageids": pageid,
-#             "drvprop": "timestamp|user|userid|ids|size|comment",
-#             "drvslots": "*",
-#             "drvlimit": "max",
-#             "format": "json",
-#             "continue": "",
-#             "maxlag": 5,
-#             "drvstart": start,
-#             "drvend": end,
-#             "drvdir": "newer",
-#             "formatversion": 2,
-#             "maxlag": 5
-#         }
-
-#         done = False
-#         allRevs = []
-#         while (not done):
-#             revs = S.get(url=url, headers=headers, params=revisions).json()
-#             # Permission error????
-#             # printQueryErrors(revs)
-#             revList = revs['query']['pages'][0]['deletedrevisions']
-#             for rev in revList:
-#                 allRevs.append(rev)
-            
-#             if ("continue" in revs):
-#                 revisions['continue'] = revs['continue']['continue']
-#                 revisions['rvcontinue'] = revs['continue']['rvcontinue']
-#             else:
-#                 done = True
-    
-#         return allRevs
-
 def getPageId(title):
     page = {
             "action": "query",
@@ -245,6 +224,9 @@ def getPageId(title):
         }
     
     data = S.get(url=url, headers=headers, params=page).json()
+    if (hasError(data)):
+        print("TITLE NOT FOUND! PLEASE CHECK TITLE SPELLING!")
+        sys.exit(1)
     pageid = list(data['query']['pages'].keys())[0]
     return pageid
 
@@ -262,22 +244,31 @@ assert(endDate <= today)
 # returns list of dictionaries
 protests = getRevisions(getPageId(title), start=startDate, end=endDate)
 
+# print(len(protests))
+
+# handle userhidden ....
+'''
+IGNORE CODE BELOW!!!!
+'''
+
+# https://www.geeksforgeeks.org/create-a-pandas-dataframe-from-list-of-dicts/
+# https://stackoverflow.com/questions/34183004/how-to-write-a-dictionary-to-excel-in-python
+
+# THIS WORKS!!!!
+# df = pd.DataFrame(protests)
+# df.to_csv("test.csv")
 
 master = {
     "revid": [],
     "timestamp": [],
     "user": [],
     "userid": [],
-    "size": [],
-    "comment": []
+    "size": []
 }
-print(len(protests))
 
-print(protests[0]['revid'])
 
 for d in protests:
     try:
-        master['comment'].append(d['comment'])
         master['revid'].append(d['revid'])
         master['timestamp'].append(d['timestamp'])
         master['user'].append(d['user'])
@@ -301,27 +292,32 @@ for d in protests:
 # print(len(master['size']))
 # print(len(master['comment']))
 
+'''
+END CODE TO IGNORE!!!
+'''
+
+
 # exits program to prevent creating files for now...
-# sys.exit(0)
+sys.exit(0)
 
-try:
-    os.mkdir("data")
-    path = "data"
-except:
-    print("WARNING: DIRECTORY ALREADY EXISTS!")
+path = "data"
+if (not os.path.exists(path)):
+    os.mkdir(path)
 
-# with open("test.csv", "w", encoding="utf-8") as f:
-#     f.write("revid\n")
-#     for id in master['revid']:
-#         f.write(str(id)+"\n")
+title = title.replace(" ", "_")
+title += ".csv"
 
+if (os.path.isfile(os.path.join(path, title))):
+    print("ERROR! FILE ALREADY EXISTS! ABORTING ACTION TO PREVENT \
+        FILE OVERWRITE!")
+    sys.exit(1)
 
-with open(os.path.join(path, title+".csv"), "w", encoding="utf-8") as f:
-    f.write("revid, timestamp, user, userid, size, comment\n")
-    for i in range(len(master['comment'])):
+with open(os.path.join(path, title), "w", encoding="utf-8") as f:
+    f.write("revid, timestamp, user, userid, size\n")
+    for i in range(len(master['user'])):
         f.write(str(master['revid'][i]) + "," + str(master['timestamp'][i]) + "," \
             + str(master['user'][i]).replace(",", "") + "," + str(master['userid'][i]) + "," \
-                + str(master['size'][i]) + "," + str(master['comment'][i]).replace(",", "") + "\n") 
+                + str(master['size'][i]) + "\n") 
 
 # with open(os.path.join(path, title+".csv"), "r", encoding="utf-8") as f:
 #     csv = f.read()
