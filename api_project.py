@@ -152,6 +152,11 @@ botLogin = S.post(url=url, data=login).json()
 # print(botLogin['login']['result'])
 
 '''
+    End Bot Login Code
+'''
+
+
+'''
     Begin Data Collection Functions
 '''
 
@@ -181,8 +186,9 @@ def getRevisions(pageid, start=None, end=None):
         allRevs = []
         while (not done):
             revs = S.get(url=url, headers=headers, params=revisions).json()
-            # pageid = list(revs['query']['pages'].keys())[0]
-            # revList = revs['query']['pages'][pageid]['revisions']
+            if (hasError(revs)):
+                print("Query Error! Exiting program!")
+                sys.exit(1)
             revList = revs['query']['pages'][0]['revisions']
             for rev in revList:
                 allRevs.append(rev)
@@ -207,6 +213,7 @@ def getPageviews(pageid):
         "maxlag": 5
     }
     
+    # TODO fix issues with getting pageviews OR find another metric
     done = False
     views = S.get(url=url, headers=headers, params=pageviews).json()
     printJsonTree(views)
@@ -225,13 +232,97 @@ def getPageId(title):
     
     data = S.get(url=url, headers=headers, params=page).json()
     if (hasError(data)):
-        print("TITLE NOT FOUND! PLEASE CHECK TITLE SPELLING!")
+        print("Query Error! Exiting program!")
+        sys.exit(1)
+    if (int(list(data['query']['pages'].keys())[0]) == -1):
+        print("TITLE: {0} NOT FOUND! PLEASE CHECK TITLE SPELLING!".format(title))
         sys.exit(1)
     pageid = list(data['query']['pages'].keys())[0]
     return pageid
 
+def getRedirects(pageid):
+    redirects = {
+        "action": "query",
+        "prop": "redirects",
+        "pageids": pageid,
+        "format": "json",
+        "rdlimit": 500,
+        "continue": ""
+    }
+    done = False
+    allReds = []
+    while (not done):
+        reds = S.get(url=url, headers=headers, params=redirects).json()
+        if (hasError(reds)):
+            print("Query Error! Exiting program!")
+            sys.exit(1)
+        redList = reds['query']['pages'][pageid]['redirects']
+        for red in redList:
+            allReds.append(red)
+        
+        if ("continue" in reds):
+                revisions['continue'] = reds['continue']['continue']
+                revisions['rdcontinue'] = reds['continue']['rdcontinue']
+        else:
+            done = True
+
+    return allReds
+        
+
+'''
+    End Data Collection Functions
+'''
+
+'''
+    Begin Data Collection
+'''
 
 # Subject to change as script needs
+
+titles = [
+    "2019-20 Hong Kong protests",
+    "Hong Kong",
+    "2019 Hong Kong extradiction bill",
+    "Government of Hong Kong",
+    "Murder of Poon Hiu-wing",
+    "One country, two systems",
+    "Demosisto",
+    "Hong Kong 1 July marches",
+    "Civil Human Rights Front",
+    "Hong Kong Human Rights and Democracy Act",
+    "Chinese University of Hong Kong conflict",
+    "Death of Chow Tsz-lok",
+    "Siege of the Hong Kong Polytechnic University",
+    "2019 Yuen Long attack",
+    "Hong Kong-Mainland China conflict",
+    "Storming of the Legislative Council Complex",
+    "Hong Kong Way",
+    "2019 Prince Edward station attack",
+    "Death of Chan Yin-lan",
+    "2019 Hong Kong local elections",
+    "List of protests in Hong Kong",
+    "Police misconduct allegations during the 2019-20 Hong Kong protests",
+    "Art of the 2019-20 Hong Kong protests",
+    "12 June 2019 Hong Kong protest",
+    "Umbrella Movement",
+    "Causes of the 2019-20 Hong Kong protests",
+    "Tactics and methods surrounding the 2019-20 Hong Kong protests",
+    "Carrie Lam",
+    "Reactions to the 2019-20 Hong Kong protests",
+    "List of early 2019 Hong Kong protests",
+    "List of July 2019 Hong Kong protests",
+    "List of August 2019 Hong Kong protests",
+    "List of September 2019 Hong Kong protests",
+    "List of October 2019 Hong Kong protests",
+    "List of November 2019 Hong Kong protests",
+    "List of December 2019 Hong Kong protests",
+    "List of Janurary 2020 Hong Kong protests",
+    "Glory to Hong Kong",
+    "Lennon Wall (Hong Kong)",
+    "HKmap.live",
+    "Killing of Luo Changquig"
+]
+
 title = "2019–20 Hong Kong protests"
 # Convert date to Unix Timestamp
 startDate = int(time.mktime(dt.strptime("2019-06-10", "%Y-%m-%d").timetuple()))
@@ -243,58 +334,13 @@ assert(endDate <= today)
 
 # returns list of dictionaries
 protests = getRevisions(getPageId(title), start=startDate, end=endDate)
+redirects = getRedirects(getPageId(title))
 
-# print(len(protests))
+# Skip pageviews for now...
+# views = getPageviews(getPageId(title))
 
-# handle userhidden ....
-'''
-IGNORE CODE BELOW!!!!
-'''
-
-# https://www.geeksforgeeks.org/create-a-pandas-dataframe-from-list-of-dicts/
-# https://stackoverflow.com/questions/34183004/how-to-write-a-dictionary-to-excel-in-python
-
-# THIS WORKS!!!!
-# df = pd.DataFrame(protests)
-# df.to_csv("test.csv")
-
-master = {
-    "revid": [],
-    "timestamp": [],
-    "user": [],
-    "userid": [],
-    "size": []
-}
-
-
-for d in protests:
-    try:
-        master['revid'].append(d['revid'])
-        master['timestamp'].append(d['timestamp'])
-        master['user'].append(d['user'])
-        master['userid'].append(d['userid'])
-        master['size'].append(d['size'])
-    except:
-        print(d)
-    # for key in master.keys():
-    #     try:
-    #         master[key].append(d[key])
-    #     except:
-    #         print(d)
-
-
-# Should be same size; if not there's missing data that should have
-# printed from the try-except block above.
-# print(len(master['revid']))
-# print(len(master['timestamp']))
-# print(len(master['user']))
-# print(len(master['userid']))
-# print(len(master['size']))
-# print(len(master['comment']))
-
-'''
-END CODE TO IGNORE!!!
-'''
+end = time.time()
+print("Time Elapsed: " + str(end-start))
 
 
 # exits program to prevent creating files for now...
@@ -308,20 +354,10 @@ title = title.replace(" ", "_")
 title += ".csv"
 
 if (os.path.isfile(os.path.join(path, title))):
-    print("ERROR! FILE ALREADY EXISTS! ABORTING ACTION TO PREVENT \
-        FILE OVERWRITE!")
+    print("ERROR! {0} ALREADY EXISTS! ABORTING ACTION TO PREVENT FILE OVERWRITE!".format(title))
     sys.exit(1)
+else:
+    df = pd.DataFrame(protests)
+    df.to_csv(os.path.join(path, title))
 
-with open(os.path.join(path, title), "w", encoding="utf-8") as f:
-    f.write("revid, timestamp, user, userid, size\n")
-    for i in range(len(master['user'])):
-        f.write(str(master['revid'][i]) + "," + str(master['timestamp'][i]) + "," \
-            + str(master['user'][i]).replace(",", "") + "," + str(master['userid'][i]) + "," \
-                + str(master['size'][i]) + "\n") 
 
-# with open(os.path.join(path, title+".csv"), "r", encoding="utf-8") as f:
-#     csv = f.read()
-
-end = time.time()
-
-print("Time Elapsed: " + str(end-start))
