@@ -110,7 +110,7 @@ def hasError(requestObject):
 url = "https://en.wikipedia.org/w/api.php?"
 
 headers = {
-    "User-Agent": "BotCarletonComps2020/0.5 (http://www.cs.carleton.edu/cs_comps/1920/wikipedia/index.php) Python/3.6.9 Requests/2.18.14",
+    "User-Agent": "BotCarletonComps2020/0.8 (http://www.cs.carleton.edu/cs_comps/1920/wikipedia/index.php) Python/3.6.9 Requests/2.18.14",
     "connection": "keep-alive"
     # "Connection": "close"
 }
@@ -173,6 +173,7 @@ def getRevisions(pageid, start=None, end=None):
             "rvprop": "timestamp|user|userid|ids|size",
             "rvslots": "*",
             "rvlimit": "max",
+            # "rvlimit": 5,
             "rvstart": start,
             "rvend": end,
             "rvdir": "newer",
@@ -189,6 +190,7 @@ def getRevisions(pageid, start=None, end=None):
             if (hasError(revs)):
                 print("Query Error! Exiting program!")
                 sys.exit(1)
+            # printJsonTree(revs)
             revList = revs['query']['pages'][0]['revisions']
             for rev in revList:
                 allRevs.append(rev)
@@ -334,8 +336,8 @@ assert(endDate <= today)
 
 # returns list of dictionaries
 protests = getRevisions(getPageId(title), start=startDate, end=endDate)
-redirects = getRedirects(getPageId(title))
-
+# redirects = getRedirects(getPageId(title))
+# sys.exit(0)
 # Skip pageviews for now...
 # views = getPageviews(getPageId(title))
 
@@ -350,14 +352,43 @@ path = "data"
 if (not os.path.exists(path)):
     os.mkdir(path)
 
-title = title.replace(" ", "_")
-title += ".csv"
+# adds talk pages
+for i in range(len(titles)):
+    titles.append("Talk:" + titles[i])
 
-if (os.path.isfile(os.path.join(path, title))):
-    print("ERROR! {0} ALREADY EXISTS! ABORTING ACTION TO PREVENT FILE OVERWRITE!".format(title))
-    sys.exit(1)
-else:
-    df = pd.DataFrame(protests)
-    df.to_csv(os.path.join(path, title))
 
+####### TESTING UNSTABLE CODE AHEAD!!! #####
+data = getRevisions(getPageId(titles[0]), start=startDate, end=endDate)
+# redirects = getRedirects(getPageId(titles[0]))
+name = titles[0].copy()
+name = name.replace(" ", "_")
+name = name.replace(".", "(dot)")
+name = name.replace(":", "(colon)")
+name += ".csv"
+if (not os.path.isfile(os.path.join(path, name))):
+    dfData = pd.DataFrame(data)
+    dfRed = pd.DataFrame(redirects)
+    dfData.to_csv(os.path.join(path, "Data" + name))
+    # dfRed.to_csv(os.path.join(path, "Redirects" + name))
+
+
+
+
+for title in titles:
+    data = getRevisions(getPageId(title), start=startDate, end=endDate)
+    redirects = getRedirects(getPageId(title))
+
+    name = title.copy()
+    name = name.replace(" ", "_")
+    name = name.replace(".", "(dot)")
+    name = name.replace(":", "(colon)")
+    name += ".csv"
+    if (not os.path.isfile(os.path.join(path, name))):
+        dfData = pd.DataFrame(data)
+        dfRed = pd.DataFrame(redirects)
+        dfData.to_csv(os.path.join(path, "Data" + name))
+        dfRed.to_csv(os.path.join(path, "Redirects" + name))
+    
+end = time.time()
+print("Time Elapsed: " + str(end-start))
 
