@@ -185,6 +185,7 @@ def getRevisions(pageid, start=None, end=None):
         }
         done = False
         allRevs = []
+        # TODO fix limits
         while (not done):
             revs = S.get(url=url, headers=headers, params=revisions).json()
             if (hasError(revs)):
