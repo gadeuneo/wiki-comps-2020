@@ -283,13 +283,13 @@ def getRedirects(pageid):
 # Subject to change as script needs
 
 titles = [
-    "2019-20 Hong Kong protests",
+    "2019–20 Hong Kong protests",
     "Hong Kong",
-    "2019 Hong Kong extradiction bill",
+    "2019 Hong Kong extradition bill",
     "Government of Hong Kong",
     "Murder of Poon Hiu-wing",
     "One country, two systems",
-    "Demosisto",
+    "Demosistō",
     "Hong Kong 1 July marches",
     "Civil Human Rights Front",
     "Hong Kong Human Rights and Democracy Act",
@@ -326,7 +326,8 @@ titles = [
     "Killing of Luo Changquig"
 ]
 
-title = "2019–20 Hong Kong protests"
+# title = "2019–20 Hong Kong protests"
+
 # Convert date to Unix Timestamp
 startDate = int(time.mktime(dt.strptime("2019-06-10", "%Y-%m-%d").timetuple()))
 endDate = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
@@ -336,18 +337,20 @@ assert(startDate <= endDate)
 assert(endDate <= today)
 
 # returns list of dictionaries
-protests = getRevisions(getPageId(title), start=startDate, end=endDate)
+# protests = getRevisions(getPageId(title), start=startDate, end=endDate)
+
 # redirects = getRedirects(getPageId(title))
+
+
 # sys.exit(0)
 # Skip pageviews for now...
 # views = getPageviews(getPageId(title))
 
-end = time.time()
-print("Time Elapsed: " + str(end-start))
+
 
 
 # exits program to prevent creating files for now...
-sys.exit(0)
+# sys.exit(0)
 
 path = "data"
 if (not os.path.exists(path)):
@@ -358,28 +361,24 @@ for i in range(len(titles)):
     titles.append("Talk:" + titles[i])
 
 
-####### TESTING UNSTABLE CODE AHEAD!!! #####
-data = getRevisions(getPageId(titles[0]), start=startDate, end=endDate)
-# redirects = getRedirects(getPageId(titles[0]))
-name = titles[0].copy()
-name = name.replace(" ", "_")
-name = name.replace(".", "(dot)")
-name = name.replace(":", "(colon)")
-name += ".csv"
-if (not os.path.isfile(os.path.join(path, name))):
-    dfData = pd.DataFrame(data)
-    dfRed = pd.DataFrame(redirects)
-    dfData.to_csv(os.path.join(path, "Data" + name))
-    # dfRed.to_csv(os.path.join(path, "Redirects" + name))
-
-
+# sys.exit(0)
 
 
 for title in titles:
-    data = getRevisions(getPageId(title), start=startDate, end=endDate)
-    redirects = getRedirects(getPageId(title))
+    badData = False
+    badRedirect = False
+    try:
+        data = getRevisions(getPageId(title), start=startDate, end=endDate)
+    except:
+        print("Data not found for {0}".format(title))
+        badData = True
+    try:
+        redirects = getRedirects(getPageId(title))
+        badRedirect = True
+    except:
+        print("Redirects not found for {0}".format(title))
 
-    name = title.copy()
+    name = title
     name = name.replace(" ", "_")
     name = name.replace(".", "(dot)")
     name = name.replace(":", "(colon)")
@@ -387,8 +386,10 @@ for title in titles:
     if (not os.path.isfile(os.path.join(path, name))):
         dfData = pd.DataFrame(data)
         dfRed = pd.DataFrame(redirects)
-        dfData.to_csv(os.path.join(path, "Data" + name))
-        dfRed.to_csv(os.path.join(path, "Redirects" + name))
+        if (not badData):
+            dfData.to_csv(os.path.join(path, "Data" + name))
+        if (not badRedirect):
+            dfRed.to_csv(os.path.join(path, "Redirects" + name))
     
 end = time.time()
 print("Time Elapsed: " + str(end-start))
