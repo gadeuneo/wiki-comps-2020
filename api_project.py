@@ -297,21 +297,21 @@ titles = [
     "Death of Chow Tsz-lok",
     "Siege of the Hong Kong Polytechnic University",
     "2019 Yuen Long attack",
-    "Hong Kong-Mainland China conflict",
+    "Hong Kong–Mainland China conflict",
     "Storming of the Legislative Council Complex",
     "Hong Kong Way",
     "2019 Prince Edward station attack",
-    "Death of Chan Yin-lan",
+    "Death of Chan Yin-lam",
     "2019 Hong Kong local elections",
     "List of protests in Hong Kong",
-    "Police misconduct allegations during the 2019-20 Hong Kong protests",
-    "Art of the 2019-20 Hong Kong protests",
+    "Police misconduct allegations during the 2019–20 Hong Kong protests",
+    "Art of the 2019–20 Hong Kong protests",
     "12 June 2019 Hong Kong protest",
     "Umbrella Movement",
-    "Causes of the 2019-20 Hong Kong protests",
-    "Tactics and methods surrounding the 2019-20 Hong Kong protests",
+    "Causes of the 2019–20 Hong Kong protests",
+    "Tactics and methods surrounding the 2019–20 Hong Kong protests",
     "Carrie Lam",
-    "Reactions to the 2019-20 Hong Kong protests",
+    "Reactions to the 2019–20 Hong Kong protests",
     "List of early 2019 Hong Kong protests",
     "List of July 2019 Hong Kong protests",
     "List of August 2019 Hong Kong protests",
@@ -319,11 +319,11 @@ titles = [
     "List of October 2019 Hong Kong protests",
     "List of November 2019 Hong Kong protests",
     "List of December 2019 Hong Kong protests",
-    "List of Janurary 2020 Hong Kong protests",
+    "List of January 2020 Hong Kong protests",
     "Glory to Hong Kong",
     "Lennon Wall (Hong Kong)",
     "HKmap.live",
-    "Killing of Luo Changquig"
+    "Killing of Luo Changqing"
 ]
 
 # title = "2019–20 Hong Kong protests"
@@ -371,25 +371,29 @@ for title in titles:
         data = getRevisions(getPageId(title), start=startDate, end=endDate)
     except:
         print("Data not found for {0}".format(title))
+        print(getPageId(title))
         badData = True
     try:
         redirects = getRedirects(getPageId(title))
-        badRedirect = True
     except:
         print("Redirects not found for {0}".format(title))
+        print(getPageId(title))
+        badRedirect = True
 
     name = title
     name = name.replace(" ", "_")
     name = name.replace(".", "(dot)")
     name = name.replace(":", "(colon)")
     name += ".csv"
-    if (not os.path.isfile(os.path.join(path, name))):
-        dfData = pd.DataFrame(data)
-        dfRed = pd.DataFrame(redirects)
-        if (not badData):
+    if (not badData):
+        if (not os.path.isfile(os.path.join(path, "Data" + name))):
+            dfData = pd.DataFrame(data)
             dfData.to_csv(os.path.join(path, "Data" + name))
-        if (not badRedirect):
+    if (not badRedirect):
+        if (not (os.path.isfile(os.path.join(path, "Redirects" + name)))):
+            dfRed = pd.DataFrame(redirects)
             dfRed.to_csv(os.path.join(path, "Redirects" + name))
+            
     
 end = time.time()
 print("Time Elapsed: " + str(end-start))
