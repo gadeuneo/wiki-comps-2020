@@ -363,6 +363,9 @@ for i in range(len(titles)):
 
 # sys.exit(0)
 
+# Use pageid for curid to check if correct page is found
+# https://en.wikipedia.org/?curid=
+
 
 for title in titles:
     badData = False
