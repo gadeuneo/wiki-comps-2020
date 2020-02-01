@@ -8,6 +8,7 @@ James Gardner
 import requests as rq
 import json
 import os
+from os import path
 import sys
 from datetime import datetime as dt
 import time
@@ -366,36 +367,33 @@ for i in range(len(titles)):
 # Use pageid for curid to check if correct page is found
 # https://en.wikipedia.org/?curid=
 
+# format title to save as file
+files = [title.replace(" ","_").replace(".","(dot)").replace(":", "(colon)") + ".csv" for title in titles]
 
-for title in titles:
+for i in range(len(titles)):
     badData = False
     badRedirect = False
     try:
-        data = getRevisions(getPageId(title), start=startDate, end=endDate)
+        data = getRevisions(getPageId(titles[i]), start=startDate, end=endDate)
     except:
-        print("Data not found for {0}".format(title))
-        print(getPageId(title))
+        print("Data not found for {0}".format(titles[i]))
+        print(getPageId(titles[i]))
         badData = True
     try:
-        redirects = getRedirects(getPageId(title))
+        redirects = getRedirects(getPageId(titles[i]))
     except:
-        print("Redirects not found for {0}".format(title))
-        print(getPageId(title))
+        print("Redirects not found for {0}".format(titles[i]))
+        print(getPageId(titles[i]))
         badRedirect = True
 
-    name = title
-    name = name.replace(" ", "_")
-    name = name.replace(".", "(dot)")
-    name = name.replace(":", "(colon)")
-    name += ".csv"
     if (not badData):
-        if (not os.path.isfile(os.path.join(path, "Data" + name))):
+        if (not os.path.isfile(os.path.join(path, "Data" + files[i]))):
             dfData = pd.DataFrame(data)
-            dfData.to_csv(os.path.join(path, "Data" + name))
+            dfData.to_csv(os.path.join(path, "Data" + files[i]))
     if (not badRedirect):
-        if (not (os.path.isfile(os.path.join(path, "Redirects" + name)))):
+        if (not (os.path.isfile(os.path.join(path, "Redirects" + files[i])))):
             dfRed = pd.DataFrame(redirects)
-            dfRed.to_csv(os.path.join(path, "Redirects" + name))
+            dfRed.to_csv(os.path.join(path, "Redirects" + files[i]))
             
     
 end = time.time()
