@@ -281,7 +281,7 @@ def getRedirects(pageid):
     Begin Data Collection
 '''
 
-# Subject to change as script needs
+# working list of Wiki pages; subject to change
 
 titles = [
     "2019–20 Hong Kong protests",

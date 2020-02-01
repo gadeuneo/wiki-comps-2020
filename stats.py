@@ -15,8 +15,14 @@ import copy
 
 start = time.time()
 
+# folder of files
 path = "data"
+plotPath = "figures"
 
+if (not os.path.exists(plotPath)):
+    os.mkdir(plotPath)
+
+# working list of Wiki pages
 titles = [
     "2019–20 Hong Kong protests",
     "Hong Kong",
@@ -65,24 +71,21 @@ titles = [
 for i in range(len(titles)):
     titles.append("Talk:" + titles[i])
 
+# converts titles to filename format
 titles = [title.replace(" ","_").replace(".","(dot)").replace(":", "(colon)") + ".csv" for title in titles]
-
+dataTitles = []
+for title in titles:
+    dataTitles.append("Data" + title)
+    dataTitles.append("Redirects" + title)
 
 # check if file exists, if not, remove from list of titles
-
-dataTitles = copy.deepcopy(titles)
-
 for title in titles:
-    print(title)
     if (not os.path.isfile(os.path.join(path, "Data" + title))):
-        print("No Data title")
         filename = "Data" + title
         dataTitles.remove(filename)
 
     if (not (os.path.isfile(os.path.join(path, "Redirects" + title)))):
-        print("no Redirect title")
         filename = "Redirects" + title
-        print(filename in dataTitles)
         dataTitles.remove(filename)
 
 
@@ -107,9 +110,11 @@ plt.plot([1,2,3,4], [1,4,9,16])
 plt.title("Sample plot")
 plt.xlabel("Sample x axis label")
 plt.ylabel("Sample y axis label")
-plt.show()
+plt.savefig(os.path.join(plotPath, "sample.png"), bbox_inches="tight")
 
-sys.exit(0)
+
 
 end = time.time()
 print("Time Elapsed: " + str(end-start))
+
+sys.exit(0)
