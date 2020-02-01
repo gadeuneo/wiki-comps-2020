@@ -281,7 +281,7 @@ def getRedirects(pageid):
     Begin Data Collection
 '''
 
-# working list of Wiki pages; subject to change
+# working list of Wiki pages; subject to change as needed
 
 titles = [
     "2019–20 Hong Kong protests",
@@ -327,8 +327,6 @@ titles = [
     "Killing of Luo Changqing"
 ]
 
-# title = "2019–20 Hong Kong protests"
-
 # Convert date to Unix Timestamp
 startDate = int(time.mktime(dt.strptime("2019-06-10", "%Y-%m-%d").timetuple()))
 endDate = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
@@ -337,18 +335,8 @@ today = int(time.mktime(dt.today().timetuple()))
 assert(startDate <= endDate)
 assert(endDate <= today)
 
-# returns list of dictionaries
-# protests = getRevisions(getPageId(title), start=startDate, end=endDate)
-
-# redirects = getRedirects(getPageId(title))
-
-
-# sys.exit(0)
 # Skip pageviews for now...
 # views = getPageviews(getPageId(title))
-
-
-
 
 # exits program to prevent creating files for now...
 # sys.exit(0)
@@ -395,7 +383,10 @@ for i in range(len(titles)):
             dfRed = pd.DataFrame(redirects)
             dfRed.to_csv(os.path.join(path, "Redirects" + files[i]))
             
-    
+'''
+    End Data Collection
+'''
+
 end = time.time()
 print("Time Elapsed: " + str(end-start))
 
