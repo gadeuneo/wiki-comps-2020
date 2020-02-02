@@ -186,7 +186,7 @@ def getRevisions(pageid, start=None, end=None):
         }
         done = False
         allRevs = []
-        # TODO fix limits
+
         while (not done):
             revs = S.get(url=url, headers=headers, params=revisions).json()
             if (hasError(revs)):
@@ -265,8 +265,8 @@ def getRedirects(pageid):
             allReds.append(red)
         
         if ("continue" in reds):
-                revisions['continue'] = reds['continue']['continue']
-                revisions['rdcontinue'] = reds['continue']['rdcontinue']
+                redirects['continue'] = reds['continue']['continue']
+                redirects['rdcontinue'] = reds['continue']['rdcontinue']
         else:
             done = True
 

@@ -92,16 +92,15 @@ for title in titles:
 ##### TODO: merge files? -- Which ones? How?
 ##### TODO: save merged files?
 
-filenames = []
-for data in dataTitles:
-    filenames.append("Data" + data)
-    filenames.append("Redirects" + data)
 
 dataDict = dict()
-for f in filenames:
-    
 
 
+for f in dataTitles:
+    dataDict[f[:-4]] = pd.read_csv(os.path.join(path, f))
+
+# print(dataDict.keys())
+print(len(dataDict))
 
 
 ##### TODO: Make plots
@@ -115,7 +114,9 @@ plt.plot([1,2,3,4], [1,4,9,16])
 plt.title("Sample plot")
 plt.xlabel("Sample x axis label")
 plt.ylabel("Sample y axis label")
-plt.savefig(os.path.join(plotPath, "sample.png"), bbox_inches="tight")
+
+if (not os.path.isfile(os.path.join(plotPath, "sample.png"))):
+    plt.savefig(os.path.join(plotPath, "sample.png"), bbox_inches="tight")
 
 
 
