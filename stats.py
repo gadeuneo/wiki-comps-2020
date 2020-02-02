@@ -100,8 +100,17 @@ for f in dataTitles:
     dataDict[f[:-4]] = pd.read_csv(os.path.join(path, f))
 
 # print(dataDict.keys())
-print(len(dataDict))
 
+allData = []
+allRed = []
+for key in dataDict.keys():
+    if ("Data" in key):
+        allData.append(dataDict[key])
+    else:
+        allRed.append(dataDict[key])
+
+revisionData = pd.concat(allData, ignore_index=True)
+# print(revisionData.to_string())
 
 ##### TODO: Make plots
 #### https://matplotlib.org/tutorials/introductory/pyplot.html
