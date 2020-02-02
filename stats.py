@@ -89,12 +89,17 @@ for title in titles:
         dataTitles.remove(filename)
 
 
-##### TODO: merge files? -- Which ones?
+##### TODO: merge files? -- Which ones? How?
 ##### TODO: save merged files?
 
-# data = pd.read_csv(os.path.join(path, title))
+filenames = []
+for data in dataTitles:
+    filenames.append("Data" + data)
+    filenames.append("Redirects" + data)
 
-
+dataDict = dict()
+for f in filenames:
+    
 
 
 
