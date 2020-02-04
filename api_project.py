@@ -8,7 +8,6 @@ James Gardner
 import requests as rq
 import json
 import os
-from os import path
 import sys
 from datetime import datetime as dt
 import time

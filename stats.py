@@ -7,7 +7,9 @@ James Gardner
 import pandas as pd
 import os
 import sys
-from datetime import datetime
+from datetime import datetime as dt
+from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 import time
 import matplotlib.pyplot as plt
 import numpy as np
@@ -109,8 +111,24 @@ for key in dataDict.keys():
     else:
         allRed.append(dataDict[key])
 
-revisionData = pd.concat(allData, ignore_index=True)
+revisionData = pd.concat(allData, ignore_index=True, sort=False)
 # print(revisionData.to_string())
+
+# Convert date to Unix Timestamp
+startDate = int(time.mktime(dt.strptime("2019-06-10", "%Y-%m-%d").timetuple()))
+endDate = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
+today = int(time.mktime(dt.today().timetuple()))
+# Assertions for proper date args
+assert(startDate <= endDate)
+assert(endDate <= today)
+
+# TODO: loop over timestamps and get count for each (day/week/month?)
+protest = dataDict[dataTitles[0][:-4]]
+# test get next day epoch time
+newDate = dt.fromtimestamp(startDate)
+newDate = newDate + timedelta(days=1)
+newDate = int(newDate.timestamp())
+
 
 ##### TODO: Make plots
 #### https://matplotlib.org/tutorials/introductory/pyplot.html
