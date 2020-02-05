@@ -127,8 +127,35 @@ protest = dataDict[dataTitles[0][:-4]]
 # test get next day epoch time
 newDate = dt.fromtimestamp(startDate)
 newDate = newDate + timedelta(days=1)
-newDate = int(newDate.timestamp())
+# newDate = int(newDate.timestamp())
+days = []
+counts = []
 
+# print(type(dt.strptime(protest['timestamp'][0], "%Y-%m-%dT%H:%M:%SZ")))
+
+edits = 0
+for day in protest['timestamp']:
+    editTime = dt.strptime(day, "%Y-%m-%dT%H:%M:%SZ")
+    if (editTime <= newDate):
+        edits += 1
+    else:
+        counts.append(edits)
+        epoch = int(newDate.timestamp())
+        days.append(epoch)
+        newDate = newDate + timedelta(days=1)
+        edits = 0
+        # newDate = int(newDate.timestamp())
+
+# days = np.array(days)
+# counts = np.array(counts)
+
+plt.plot(days, counts)
+plt.title(dataTitles[0][:-4])
+plt.xlabel("Time")
+plt.ylabel("Number Edits")
+
+if (not os.path.isfile(os.path.join(plotPath, "test.png"))):
+    plt.savefig(os.path.join(plotPath, "test.png"), bbox_inches="tight")
 
 ##### TODO: Make plots
 #### https://matplotlib.org/tutorials/introductory/pyplot.html
