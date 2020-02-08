@@ -270,7 +270,28 @@ def getRedirects(pageid):
             done = True
 
     return allReds
-        
+
+def getCreationDate(pageid):
+    creation = {
+        "action": "query",
+        "prop": "revisions",
+        "pageids": pageid,
+        "rvprop": "timestamp",
+        # "rvslots": "*",
+        "rvlimit": 1,
+        # "rvlimit": 5,
+        "rvdir": "newer",
+        "format": "json",
+        "formatversion": 2,
+    }
+    create = S.get(url=url, headers=headers, params=creation).json()
+    if (hasError(create)):
+        print("Query Error! Exiting program!")
+        sys.exit(1)
+    printJsonTree(create)
+    timestamp = create['query']['pages'][0]['revisions'][0]['timestamp']
+    return timestamp
+
 
 '''
     End Data Collection Functions
@@ -357,6 +378,7 @@ for i in range(len(titles)):
 # format title to save as file
 files = [title.replace(" ","_").replace(".","(dot)").replace(":", "(colon)") + ".csv" for title in titles]
 
+# TODO: add page creation date
 for i in range(len(titles)):
     badData = False
     badRedirect = False
