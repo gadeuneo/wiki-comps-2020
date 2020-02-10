@@ -374,8 +374,6 @@ if (not os.path.exists(creation)):
 for i in range(len(titles)):
     titles.append("Talk:" + titles[i])
 
-# sys.exit(0)
-
 # Use pageid for curid to check if correct page is found
 # https://en.wikipedia.org/?curid=
 
@@ -386,6 +384,7 @@ dates = [["Title", "Page Creation Date"]]
 endPrep = time.time()
 print("Prep took {0} seconds".format(str(endPrep - endLogin)))
 
+# save page creation dates with titles as csv file
 badCreation = False
 for i in range(len(titles)):
     try:
@@ -405,6 +404,7 @@ elif (not (os.path.isfile(os.path.join(creation, "creationDates.csv")))):
 endCreate = time.time()
 print("Page creation dates took {0} seconds".format(str(endCreate - endPrep)))
 
+# save data and redirects
 for i in range(len(titles)):
     badData = False
     badRedirect = False
