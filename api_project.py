@@ -155,6 +155,8 @@ botLogin = S.post(url=url, data=login).json()
     End Bot Login Code
 '''
 
+endLogin = time.time()
+print("Login took {0} seconds".format(str(endLogin-start)))
 
 '''
     Begin Data Collection Functions
@@ -288,7 +290,6 @@ def getCreationDate(pageid):
     if (hasError(create)):
         print("Query Error! Exiting program!")
         sys.exit(1)
-    printJsonTree(create)
     timestamp = create['query']['pages'][0]['revisions'][0]['timestamp']
     return timestamp
 
@@ -365,10 +366,13 @@ path = "data"
 if (not os.path.exists(path)):
     os.mkdir(path)
 
+creation = "create"
+if (not os.path.exists(creation)):
+    os.mkdir(creation)
+
 # adds talk pages
 for i in range(len(titles)):
     titles.append("Talk:" + titles[i])
-
 
 # sys.exit(0)
 
@@ -377,8 +381,30 @@ for i in range(len(titles)):
 
 # format title to save as file
 files = [title.replace(" ","_").replace(".","(dot)").replace(":", "(colon)") + ".csv" for title in titles]
+dates = [["Title", "Page Creation Date"]]
 
-# TODO: add page creation date
+endPrep = time.time()
+print("Prep took {0} seconds".format(str(endPrep - endLogin)))
+
+badCreation = False
+for i in range(len(titles)):
+    try:
+        creationDate = getCreationDate(getPageId(titles[i]))
+        dates.append([titles[i], creationDate])
+    except:
+        print("Page Creation Date not found for {0}".format(titles[i]))
+        print(getPageId(titles[i]))
+        badCreation = True
+
+if ((len(dates) -1) != len(files) or badCreation):
+    print("Error with collecting page creation dates!")
+elif (not (os.path.isfile(os.path.join(creation, "creationDates.csv")))):
+    dfDates = pd.DataFrame(dates[1:], columns=dates[0])
+    dfDates.to_csv(os.path.join(creation, "CreationDates.csv"), encoding="utf-8")
+
+endCreate = time.time()
+print("Page creation dates took {0} seconds".format(str(endCreate - endPrep)))
+
 for i in range(len(titles)):
     badData = False
     badRedirect = False
@@ -396,18 +422,20 @@ for i in range(len(titles)):
         badRedirect = True
 
     if (not badData):
-        if (not os.path.isfile(os.path.join(path, "Data" + files[i]))):
+        if (not (os.path.isfile(os.path.join(path, "Data" + files[i])))):
             dfData = pd.DataFrame(data)
-            dfData.to_csv(os.path.join(path, "Data" + files[i]))
+            dfData.to_csv(os.path.join(path, "Data" + files[i]), encoding="utf-8")
     if (not badRedirect):
         if (not (os.path.isfile(os.path.join(path, "Redirects" + files[i])))):
             dfRed = pd.DataFrame(redirects)
-            dfRed.to_csv(os.path.join(path, "Redirects" + files[i]))
-            
+            dfRed.to_csv(os.path.join(path, "Redirects" + files[i]), encoding="utf-8")
+
 '''
     End Data Collection
 '''
 
 end = time.time()
+print("Data collection took {0} seconds".format(str(end - endCreate)))
+
 print("Time Elapsed: " + str(end-start))
 
