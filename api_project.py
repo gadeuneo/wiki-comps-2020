@@ -317,6 +317,7 @@ def getPageviewsHack(df):
             # printJsonTree(views)
             pageList = views['query']['pages'][str(pageid)]['pageviews']
             allViews[altTitles[index]].update(pageList)
+            # pvipcontinue param doesn't show up at all
             if ("continue" in views):
                 views['continue'] = views['continue']['continue']
                 views['pvipcontinue'] = views['continue']['pvipcontinue']
@@ -464,7 +465,8 @@ for i in range(len(titles)):
 
 
 test = pd.read_csv(os.path.join(path, "Redirects" + files[0]))
-print(test)
+mydates = getPageviewsHack(test)
+printJsonTree(mydates)
 
 '''
     End Data Collection
