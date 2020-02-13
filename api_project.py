@@ -293,6 +293,38 @@ def getCreationDate(pageid):
     timestamp = create['query']['pages'][0]['revisions'][0]['timestamp']
     return timestamp
 
+def getPageviewsHack(df):
+    ids = df['pageid'].tolist()
+    altTitles = df['title'].tolist()
+    index = 0
+    allViews = dict()
+    for pageid in ids:
+        pageviews = {
+            "action": "query",
+            "prop": "pageviews",
+            # "titles": title,
+            "pageids": pageid,
+            "format": "json",
+            "pvipmetric": "pageviews",
+            "pvipcontinue": "",
+            "maxlag": 5
+        }
+        
+        done = False
+        allViews[altTitles[index]] = dict()
+        while (not done):
+            views = S.get(url=url, headers=headers, params=pageviews).json()
+            # printJsonTree(views)
+            pageList = views['query']['pages'][str(pageid)]['pageviews']
+            allViews[altTitles[index]].update(pageList)
+            if ("continue" in views):
+                views['continue'] = views['continue']['continue']
+                views['pvipcontinue'] = views['continue']['pvipcontinue']
+            else:
+                done = True
+        index += 1
+
+    return allViews
 
 '''
     End Data Collection Functions
@@ -429,6 +461,10 @@ for i in range(len(titles)):
         if (not (os.path.isfile(os.path.join(path, "Redirects" + files[i])))):
             dfRed = pd.DataFrame(redirects)
             dfRed.to_csv(os.path.join(path, "Redirects" + files[i]), encoding="utf-8")
+
+
+test = pd.read_csv(os.path.join(path, "Redirects" + files[0]))
+print(test)
 
 '''
     End Data Collection
