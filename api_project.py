@@ -221,7 +221,7 @@ def getPageviews(pageid):
     # TODO fix issues with getting pageviews OR find another metric
     done = False
     views = S.get(url=url, headers=headers, params=pageviews).json()
-    printJsonTree(views)
+    # printJsonTree(views)
     pageList = views['query']['pages'][pageid]['pageviews']
     allViews = {}
     allViews.update(pageList)
@@ -466,7 +466,7 @@ for i in range(len(titles)):
 
 test = pd.read_csv(os.path.join(path, "Redirects" + files[0]))
 mydates = getPageviewsHack(test)
-printJsonTree(mydates)
+# printJsonTree(mydates)
 
 '''
     End Data Collection
