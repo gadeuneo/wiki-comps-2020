@@ -386,7 +386,7 @@ def main():
     ]
 
     # Convert date to Unix Timestamp
-    startDate = int(time.mktime(dt.strptime("2019-06-10", "%Y-%m-%d").timetuple()))
+    startDate = int(time.mktime(dt.strptime("2009-12-10", "%Y-%m-%d").timetuple()))
     endDate = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
     today = int(time.mktime(dt.today().timetuple()))
     # Assertions for proper date args
@@ -399,7 +399,7 @@ def main():
     # exits program to prevent creating files for now...
     # sys.exit(0)
 
-    path = "data"
+    path = "10years"
     if (not os.path.exists(path)):
         os.mkdir(path)
 
