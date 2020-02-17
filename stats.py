@@ -5,6 +5,7 @@ James Gardner
 '''
 
 import pandas as pd
+from pandas.plotting import register_matplotlib_converters
 import os
 import sys
 from datetime import datetime as dt
@@ -13,8 +14,14 @@ from dateutil.relativedelta import relativedelta
 import time
 import matplotlib.pyplot as plt
 import numpy as np
+#uhuh
+import matplotlib.dates as mdates
+import matplotlib.cbook as cbook
+import matplotlib.ticker as ticker
+#uhuh
 import copy
 
+register_matplotlib_converters()
 start = time.time()
 
 # folder of files
@@ -112,7 +119,7 @@ for key in dataDict.keys():
         allRed.append(dataDict[key])
 
 revisionData = pd.concat(allData, ignore_index=True, sort=False)
-# print(revisionData.to_string())
+#print(revisionData.to_string())
 
 # Convert date to Unix Timestamp
 startDate = int(time.mktime(dt.strptime("2019-06-10", "%Y-%m-%d").timetuple()))
@@ -126,8 +133,8 @@ assert(endDate <= today)
 protest = dataDict[dataTitles[0][:-4]]
 # test get next day epoch time
 newDate = dt.fromtimestamp(startDate)
-newDate = newDate + timedelta(days=1)
-# newDate = int(newDate.timestamp())
+#newDate = newDate + timedelta(days=1)
+#newDate = int(newDate.timestamp())
 days = []
 counts = []
 
@@ -141,7 +148,7 @@ for day in protest['timestamp']:
     else:
         counts.append(edits)
         epoch = int(newDate.timestamp())
-        days.append(epoch)
+        days.append(dt.fromtimestamp(epoch))
         newDate = newDate + timedelta(days=1)
         edits = 0
         # newDate = int(newDate.timestamp())
@@ -149,11 +156,20 @@ for day in protest['timestamp']:
 # days = np.array(days)
 # counts = np.array(counts)
 
-plt.plot(days, counts)
+fig, ax = plt.subplots(figsize=(15,7))
+ax.plot(days, counts)
+
+ax.xaxis.set_major_locator(mdates.MonthLocator())
+ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m-%d'))
+ax.xaxis.set_minor_locator(mdates.DayLocator())
+ax.format_xdata = mdates.DateFormatter('%Y-%m')
+
+fig.autofmt_xdate()
+
 plt.title(dataTitles[0][:-4])
 plt.xlabel("Time")
 plt.ylabel("Number Edits")
-
+plt.show()
 if (not os.path.isfile(os.path.join(plotPath, "test.png"))):
     plt.savefig(os.path.join(plotPath, "test.png"), bbox_inches="tight")
 
