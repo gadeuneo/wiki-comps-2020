@@ -106,46 +106,38 @@ def hasError(requestObject):
 '''
     Begin Bot Login Code.
 '''
+def login(S, url, headers):
+    url = url
+    headers = headers
+    getToken = {
+        "action": "query",
+        "meta": "tokens",
+        "type": "login",
+        "format": "json"
+    }
 
-url = "https://en.wikipedia.org/w/api.php?"
+    credentials = ""
+    with open("credentials.txt", "r", encoding="utf-8") as f:
+        credentials = f.read()
 
-headers = {
-    "User-Agent": "BotCarletonComps2020/0.8 (http://www.cs.carleton.edu/cs_comps/1920/wikipedia/index.php) Python/3.6.9 Requests/2.18.14",
-    "connection": "keep-alive"
-    # "Connection": "close"
-}
-
-getToken = {
-    "action": "query",
-    "meta": "tokens",
-    "type": "login",
-    "format": "json"
-}
-
-credentials = ""
-with open("credentials.txt", "r", encoding="utf-8") as f:
-    credentials = f.read()
-
-credentials = credentials.split()
-username = credentials[0]
-password = credentials[1]
+    credentials = credentials.split()
+    username = credentials[0]
+    password = credentials[1]
 
 
-S = rq.Session()
+    botLogin = S.get(url=url, params=getToken).json()
 
-botLogin = S.get(url=url, params=getToken).json()
+    token = botLogin['query']['tokens']['logintoken']
 
-token = botLogin['query']['tokens']['logintoken']
+    login = {
+        "action": "login",
+        "lgname": username,
+        "lgpassword": password,
+        "lgtoken": token,
+        "format": "json"
+    }
 
-login = {
-    "action": "login",
-    "lgname": username,
-    "lgpassword": password,
-    "lgtoken": token,
-    "format": "json"
-}
-
-botLogin = S.post(url=url, data=login).json()
+    botLogin = S.post(url=url, data=login).json()
 
 # printJsonTree(botLogin)
 
@@ -155,14 +147,13 @@ botLogin = S.post(url=url, data=login).json()
     End Bot Login Code
 '''
 
-endLogin = time.time()
-print("Login took {0} seconds".format(str(endLogin-start)))
+
 
 '''
     Begin Data Collection Functions
 '''
 
-def getRevisions(pageid, start=None, end=None):
+def getRevisions(S, url, headers, pageid, start=None, end=None):
     if (start == None or end == None):
         print("ERROR, need start and end date!")
         sys.exit(1)
@@ -206,7 +197,7 @@ def getRevisions(pageid, start=None, end=None):
 
         return allRevs
 
-def getPageviews(pageid):
+def getPageviews(S, url, headers, pageid):
     pageviews = {
         "action": "query",
         "prop": "pageviews",
@@ -227,7 +218,7 @@ def getPageviews(pageid):
     allViews.update(pageList)
     return allViews
 
-def getPageId(title):
+def getPageId(S, url, headers, title):
     page = {
             "action": "query",
             "prop": "revisions",
@@ -245,7 +236,7 @@ def getPageId(title):
     pageid = list(data['query']['pages'].keys())[0]
     return pageid
 
-def getRedirects(pageid):
+def getRedirects(S, url, headers, pageid):
     redirects = {
         "action": "query",
         "prop": "redirects",
@@ -273,7 +264,7 @@ def getRedirects(pageid):
 
     return allReds
 
-def getCreationDate(pageid):
+def getCreationDate(S, url, headers, pageid):
     creation = {
         "action": "query",
         "prop": "revisions",
@@ -293,7 +284,7 @@ def getCreationDate(pageid):
     timestamp = create['query']['pages'][0]['revisions'][0]['timestamp']
     return timestamp
 
-def getPageviewsHack(df):
+def getPageviewsHack(S, url, headers, df):
     ids = df['pageid'].tolist()
     altTitles = df['title'].tolist()
     index = 0
@@ -334,146 +325,161 @@ def getPageviewsHack(df):
 '''
     Begin Data Collection
 '''
+def main():
+    
+    url = "https://en.wikipedia.org/w/api.php?"
 
-# working list of Wiki pages; subject to change as needed
+    headers = {
+        "User-Agent": "BotCarletonComps2020/0.8 (http://www.cs.carleton.edu/cs_comps/1920/wikipedia/index.php) Python/3.6.9 Requests/2.18.14",
+        "connection": "keep-alive"
+        # "Connection": "close"
+    }
+    S = rq.Session()
 
-titles = [
-    "2019–20 Hong Kong protests",
-    "Hong Kong",
-    "2019 Hong Kong extradition bill",
-    "Government of Hong Kong",
-    "Murder of Poon Hiu-wing",
-    "One country, two systems",
-    "Demosistō",
-    "Hong Kong 1 July marches",
-    "Civil Human Rights Front",
-    "Hong Kong Human Rights and Democracy Act",
-    "Chinese University of Hong Kong conflict",
-    "Death of Chow Tsz-lok",
-    "Siege of the Hong Kong Polytechnic University",
-    "2019 Yuen Long attack",
-    "Hong Kong–Mainland China conflict",
-    "Storming of the Legislative Council Complex",
-    "Hong Kong Way",
-    "2019 Prince Edward station attack",
-    "Death of Chan Yin-lam",
-    "2019 Hong Kong local elections",
-    "List of protests in Hong Kong",
-    "Police misconduct allegations during the 2019–20 Hong Kong protests",
-    "Art of the 2019–20 Hong Kong protests",
-    "12 June 2019 Hong Kong protest",
-    "Umbrella Movement",
-    "Causes of the 2019–20 Hong Kong protests",
-    "Tactics and methods surrounding the 2019–20 Hong Kong protests",
-    "Carrie Lam",
-    "Reactions to the 2019–20 Hong Kong protests",
-    "List of early 2019 Hong Kong protests",
-    "List of July 2019 Hong Kong protests",
-    "List of August 2019 Hong Kong protests",
-    "List of September 2019 Hong Kong protests",
-    "List of October 2019 Hong Kong protests",
-    "List of November 2019 Hong Kong protests",
-    "List of December 2019 Hong Kong protests",
-    "List of January 2020 Hong Kong protests",
-    "Glory to Hong Kong",
-    "Lennon Wall (Hong Kong)",
-    "HKmap.live",
-    "Killing of Luo Changqing"
-]
+    login(S, url, headers)
+    endLogin = time.time()
+    print("Login took {0} seconds".format(str(endLogin-start)))
 
-# Convert date to Unix Timestamp
-startDate = int(time.mktime(dt.strptime("2019-06-10", "%Y-%m-%d").timetuple()))
-endDate = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
-today = int(time.mktime(dt.today().timetuple()))
-# Assertions for proper date args
-assert(startDate <= endDate)
-assert(endDate <= today)
+    # working list of Wiki pages; subject to change as needed
+    titles = [
+        "2019–20 Hong Kong protests",
+        "Hong Kong",
+        "2019 Hong Kong extradition bill",
+        "Government of Hong Kong",
+        "Murder of Poon Hiu-wing",
+        "One country, two systems",
+        "Demosistō",
+        "Hong Kong 1 July marches",
+        "Civil Human Rights Front",
+        "Hong Kong Human Rights and Democracy Act",
+        "Chinese University of Hong Kong conflict",
+        "Death of Chow Tsz-lok",
+        "Siege of the Hong Kong Polytechnic University",
+        "2019 Yuen Long attack",
+        "Hong Kong–Mainland China conflict",
+        "Storming of the Legislative Council Complex",
+        "Hong Kong Way",
+        "2019 Prince Edward station attack",
+        "Death of Chan Yin-lam",
+        "2019 Hong Kong local elections",
+        "List of protests in Hong Kong",
+        "Police misconduct allegations during the 2019–20 Hong Kong protests",
+        "Art of the 2019–20 Hong Kong protests",
+        "12 June 2019 Hong Kong protest",
+        "Umbrella Movement",
+        "Causes of the 2019–20 Hong Kong protests",
+        "Tactics and methods surrounding the 2019–20 Hong Kong protests",
+        "Carrie Lam",
+        "Reactions to the 2019–20 Hong Kong protests",
+        "List of early 2019 Hong Kong protests",
+        "List of July 2019 Hong Kong protests",
+        "List of August 2019 Hong Kong protests",
+        "List of September 2019 Hong Kong protests",
+        "List of October 2019 Hong Kong protests",
+        "List of November 2019 Hong Kong protests",
+        "List of December 2019 Hong Kong protests",
+        "List of January 2020 Hong Kong protests",
+        "Glory to Hong Kong",
+        "Lennon Wall (Hong Kong)",
+        "HKmap.live",
+        "Killing of Luo Changqing"
+    ]
 
-# Skip pageviews for now...
-# views = getPageviews(getPageId(title))
+    # Convert date to Unix Timestamp
+    startDate = int(time.mktime(dt.strptime("2019-06-10", "%Y-%m-%d").timetuple()))
+    endDate = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
+    today = int(time.mktime(dt.today().timetuple()))
+    # Assertions for proper date args
+    assert(startDate <= endDate)
+    assert(endDate <= today)
 
-# exits program to prevent creating files for now...
-# sys.exit(0)
+    # Skip pageviews for now...
+    # views = getPageviews(getPageId(title))
 
-path = "data"
-if (not os.path.exists(path)):
-    os.mkdir(path)
+    # exits program to prevent creating files for now...
+    # sys.exit(0)
 
-creation = "create"
-if (not os.path.exists(creation)):
-    os.mkdir(creation)
+    path = "data"
+    if (not os.path.exists(path)):
+        os.mkdir(path)
 
-# adds talk pages
-for i in range(len(titles)):
-    titles.append("Talk:" + titles[i])
+    creation = "create"
+    if (not os.path.exists(creation)):
+        os.mkdir(creation)
 
-# Use pageid for curid to check if correct page is found
-# https://en.wikipedia.org/?curid=
+    # adds talk pages
+    for i in range(len(titles)):
+        titles.append("Talk:" + titles[i])
 
-# format title to save as file
-files = [title.replace(" ","_").replace(".","(dot)").replace(":", "(colon)") + ".csv" for title in titles]
-dates = [["Title", "Page Creation Date"]]
+    # Use pageid for curid to check if correct page is found
+    # https://en.wikipedia.org/?curid=
 
-endPrep = time.time()
-print("Prep took {0} seconds".format(str(endPrep - endLogin)))
+    # format title to save as file
+    files = [title.replace(" ","_").replace(".","(dot)").replace(":", "(colon)") + ".csv" for title in titles]
+    dates = [["Title", "Page Creation Date"]]
 
-# save page creation dates with titles as csv file
-badCreation = False
-for i in range(len(titles)):
-    try:
-        creationDate = getCreationDate(getPageId(titles[i]))
-        dates.append([titles[i], creationDate])
-    except:
-        print("Page Creation Date not found for {0}".format(titles[i]))
-        print(getPageId(titles[i]))
-        badCreation = True
+    endPrep = time.time()
+    print("Prep took {0} seconds".format(str(endPrep - endLogin)))
 
-if ((len(dates) -1) != len(files) or badCreation):
-    print("Error with collecting page creation dates!")
-elif (not (os.path.isfile(os.path.join(creation, "creationDates.csv")))):
-    dfDates = pd.DataFrame(dates[1:], columns=dates[0])
-    dfDates.to_csv(os.path.join(creation, "CreationDates.csv"), encoding="utf-8")
+    # save page creation dates with titles as csv file
+    badCreation = False
+    for i in range(len(titles)):
+        try:
+            creationDate = getCreationDate(S, url, headers, getPageId(S, url, headers, titles[i]))
+            dates.append([titles[i], creationDate])
+        except:
+            print("Page Creation Date not found for {0}".format(titles[i]))
+            print(getPageId(titles[i]))
+            badCreation = True
 
-endCreate = time.time()
-print("Page creation dates took {0} seconds".format(str(endCreate - endPrep)))
+    if ((len(dates) -1) != len(files) or badCreation):
+        print("Error with collecting page creation dates!")
+    elif (not (os.path.isfile(os.path.join(creation, "creationDates.csv")))):
+        dfDates = pd.DataFrame(dates[1:], columns=dates[0])
+        dfDates.to_csv(os.path.join(creation, "CreationDates.csv"), encoding="utf-8")
 
-# save data and redirects
-for i in range(len(titles)):
-    badData = False
-    badRedirect = False
-    try:
-        data = getRevisions(getPageId(titles[i]), start=startDate, end=endDate)
-    except:
-        print("Data not found for {0}".format(titles[i]))
-        print(getPageId(titles[i]))
-        badData = True
-    try:
-        redirects = getRedirects(getPageId(titles[i]))
-    except:
-        print("Redirects not found for {0}".format(titles[i]))
-        print(getPageId(titles[i]))
-        badRedirect = True
+    endCreate = time.time()
+    print("Page creation dates took {0} seconds".format(str(endCreate - endPrep)))
 
-    if (not badData):
-        if (not (os.path.isfile(os.path.join(path, "Data" + files[i])))):
-            dfData = pd.DataFrame(data)
-            dfData.to_csv(os.path.join(path, "Data" + files[i]), encoding="utf-8")
-    if (not badRedirect):
-        if (not (os.path.isfile(os.path.join(path, "Redirects" + files[i])))):
-            dfRed = pd.DataFrame(redirects)
-            dfRed.to_csv(os.path.join(path, "Redirects" + files[i]), encoding="utf-8")
+    # save data and redirects
+    for i in range(len(titles)):
+        badData = False
+        badRedirect = False
+        try:
+            data = getRevisions(S, url, headers, getPageId(S, url, headers, titles[i]), start=startDate, end=endDate)
+        except:
+            print("Data not found for {0}".format(titles[i]))
+            print(getPageId(S, url, headers, titles[i]))
+            badData = True
+        try:
+            redirects = getRedirects(S, url, headers, getPageId(S, url, headers, titles[i]))
+        except:
+            print("Redirects not found for {0}".format(titles[i]))
+            print(getPageId(S, url, headers, titles[i]))
+            badRedirect = True
+
+        if (not badData):
+            if (not (os.path.isfile(os.path.join(path, "Data" + files[i])))):
+                dfData = pd.DataFrame(data)
+                dfData.to_csv(os.path.join(path, "Data" + files[i]), encoding="utf-8")
+        if (not badRedirect):
+            if (not (os.path.isfile(os.path.join(path, "Redirects" + files[i])))):
+                dfRed = pd.DataFrame(redirects)
+                dfRed.to_csv(os.path.join(path, "Redirects" + files[i]), encoding="utf-8")
 
 
-test = pd.read_csv(os.path.join(path, "Redirects" + files[0]))
-mydates = getPageviewsHack(test)
-# printJsonTree(mydates)
+    test = pd.read_csv(os.path.join(path, "Redirects" + files[0]))
+    mydates = getPageviewsHack(S, url, headers, test)
+    # printJsonTree(mydates)
 
-'''
-    End Data Collection
-'''
+    '''
+        End Data Collection
+    '''
 
-end = time.time()
-print("Data collection took {0} seconds".format(str(end - endCreate)))
+    end = time.time()
+    print("Data collection took {0} seconds".format(str(end - endCreate)))
 
-print("Time Elapsed: " + str(end-start))
+    print("Time Elapsed: " + str(end-start))
 
+if __name__ == "__main__":
+    main()
