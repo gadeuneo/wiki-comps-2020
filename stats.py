@@ -82,20 +82,20 @@ for i in range(len(titles)):
 
 # converts titles to filename format
 titles = [title.replace(" ","_").replace(".","(dot)").replace(":", "(colon)") + ".csv" for title in titles]
-dataTitles = []
+titleArray = []
 for title in titles:
-    dataTitles.append("Data" + title)
-    dataTitles.append("Redirects" + title)
+    titleArray.append("Data" + title)
+    titleArray.append("Redirects" + title)
 
 # check if file exists, if not, remove from list of titles
 for title in titles:
     if (not os.path.isfile(os.path.join(path, "Data" + title))):
         filename = "Data" + title
-        dataTitles.remove(filename)
+        titleArray.remove(filename)
 
     if (not (os.path.isfile(os.path.join(path, "Redirects" + title)))):
         filename = "Redirects" + title
-        dataTitles.remove(filename)
+        titleArray.remove(filename)
 
 
 ##### TODO: merge files? -- Which ones? How?
@@ -105,7 +105,7 @@ for title in titles:
 dataDict = dict()
 
 
-for f in dataTitles:
+for f in titleArray:
     dataDict[f[:-4]] = pd.read_csv(os.path.join(path, f))
 
 # print(dataDict.keys())
@@ -130,16 +130,16 @@ assert(startDate <= endDate)
 assert(endDate <= today)
 
 # TODO: loop over timestamps and get count for each (day/week/month?)
-protest = dataDict[dataTitles[0][:-4]]
+
 # test get next day epoch time
 
-def makeTimeXRevisionFigure(protest, title):
+def makeTimeXRevisionFigure(article, title):
     newDate = dt.fromtimestamp(startDate)
     days = []
     counts = []
     #counts the edits
     edits = 0
-    for day in protest['timestamp']:
+    for day in article['timestamp']:
         editTime = dt.strptime(day, "%Y-%m-%dT%H:%M:%SZ")
         if (editTime <= newDate):
             edits += 1
@@ -163,9 +163,26 @@ def makeTimeXRevisionFigure(protest, title):
     plt.title(title)
     plt.xlabel("Time")
     plt.ylabel("Number Edits")
-    plt.show()
-    if (not os.path.isfile(os.path.join(plotPath, "test.png"))):
-        fig.savefig(os.path.join(plotPath, "test.png"), bbox_inches="tight")
+    #plt.show()
+    if (not os.path.isfile(os.path.join(plotPath, title+".png"))):
+        fig.savefig(os.path.join(plotPath, title+".png"), bbox_inches="tight")
+    plt.close()
+
+#separate out "DATA-" articles from "REVISION-", without the .csv
+dataTitleArray = []
+for title in titleArray:
+    if title[0:4] == "Data":
+        dataTitleArray.append(title[:-4])
+
+
+"""
+for title in titleArray:
+    key = title[:-4]
+    if key[0:4]=="Data":
+        article = dataDict[key]
+        makeTimeXRevisionFigure(article, key)
+"""
+
 
 ##### TODO: Make plots
 #### https://matplotlib.org/tutorials/introductory/pyplot.html
