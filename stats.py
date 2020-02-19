@@ -132,46 +132,41 @@ assert(endDate <= today)
 # TODO: loop over timestamps and get count for each (day/week/month?)
 protest = dataDict[dataTitles[0][:-4]]
 # test get next day epoch time
-newDate = dt.fromtimestamp(startDate)
-#newDate = newDate + timedelta(days=1)
-#newDate = int(newDate.timestamp())
-days = []
-counts = []
 
-# print(type(dt.strptime(protest['timestamp'][0], "%Y-%m-%dT%H:%M:%SZ")))
 
-edits = 0
-for day in protest['timestamp']:
-    editTime = dt.strptime(day, "%Y-%m-%dT%H:%M:%SZ")
-    if (editTime <= newDate):
-        edits += 1
-    else:
-        counts.append(edits)
-        epoch = int(newDate.timestamp())
-        days.append(dt.fromtimestamp(epoch))
-        newDate = newDate + timedelta(days=1)
-        edits = 0
-        # newDate = int(newDate.timestamp())
+def makeTimeXRevisionFigure(protest, title):
+    newDate = dt.fromtimestamp(startDate)
+    days = []
+    counts = []
+    #counts the edits
+    edits = 0
+    for day in protest['timestamp']:
+        editTime = dt.strptime(day, "%Y-%m-%dT%H:%M:%SZ")
+        if (editTime <= newDate):
+            edits += 1
+        else:
+            counts.append(edits)
+            epoch = int(newDate.timestamp())
+            days.append(dt.fromtimestamp(epoch))
+            newDate = newDate + timedelta(days=1)
+            edits = 0
 
-# days = np.array(days)
-# counts = np.array(counts)
+    fig, ax = plt.subplots(figsize=(15,7))
+    ax.plot(days, counts)
 
-fig, ax = plt.subplots(figsize=(15,7))
-ax.plot(days, counts)
+    ax.xaxis.set_major_locator(mdates.MonthLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m-%d'))
+    ax.xaxis.set_minor_locator(mdates.DayLocator())
+    ax.format_xdata = mdates.DateFormatter('%Y-%m')
 
-ax.xaxis.set_major_locator(mdates.MonthLocator())
-ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m-%d'))
-ax.xaxis.set_minor_locator(mdates.DayLocator())
-ax.format_xdata = mdates.DateFormatter('%Y-%m')
+    fig.autofmt_xdate()
 
-fig.autofmt_xdate()
-
-plt.title(dataTitles[0][:-4])
-plt.xlabel("Time")
-plt.ylabel("Number Edits")
-plt.show()
-if (not os.path.isfile(os.path.join(plotPath, "test.png"))):
-    plt.savefig(os.path.join(plotPath, "test.png"), bbox_inches="tight")
+    plt.title(title)
+    plt.xlabel("Time")
+    plt.ylabel("Number Edits")
+    plt.show()
+    if (not os.path.isfile(os.path.join(plotPath, "test.png"))):
+        plt.savefig(os.path.join(plotPath, "test.png"), bbox_inches="tight")
 
 ##### TODO: Make plots
 #### https://matplotlib.org/tutorials/introductory/pyplot.html
