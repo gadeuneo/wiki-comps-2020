@@ -169,9 +169,9 @@ fig.autofmt_xdate()
 plt.title(dataTitles[0][:-4])
 plt.xlabel("Time")
 plt.ylabel("Number Edits")
-plt.show()
+
 if (not os.path.isfile(os.path.join(plotPath, "test.png"))):
-    plt.savefig(os.path.join(plotPath, "test.png"), bbox_inches="tight")
+    fig.savefig(os.path.join(plotPath, "test.png"), bbox_inches="tight")
 
 ##### TODO: Make plots
 #### https://matplotlib.org/tutorials/introductory/pyplot.html
