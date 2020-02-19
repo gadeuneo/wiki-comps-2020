@@ -1,7 +1,5 @@
 def get_credentials():
 
-    credentials = ""
-
     with open("credentials.txt", "r", encoding="utf-8") as file:
         credentials = file.read()
 
@@ -10,3 +8,16 @@ def get_credentials():
     password = credentials[1]
 
     return username, credentials
+
+def get_titles():
+
+    with open("titles.txt", "r", encoding="utf-8") as file:
+        titles = file.read()
+
+    titles = titles.split("\n")
+
+    # Remove empty strings
+    while ("" in titles):
+        titles.remove("")
+
+    return titles
