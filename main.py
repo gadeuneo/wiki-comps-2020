@@ -13,6 +13,8 @@ from datetime import datetime as dt
 import time
 import pandas as pd
 
+from static_helpers import *
+
 start = time.time()
 
 '''
@@ -116,14 +118,7 @@ def login(S, url, headers):
         "format": "json"
     }
 
-    credentials = ""
-    with open("credentials.txt", "r", encoding="utf-8") as f:
-        credentials = f.read()
-
-    credentials = credentials.split()
-    username = credentials[0]
-    password = credentials[1]
-
+    username, password = get_credentials()
 
     botLogin = S.get(url=url, params=getToken).json()
 
