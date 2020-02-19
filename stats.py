@@ -133,7 +133,6 @@ assert(endDate <= today)
 protest = dataDict[dataTitles[0][:-4]]
 # test get next day epoch time
 
-
 def makeTimeXRevisionFigure(protest, title):
     newDate = dt.fromtimestamp(startDate)
     days = []
@@ -166,7 +165,7 @@ def makeTimeXRevisionFigure(protest, title):
     plt.ylabel("Number Edits")
     plt.show()
     if (not os.path.isfile(os.path.join(plotPath, "test.png"))):
-        plt.savefig(os.path.join(plotPath, "test.png"), bbox_inches="tight")
+        fig.savefig(os.path.join(plotPath, "test.png"), bbox_inches="tight")
 
 ##### TODO: Make plots
 #### https://matplotlib.org/tutorials/introductory/pyplot.html
