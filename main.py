@@ -325,13 +325,16 @@ def main():
     url = "https://en.wikipedia.org/w/api.php?"
 
     headers = {
-        "User-Agent": "BotCarletonComps2020/0.8 (http://www.cs.carleton.edu/cs_comps/1920/wikipedia/index.php) Python/3.6.9 Requests/2.18.14",
+        "User-Agent": "BotCarletonComps2020/0.8 \
+            (http://www.cs.carleton.edu/cs_comps/1920/wikipedia/index.php) \
+            Python/3.6.9 Requests/2.18.14",
         "connection": "keep-alive"
         # "Connection": "close"
     }
     S = rq.Session()
 
     login(S, url, headers)
+    
     endLogin = time.time()
     print("Login took {0} seconds".format(str(endLogin-start)))
 
@@ -342,6 +345,7 @@ def main():
     startDate = int(time.mktime(dt.strptime("2009-12-10", "%Y-%m-%d").timetuple()))
     endDate = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
     today = int(time.mktime(dt.today().timetuple()))
+
     # Assertions for proper date args
     assert(startDate <= endDate)
     assert(endDate <= today)
@@ -364,6 +368,7 @@ def main():
 
     files = [formatFileNames(title) for title in titles]
 
+    # Why is it formatted this way? - Jackie
     dates = [["Title", "Page Creation Date"]]
 
     endPrep = time.time()
@@ -374,12 +379,14 @@ def main():
     # save page creation dates with titles as csv file
     badCreation = False
     for i in range(len(titles)):
+        page_id = getPageId(S, url, headers, title[i])
+
         try:
-            creationDate = getCreationDate(S, url, headers, getPageId(S, url, headers, titles[i]))
+            creationDate = getCreationDate(S, url, headers, page_id)
             dates.append([titles[i], creationDate])
         except:
             print("Page Creation Date not found for {0}".format(titles[i]))
-            print(getPageId(titles[i]))
+            print(page_id)
             badCreation = True
 
     if ((len(dates) -1) != len(files) or badCreation):
