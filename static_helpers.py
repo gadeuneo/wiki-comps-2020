@@ -1,3 +1,5 @@
+import os
+
 def get_credentials():
 
     with open("credentials.txt", "r", encoding="utf-8") as file:
@@ -19,5 +21,20 @@ def get_titles():
     # Remove empty strings
     while ("" in titles):
         titles.remove("")
+
+    return titles
+
+def create_directories(directory_names):
+
+    for directory_name in directory_names:
+        if (not os.path.exists(directory_name)):
+            os.mkdir(directory_name)
+
+    return
+
+def add_talk_pages(titles):
+
+    for i in range(len(titles)):
+        titles.append("Talk:" + titles[i])
 
     return titles

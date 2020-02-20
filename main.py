@@ -352,17 +352,12 @@ def main():
     # exits program to prevent creating files for now...
     # sys.exit(0)
 
-    path = "10years"
-    if (not os.path.exists(path)):
-        os.mkdir(path)
+    # Create is going to be deprecated
+    directories = ["10years", "creation"]
 
-    creation = "create"
-    if (not os.path.exists(creation)):
-        os.mkdir(creation)
+    create_directories(directories)
 
-    # adds talk pages
-    for i in range(len(titles)):
-        titles.append("Talk:" + titles[i])
+    titles = add_talk_pages(titles)
 
     # Use pageid for curid to check if correct page is found
     # https://en.wikipedia.org/?curid=
@@ -373,6 +368,8 @@ def main():
 
     endPrep = time.time()
     print("Prep took {0} seconds".format(str(endPrep - endLogin)))
+
+    creation_date_directory = "creation"
 
     # save page creation dates with titles as csv file
     badCreation = False
@@ -387,9 +384,9 @@ def main():
 
     if ((len(dates) -1) != len(files) or badCreation):
         print("Error with collecting page creation dates!")
-    elif (not (os.path.isfile(os.path.join(creation, "creationDates.csv")))):
+    elif (not (os.path.isfile(os.path.join(creation_date_directory, "creationDates.csv")))):
         dfDates = pd.DataFrame(dates[1:], columns=dates[0])
-        dfDates.to_csv(os.path.join(creation, "CreationDates.csv"), encoding="utf-8")
+        dfDates.to_csv(os.path.join(creation_date_directory, "CreationDates.csv"), encoding="utf-8")
 
     endCreate = time.time()
     print("Page creation dates took {0} seconds".format(str(endCreate - endPrep)))
@@ -410,6 +407,8 @@ def main():
             print("Redirects not found for {0}".format(titles[i]))
             print(getPageId(S, url, headers, titles[i]))
             badRedirect = True
+
+        path = "10years"
 
         if (not badData):
             if (not (os.path.isfile(os.path.join(path, "Data" + files[i])))):
