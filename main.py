@@ -5,7 +5,7 @@ Saves in csv format per revision.
 James Gardner
 '''
 
-import requests as rq
+import requests
 import json
 import os
 import sys
@@ -322,6 +322,8 @@ def getPageviewsHack(S, url, headers, df):
 '''
 def main():
 
+    S = requests.Session()
+
     url = "https://en.wikipedia.org/w/api.php?"
 
     headers = {
@@ -331,12 +333,11 @@ def main():
         "connection": "keep-alive"
         # "Connection": "close"
     }
-    S = rq.Session()
 
     login(S, url, headers)
-    
+
     endLogin = time.time()
-    print("Login took {0} seconds".format(str(endLogin-start)))
+    print("Login took {0} seconds".format(str(endLogin - start)))
 
     # To change included titles, go to titles.txt
     titles = get_titles()
@@ -438,7 +439,7 @@ def main():
     end = time.time()
     print("Data collection took {0} seconds".format(str(end - endCreate)))
 
-    print("Time Elapsed: " + str(end-start))
+    print("Time Elapsed: " + str(end - start))
 
 if __name__ == "__main__":
     main()
