@@ -362,8 +362,8 @@ def main():
     # Use pageid for curid to check if correct page is found
     # https://en.wikipedia.org/?curid=
 
-    # format title to save as file
-    files = [title.replace(" ","_").replace(".","(dot)").replace(":", "(colon)") + ".csv" for title in titles]
+    files = [formatFileNames(title) for title in titles]
+
     dates = [["Title", "Page Creation Date"]]
 
     endPrep = time.time()

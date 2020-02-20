@@ -38,3 +38,16 @@ def add_talk_pages(titles):
         titles.append("Talk:" + titles[i])
 
     return titles
+
+def formatFileNames(title):
+
+    rules = {
+        " ": "_",
+        ".": "(dot)",
+        ":": "(colon)"
+    }
+
+    for key in rules.keys():
+        title = title.replace(key, rules[key])
+
+    return title + ".csv"
