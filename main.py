@@ -415,7 +415,7 @@ def main():
             print("Redirects not found for {0}".format(titles[i]))
             print(getPageId(S, url, headers, titles[i]))
             badRedirect = True
-
+        # TODO: modify path variable
         path = "10years"
 
         if (not badData):
