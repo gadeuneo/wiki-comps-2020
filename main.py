@@ -380,7 +380,7 @@ def main():
     # save page creation dates with titles as csv file
     badCreation = False
     for i in range(len(titles)):
-        page_id = getPageId(S, url, headers, title[i])
+        page_id = getPageId(S, url, headers, titles[i])
 
         try:
             creationDate = getCreationDate(S, url, headers, page_id)
