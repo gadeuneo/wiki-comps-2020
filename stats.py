@@ -141,15 +141,13 @@ def makeTimeXRevisionFigure(article, title):
     edits = 0
     for day in article['timestamp']:
         editTime = dt.strptime(day, "%Y-%m-%dT%H:%M:%SZ")
-        if (editTime <= newDate):
-            edits += 1
-        else:
+        while(editTime > newDate):
             counts.append(edits)
             epoch = int(newDate.timestamp())
             days.append(dt.fromtimestamp(epoch))
             newDate = newDate + timedelta(days=1)
             edits = 0
-
+        edits += 1
     fig, ax = plt.subplots(figsize=(15,7))
     ax.plot(days, counts)
 
@@ -163,7 +161,6 @@ def makeTimeXRevisionFigure(article, title):
     plt.title(title)
     plt.xlabel("Time")
     plt.ylabel("Number Edits")
-    #plt.show()
     if (not os.path.isfile(os.path.join(plotPath, title+".png"))):
         fig.savefig(os.path.join(plotPath, title+".png"), bbox_inches="tight")
     plt.close()
@@ -174,14 +171,13 @@ for title in titleArray:
     if title[0:4] == "Data":
         dataTitleArray.append(title[:-4])
 
-
-"""
+# makes all Time-RevisionNumber figures
 for title in titleArray:
     key = title[:-4]
     if key[0:4]=="Data":
         article = dataDict[key]
         makeTimeXRevisionFigure(article, key)
-"""
+
 
 
 ##### TODO: Make plots
