@@ -29,18 +29,18 @@ start = time.time()
 path = "data"
 plotPath = "figures"
 
-if (not os.path.exists(plotPath)):
-    os.mkdir(plotPath)
+directories = ["figures"]
+
+create_directories(directories)
 
 # working list of Wiki pages
 titles = get_titles()
 
 # adds talk pages
-for i in range(len(titles)):
-    titles.append("Talk:" + titles[i])
+titles = add_talk_pages(titles)
 
 # converts titles to filename format
-titles = [title.replace(" ","_").replace(".","(dot)").replace(":", "(colon)") + ".csv" for title in titles]
+titles = [formatFileNames(title) for title in titles]
 titleArray = []
 for title in titles:
     titleArray.append("Data" + title)
