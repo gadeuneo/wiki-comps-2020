@@ -137,7 +137,8 @@ def makeTimeXRevisionFigure(title):
 
 def makeTimeXNumEditorsFigure(title):
     article = dataDict[title]
-    currMonth = 12 #WARNING startDate will affect this
+    newDate = dt.fromtimestamp(startDate)
+    currMonth = dt.fromtimestamp(startDate).month
     editorSet = set()
     sizeOfArticle = article.shape[0]
     countArr = []
@@ -145,8 +146,19 @@ def makeTimeXNumEditorsFigure(title):
     newDate = dt.fromtimestamp(startDate)
     for index, row in article.iterrows():
         editTime = dt.strptime(row['timestamp'], "%Y-%m-%dT%H:%M:%SZ")
+        while(newDate < editTime):
+            if(newDate.month!=currMonth):
+                countArr.append(len(editorSet))
+                epoch = int((newDate-timedelta(days=1)).timestamp())
+                dateArr.append(dt.fromtimestamp(epoch))
+                editorSet.clear()
+                newDate = newDate+timedelta(days=1)
+                currMonth = newDate.month
+            else:
+                newDate = newDate+timedelta(days=1)
+        #out of while loop, means newDate = editTime
         #edge case of last index
-        if(index == sizeOfArticle):
+        if(index == (sizeOfArticle-1)):
             if(currMonth == editTime.month):
                 editorSet.add(row['user'])
             else:
@@ -169,11 +181,10 @@ def makeTimeXNumEditorsFigure(title):
                 editorSet.add(row['user'])
                 currMonth = editTime.month
 
-
     fig, ax = plt.subplots(figsize=(15,7))
     ax.plot(dateArr, countArr)
 
-    ax.xaxis.set_major_locator(mdates.MonthLocator())
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m'))
     #ax.xaxis.set_minor_locator(mdates.DayLocator())
     ax.format_xdata = mdates.DateFormatter('%Y-%m')
@@ -233,8 +244,10 @@ dataTitleArray = []
 for title in titleArray:
     if title[0:4] == "Data":
         dataTitleArray.append(title[:-4])
+
+'''testing/making statistics below'''
 for title in dataTitleArray:
-    makeTimeXRevisionFigure(title)
+    makeTimeXNumEditorsFigure(title)
 
 makeMultipleLineFigure(titleArray, "Muliple Line Graph - Edits per Day")
 #makeTimeXRevisionFigure(revisionData, "10 Year Aggregate Data")
