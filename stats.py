@@ -29,8 +29,9 @@ start = time.time()
 path = "data"
 plotPath = "figures"
 
-if (not os.path.exists(plotPath)):
-    os.mkdir(plotPath)
+directories = ["figures"]
+
+create_directories(directories)
 
 # working list of Wiki pages
 titles = get_titles()

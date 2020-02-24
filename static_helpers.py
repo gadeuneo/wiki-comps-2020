@@ -24,6 +24,7 @@ def get_titles():
 
     return titles
 
+# Pass in a list of directories to create
 def create_directories(directory_names):
 
     for directory_name in directory_names:
