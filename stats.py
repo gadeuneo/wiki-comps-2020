@@ -37,8 +37,7 @@ create_directories(directories)
 titles = get_titles()
 
 # adds talk pages
-for i in range(len(titles)):
-    titles.append("Talk:" + titles[i])
+titles = add_talk_pages(titles)
 
 # converts titles to filename format
 titles = [title.replace(" ","_").replace(".","(dot)").replace(":", "(colon)") + ".csv" for title in titles]
