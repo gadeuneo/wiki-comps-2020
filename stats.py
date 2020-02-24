@@ -246,11 +246,10 @@ for title in titleArray:
         dataTitleArray.append(title[:-4])
 
 '''testing/making statistics below'''
-for title in dataTitleArray:
-    makeTimeXNumEditorsFigure(title)
+'''for title in dataTitleArray:
+    makeTimeXNumEditorsFigure(title)'''
 
-makeMultipleLineFigure(titleArray, "Muliple Line Graph - Edits per Day")
-#makeTimeXRevisionFigure(revisionData, "10 Year Aggregate Data")
+#makeMultipleLineFigure(titleArray, "Muliple Line Graph - Edits per Day")
 
 
 ##### TODO: Make plots
