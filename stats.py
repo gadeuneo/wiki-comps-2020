@@ -179,10 +179,10 @@ def makeTimeXNumEditorsFigure(title):
     plt.xlabel("Time")
     plt.ylabel("Number of Editors Per Month")
     subpath = "10y Time vs Number Editors Per Month"
-    #os.mkdir(subpath)
-    newpath = os.path.join(plotPath, subpath)
-    if (not os.path.isfile(os.path.join(newpath, title + ".png"))):
-        plt.savefig(os.path.isfile(os.path.join(newpath, title + ".png")), bbox_inches="tight")
+    # os.mkdir(os.path.join(plotPath, subpath))
+    # newpath = os.path.join(plotPath, subpath)
+    if (not os.path.isfile(os.path.join(plotPath, subpath, title + ".png"))):
+        plt.savefig(os.path.join(plotPath, subpath, title + ".png"), bbox_inches="tight")
     plt.close()
 
 def makeMultipleLineFigure(titleArray, titles):
