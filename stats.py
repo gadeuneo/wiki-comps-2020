@@ -26,7 +26,7 @@ register_matplotlib_converters()
 start = time.time()
 
 # folder of files
-path = "data"
+path = "10years"
 plotPath = "figures"
 
 directories = ["figures"]
@@ -85,7 +85,7 @@ revisionData['timestamp'] = revisionData['timestamp'].astype(str)
 #print(revisionData.to_string())
 
 # Convert date to Unix Timestamp
-startDate = int(time.mktime(dt.strptime("2019-06-10", "%Y-%m-%d").timetuple()))
+startDate = int(time.mktime(dt.strptime("2009-12-10", "%Y-%m-%d").timetuple()))
 endDate = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
 today = int(time.mktime(dt.today().timetuple()))
 # Assertions for proper date args
@@ -114,9 +114,9 @@ def makeTimeXRevisionFigure(article, title):
     fig, ax = plt.subplots(figsize=(15,7))
     ax.plot(days, counts)
 
-    ax.xaxis.set_major_locator(mdates.MonthLocator())
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m-%d'))
-    ax.xaxis.set_minor_locator(mdates.DayLocator())
+    #ax.xaxis.set_minor_locator(mdates.DayLocator())
     ax.format_xdata = mdates.DateFormatter('%Y-%m')
 
     fig.autofmt_xdate()
@@ -128,11 +128,71 @@ def makeTimeXRevisionFigure(article, title):
         fig.savefig(os.path.join(plotPath, title+".png"), bbox_inches="tight")
     plt.close()
 
+
+def makeTimeXNumEditorsFigure(title):
+    article = dataDict[title]
+    currMonth = 12 #WARNING startDate will affect this
+    editorSet = set()
+    sizeOfArticle = article.shape[0]
+    countArr = []
+    dateArr = []
+    newDate = dt.fromtimestamp(startDate)
+    for index, row in article.iterrows():
+        editTime = dt.strptime(row['timestamp'], "%Y-%m-%dT%H:%M:%SZ")
+        #edge case of last index
+        if(index == sizeOfArticle):
+            if(currMonth == editTime.month):
+                editorSet.add(row['user'])
+            else:
+                countArr.append(len(editorSet))
+                epoch = int(editTime.timestamp())
+                dateArr.append(dt.fromtimestamp(epoch))
+                editorSet.clear()
+                editorSet.add(row['user'])
+                currMonth = editTime.month
+            countArr.append(len(editorSet))
+            dateArr.append(dt.fromtimestamp(epoch))
+        else:
+            if(currMonth == editTime.month):
+                editorSet.add(row['user'])
+            else:
+                countArr.append(len(editorSet))
+                epoch = int(editTime.timestamp())
+                dateArr.append(dt.fromtimestamp(epoch))
+                editorSet.clear()
+                editorSet.add(row['user'])
+                currMonth = editTime.month
+
+
+    fig, ax = plt.subplots(figsize=(15,7))
+    ax.plot(dateArr, countArr)
+
+    ax.xaxis.set_major_locator(mdates.MonthLocator())
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m'))
+    #ax.xaxis.set_minor_locator(mdates.DayLocator())
+    ax.format_xdata = mdates.DateFormatter('%Y-%m')
+
+    fig.autofmt_xdate()
+    plt.title(title)
+    plt.xlabel("Time")
+    plt.ylabel("Number of Editors Per Month")
+    subpath = "10y Time vs Number Editors Per Month"
+    #os.mkdir(subpath)
+    newpath = os.path.join(plotPath, subpath)
+    if (not os.path.isfile(os.path.join(newpath, title + ".png"))):
+        plt.savefig(os.path.isfile(os.path.join(newpath, title + ".png")), bbox_inches="tight")
+    plt.close()
+
+
+
 #separate out "DATA-" articles from "REVISION-", without the .csv
 dataTitleArray = []
 for title in titleArray:
     if title[0:4] == "Data":
         dataTitleArray.append(title[:-4])
+
+# makes all Time-NumEditors
+makeTimeXNumEditorsFigure(dataTitleArray[0])
 
 # makes all Time-RevisionNumber figures
 '''
