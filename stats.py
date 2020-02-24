@@ -20,6 +20,7 @@ import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
 #uhuh
 import copy
+from static_helpers import *
 
 register_matplotlib_converters()
 start = time.time()
@@ -32,49 +33,7 @@ if (not os.path.exists(plotPath)):
     os.mkdir(plotPath)
 
 # working list of Wiki pages
-titles = [
-    "2019–20 Hong Kong protests",
-    "Hong Kong",
-    "2019 Hong Kong extradition bill",
-    "Government of Hong Kong",
-    "Murder of Poon Hiu-wing",
-    "One country, two systems",
-    "Demosistō",
-    "Hong Kong 1 July marches",
-    "Civil Human Rights Front",
-    "Hong Kong Human Rights and Democracy Act",
-    "Chinese University of Hong Kong conflict",
-    "Death of Chow Tsz-lok",
-    "Siege of the Hong Kong Polytechnic University",
-    "2019 Yuen Long attack",
-    "Hong Kong–Mainland China conflict",
-    "Storming of the Legislative Council Complex",
-    "Hong Kong Way",
-    "2019 Prince Edward station attack",
-    "Death of Chan Yin-lam",
-    "2019 Hong Kong local elections",
-    "List of protests in Hong Kong",
-    "Police misconduct allegations during the 2019–20 Hong Kong protests",
-    "Art of the 2019–20 Hong Kong protests",
-    "12 June 2019 Hong Kong protest",
-    "Umbrella Movement",
-    "Causes of the 2019–20 Hong Kong protests",
-    "Tactics and methods surrounding the 2019–20 Hong Kong protests",
-    "Carrie Lam",
-    "Reactions to the 2019–20 Hong Kong protests",
-    "List of early 2019 Hong Kong protests",
-    "List of July 2019 Hong Kong protests",
-    "List of August 2019 Hong Kong protests",
-    "List of September 2019 Hong Kong protests",
-    "List of October 2019 Hong Kong protests",
-    "List of November 2019 Hong Kong protests",
-    "List of December 2019 Hong Kong protests",
-    "List of January 2020 Hong Kong protests",
-    "Glory to Hong Kong",
-    "Lennon Wall (Hong Kong)",
-    "HKmap.live",
-    "Killing of Luo Changqing"
-]
+titles = get_titles()
 
 # adds talk pages
 for i in range(len(titles)):
@@ -184,7 +143,7 @@ for title in titleArray:
         makeTimeXRevisionFigure(article, key)
 '''
 
-makeTimeXRevisionFigure(revisionData, "REEEEEEEEEEEEEE")
+# makeTimeXRevisionFigure(revisionData, "REEEEEEEEEEEEEE")
 
 
 ##### TODO: Make plots
