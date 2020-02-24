@@ -119,6 +119,10 @@ for key in dataDict.keys():
         allRed.append(dataDict[key])
 
 revisionData = pd.concat(allData, ignore_index=True, sort=False)
+revisionData['timestamp'] = pd.to_datetime(revisionData['timestamp'])
+revisionData.sort_values(by='timestamp')
+revisionData['timestamp'] = revisionData['timestamp'].astype(str)
+#revisionData['timestamp'] = revisionData['timestamp'][:-6]
 #print(revisionData.to_string())
 
 # Convert date to Unix Timestamp
@@ -172,12 +176,15 @@ for title in titleArray:
         dataTitleArray.append(title[:-4])
 
 # makes all Time-RevisionNumber figures
+'''
 for title in titleArray:
     key = title[:-4]
     if key[0:4]=="Data":
         article = dataDict[key]
         makeTimeXRevisionFigure(article, key)
+'''
 
+makeTimeXRevisionFigure(revisionData, "REEEEEEEEEEEEEE")
 
 
 ##### TODO: Make plots
@@ -194,7 +201,6 @@ plt.ylabel("Sample y axis label")
 
 if (not os.path.isfile(os.path.join(plotPath, "sample.png"))):
     plt.savefig(os.path.join(plotPath, "sample.png"), bbox_inches="tight")
-
 
 
 end = time.time()
