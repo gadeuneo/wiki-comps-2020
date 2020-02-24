@@ -57,9 +57,10 @@ table = [["Article", "Num Revisions", "Num Editors (unique)"]]
 
 for key in dataDict.keys():
     if ("Data" in key):
-        table.append([key, dataDict[key]['revid'].count(), dataDict[key]['userid'].nunique()])
+        table.append([key, int(dataDict[key]['revid'].count()), int(dataDict[key]['userid'].nunique())])
 
 tableDf = pd.DataFrame(table[1:], columns=table[0])
-tableDf.sort_values(by="Num Revisions", inplace=False)
+tableDf = tableDf.sort_values(by="Num Revisions", ascending=False)
+# print(tableDf.to_string())
 tableDf.to_csv("Table.csv", encoding="utf-8")
 

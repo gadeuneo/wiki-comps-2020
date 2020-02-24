@@ -79,7 +79,8 @@ for key in dataDict.keys():
 
 revisionData = pd.concat(allData, ignore_index=True, sort=False)
 revisionData['timestamp'] = pd.to_datetime(revisionData['timestamp'])
-revisionData.sort_values(by='timestamp', inplace = False)
+# TODO: double check inplace param
+revisionData.sort_values(by='timestamp', inplace = True)
 revisionData['timestamp'] = revisionData['timestamp'].astype(str)
 revisionData['timestamp'] = revisionData['timestamp'].str.replace(" ", "T").str[:-6] + "Z"
 #print(revisionData.to_string())
