@@ -40,7 +40,7 @@ titles = get_titles()
 titles = add_talk_pages(titles)
 
 # converts titles to filename format
-titles = [title.replace(" ","_").replace(".","(dot)").replace(":", "(colon)") + ".csv" for title in titles]
+titles = [formatFileNames(title) for title in titles]
 titleArray = []
 for title in titles:
     titleArray.append("Data" + title)
@@ -79,9 +79,9 @@ for key in dataDict.keys():
 
 revisionData = pd.concat(allData, ignore_index=True, sort=False)
 revisionData['timestamp'] = pd.to_datetime(revisionData['timestamp'])
-revisionData.sort_values(by='timestamp')
+revisionData.sort_values(by='timestamp', inplace = True)
 revisionData['timestamp'] = revisionData['timestamp'].astype(str)
-#revisionData['timestamp'] = revisionData['timestamp'][:-6]
+revisionData['timestamp'] = revisionData['timestamp'].str.replace(" ", "T").str[:-6] + "Z"
 #print(revisionData.to_string())
 
 # Convert date to Unix Timestamp
@@ -108,13 +108,15 @@ def makeTimeXRevisionFigure(article, title):
             counts.append(edits)
             epoch = int(newDate.timestamp())
             days.append(dt.fromtimestamp(epoch))
-            newDate = newDate + timedelta(days=1)
+            newDate = newDate + timedelta()
+            #newDate = newDate + timedelta(days=7)
             edits = 0
         edits += 1
     fig, ax = plt.subplots(figsize=(15,7))
     ax.plot(days, counts)
 
-    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
+    ax.xaxis.set_major_locator(mdates.MonthLocator())
+    #ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m-%d'))
     #ax.xaxis.set_minor_locator(mdates.DayLocator())
     ax.format_xdata = mdates.DateFormatter('%Y-%m')
@@ -122,12 +124,12 @@ def makeTimeXRevisionFigure(article, title):
     fig.autofmt_xdate()
 
     plt.title(title)
+    #plt.suptitle("10 year aggregate data. Shows number of edits per week in 6 month intervals.")
     plt.xlabel("Time")
     plt.ylabel("Number Edits")
     if (not os.path.isfile(os.path.join(plotPath, title+".png"))):
         fig.savefig(os.path.join(plotPath, title+".png"), bbox_inches="tight")
     plt.close()
-
 
 def makeTimeXNumEditorsFigure(title):
     article = dataDict[title]
@@ -183,7 +185,44 @@ def makeTimeXNumEditorsFigure(title):
         plt.savefig(os.path.isfile(os.path.join(newpath, title + ".png")), bbox_inches="tight")
     plt.close()
 
+def makeMultipleLineFigure(titleArray, titles):
+    for title in titleArray:
+        key = title[:-4]
+        if key[0:4]=="Data":
+            article = dataDict[key]
+            newDate = dt.fromtimestamp(startDate)
+            days = []
+            counts = []
+            #counts the edits
+            edits = 0
+            for day in article['timestamp']:
+                editTime = dt.strptime(day, "%Y-%m-%dT%H:%M:%SZ")
+                while(editTime > newDate):
+                    counts.append(edits)
+                    epoch = int(newDate.timestamp())
+                    days.append(dt.fromtimestamp(epoch))
+                    newDate = newDate + timedelta(days=1)
+                    #newDate = newDate + timedelta(days=7)
+                    edits = 0
+                edits += 1
+            '''fig, ax = plt.subplots(figsize=(15,7))
+            ax.plot(days, counts)
+            ax.xaxis.set_major_locator(mdates.MonthLocator())
+            #ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
+            ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m-%d'))
+            ax.xaxis.set_minor_locator(mdates.DayLocator())
+            ax.format_xdata = mdates.DateFormatter('%Y-%m')
 
+            fig.autofmt_xdate()'''
+            plt.plot(days, counts)
+
+    plt.title(titles)
+    #plt.suptitle("10 year aggregate data. Shows number of edits per week in 6 month intervals.")
+    plt.xlabel("Time")
+    plt.ylabel("Number Edits")
+    if (not os.path.isfile(os.path.join(plotPath, titles+".png"))):
+        plt.savefig(os.path.join(plotPath, titles+".png"), bbox_inches="tight")
+    plt.close()
 
 #separate out "DATA-" articles from "REVISION-", without the .csv
 dataTitleArray = []
@@ -203,7 +242,8 @@ for title in titleArray:
         makeTimeXRevisionFigure(article, key)
 '''
 
-# makeTimeXRevisionFigure(revisionData, "REEEEEEEEEEEEEE")
+makeMultipleLineFigure(titleArray, "Muliple Line Graph - Edits per Day")
+#makeTimeXRevisionFigure(revisionData, "10 Year Aggregate Data")
 
 
 ##### TODO: Make plots
@@ -213,14 +253,14 @@ for title in titleArray:
 # https://towardsdatascience.com/matplotlib-tutorial-learn-basics-of-pythons-powerful-plotting-library-b5d1b8f67596
 
 # plots x values, then y values
-plt.plot([1,2,3,4], [1,4,9,16])
+'''plt.plot([1,2,3,4], [1,4,9,16])
 plt.title("Sample plot")
 plt.xlabel("Sample x axis label")
 plt.ylabel("Sample y axis label")
 
 if (not os.path.isfile(os.path.join(plotPath, "sample.png"))):
     plt.savefig(os.path.join(plotPath, "sample.png"), bbox_inches="tight")
-
+'''
 
 end = time.time()
 print("Time Elapsed: " + str(end-start))
