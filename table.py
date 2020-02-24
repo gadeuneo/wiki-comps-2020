@@ -60,5 +60,6 @@ for key in dataDict.keys():
         table.append([key, dataDict[key]['revid'].count(), dataDict[key]['userid'].nunique()])
 
 tableDf = pd.DataFrame(table[1:], columns=table[0])
+tableDf.sort_values(by="Num Revisions", inplace=False)
 tableDf.to_csv("Table.csv", encoding="utf-8")
 
