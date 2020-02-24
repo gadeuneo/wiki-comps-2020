@@ -40,7 +40,7 @@ titles = get_titles()
 titles = add_talk_pages(titles)
 
 # converts titles to filename format
-titles = [title.replace(" ","_").replace(".","(dot)").replace(":", "(colon)") + ".csv" for title in titles]
+titles = [formatFileNames(title) for title in titles]
 titleArray = []
 for title in titles:
     titleArray.append("Data" + title)
