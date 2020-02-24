@@ -392,9 +392,15 @@ def main():
 
     if ((len(dates) -1) != len(files) or badCreation):
         print("Error with collecting page creation dates!")
-    elif (not (os.path.isfile(os.path.join(creation_date_directory, "creationDates.csv")))):
+    elif (not (os.path.isfile(os.path.join(creation_date_directory, "CreationDates.csv")))):
         dfDates = pd.DataFrame(dates[1:], columns=dates[0])
         dfDates.to_csv(os.path.join(creation_date_directory, "CreationDates.csv"), encoding="utf-8")
+    else:
+        creationcsv = pd.read_csv(os.path.join(creation_date_directory, "CreationDates.csv"))
+        for i in range(len(titles)):
+            if (titles[i] not in creationcsv['Title']):
+                creationcsv.append(dates[i], ignore_index=True)
+        creationcsv.to_csv(os.path.join(creation_date_directory, "CreationDates.csv"), encoding="utf-8")
 
     endCreate = time.time()
     print("Page creation dates took {0} seconds".format(str(endCreate - endPrep)))
