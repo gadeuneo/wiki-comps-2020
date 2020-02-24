@@ -96,7 +96,8 @@ assert(endDate <= today)
 
 # test get next day epoch time
 
-def makeTimeXRevisionFigure(article, title):
+def makeTimeXRevisionFigure(title):
+    article = dataDict[title]
     newDate = dt.fromtimestamp(startDate)
     days = []
     counts = []
@@ -108,27 +109,30 @@ def makeTimeXRevisionFigure(article, title):
             counts.append(edits)
             epoch = int(newDate.timestamp())
             days.append(dt.fromtimestamp(epoch))
-            newDate = newDate + timedelta()
+            newDate = newDate + timedelta(days=1)
             #newDate = newDate + timedelta(days=7)
             edits = 0
         edits += 1
     fig, ax = plt.subplots(figsize=(15,7))
     ax.plot(days, counts)
 
-    ax.xaxis.set_major_locator(mdates.MonthLocator())
-    #ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
+    #ax.xaxis.set_major_locator(mdates.MonthLocator())
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m-%d'))
     #ax.xaxis.set_minor_locator(mdates.DayLocator())
     ax.format_xdata = mdates.DateFormatter('%Y-%m')
 
     fig.autofmt_xdate()
-
     plt.title(title)
     #plt.suptitle("10 year aggregate data. Shows number of edits per week in 6 month intervals.")
     plt.xlabel("Time")
     plt.ylabel("Number Edits")
-    if (not os.path.isfile(os.path.join(plotPath, title+".png"))):
-        fig.savefig(os.path.join(plotPath, title+".png"), bbox_inches="tight")
+
+    subpath = "10y Time vs Num Revisions"
+    # os.mkdir(os.path.join(plotPath, subpath))
+    # newpath = os.path.join(plotPath, subpath)
+    if (not os.path.isfile(os.path.join(plotPath, subpath, title + ".png"))):
+        plt.savefig(os.path.join(plotPath, subpath, title + ".png"), bbox_inches="tight")
     plt.close()
 
 def makeTimeXNumEditorsFigure(title):
@@ -229,18 +233,8 @@ dataTitleArray = []
 for title in titleArray:
     if title[0:4] == "Data":
         dataTitleArray.append(title[:-4])
-
-# makes all Time-NumEditors
-makeTimeXNumEditorsFigure(dataTitleArray[0])
-
-# makes all Time-RevisionNumber figures
-'''
-for title in titleArray:
-    key = title[:-4]
-    if key[0:4]=="Data":
-        article = dataDict[key]
-        makeTimeXRevisionFigure(article, key)
-'''
+for title in dataTitleArray:
+    makeTimeXRevisionFigure(title)
 
 makeMultipleLineFigure(titleArray, "Muliple Line Graph - Edits per Day")
 #makeTimeXRevisionFigure(revisionData, "10 Year Aggregate Data")
