@@ -1,0 +1,16 @@
+---
+title: "wiki-stats"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+df <- read.csv("data/Data2019_Hong_Kong_extradition_bill.csv")
+df$anon <- as.character(df$anon)
+unique(df$anon)
+
+c(sum(df$anon == "True"), sum(df$anon == ""))
+```
