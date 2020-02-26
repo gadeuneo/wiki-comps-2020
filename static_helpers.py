@@ -41,7 +41,7 @@ def add_talk_pages(titles):
 
     return titles
 
-def formatFileNames(title):
+def format_file_names(title):
 
     rules = {
         " ": "_",
@@ -53,3 +53,10 @@ def formatFileNames(title):
         title = title.replace(key, rules[key])
 
     return title + ".csv"
+
+def file_exists(complete_file_name):
+
+    if os.path.isfile(complete_file_name):
+        return True
+
+    return False
