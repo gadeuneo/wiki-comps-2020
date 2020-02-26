@@ -1,6 +1,8 @@
 # Credentials for Wikipedia
 credentials.txt
 
+# Jackie's vscode directory
+.vscode
 
 # Created by https://www.gitignore.io/api/git,xcode,linux,macos,pycharm,windows,eclipse,intellij,sublimetext,visualstudio,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=git,xcode,linux,macos,pycharm,windows,eclipse,intellij,sublimetext,visualstudio,visualstudiocode
