@@ -367,7 +367,7 @@ def main():
     # Use pageid for curid to check if correct page is found
     # https://en.wikipedia.org/?curid=
 
-    files = [formatFileNames(title) for title in titles]
+    files = [format_file_names(title) for title in titles]
 
     # Why is it formatted this way? - Jackie
     dates = [["Title", "Page Creation Date"]]
