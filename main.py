@@ -5,7 +5,7 @@ Saves in csv format per revision.
 James Gardner
 '''
 
-import requests
+import requests as rq
 import json
 import os
 import sys
@@ -322,7 +322,7 @@ def getPageviewsHack(S, url, headers, df):
 '''
 def main():
 
-    S = requests.Session()
+    S = rq.Session()
 
     url = "https://en.wikipedia.org/w/api.php?"
 
