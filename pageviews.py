@@ -14,7 +14,7 @@ import matplotlib.ticker as ticker
 from static_helpers import *
 
 from selenium import webdriver
-
+import shutil
 
 
 path = "WikiData-pageviews"
@@ -40,16 +40,53 @@ url = '''https://tools.wmflabs.org/redirectviews/?project=en.wikipedia.org
 
 titles = get_titles()
 titles = add_talk_pages(titles)
-# driverPath = os.path.join("D:", "james", "Downloads", "chromedriver_linux64", "chromedriver.exe")
-driverPath = os.path.join("mnt", "d", "james", "Downloads", "chromedriver_linux64", "chromedriver.exe")
-driver = webdriver.Chrome(executable_path=driverPath)
-driver.get(url + titles[0])
-button = driver.find_elements_by_class_name("btn btn-default btn-sm dropdown-toggle")
-button.click()
-button = driver.find_elements_by_class_name("download-csv")
-button.click()
 
+mime_types = [
+    'text/plain', 
+    'application/vnd.ms-excel', 
+    'text/csv', 
+    'application/csv', 
+    'text/comma-separated-values', 
+    'application/download', 
+    'application/octet-stream', 
+    'binary/octet-stream', 
+    'application/binary', 
+    'application/x-unknown'
+]
 
+profile = webdriver.FirefoxProfile()
+profile.set_preference("browser.download.folderList", 2)
+profile.set_preference("browser.download.manager.showWhenStarting", False)
+download = os.path.join("home", "james", "GitHub", "wiki-comps-2020", "WikiData-pageviews")
+profile.set_preference("browser.download.dir", download)
+profile.set_preference("browser.download.downloadDir", download)
+# profile.set_preference("browser.helperApps.neverAsk.openFile", ",".join(mime_types))
+profile.set_preference("browser.helperApps.neverAsk.saveToDisk", ",".join(mime_types))
+
+driver = webdriver.Firefox(firefox_profile=profile)
+
+def getFile(title, driver):
+    driver.get(url + title)
+    time.sleep(10)
+    button = driver.find_elements_by_class_name("btn.btn-default.btn-sm.dropdown-toggle")[2]
+    button.click()
+    time.sleep(1)
+    button = driver.find_elements_by_class_name("download-csv")[0]
+    button.click()
+    time.sleep(5)
+    driver.close()
+
+files = [format_file_names(title) for title in titles]
+assert(len(titles) == len(files))
+for i in range(len(titles)):
+    getFile(titles[i], driver)
+    f = [x for x in os.listdir('/home/james/Downloads/') if x.endswith('.csv')]
+    paths = [os.path.join('/home/james/Downloads/', name) for name in f]
+    newest = max(paths, key=os.path.getctime)
+    shutil.move(newest, os.path.join('/home/james/GitHub/wiki-comps-2020/WikiData-pageviews/', files[i]))
+    print(newest)
+
+driver.quit()
 sys.exit(0)
 
 pageDf = pd.read_csv(os.path.join(path, pageviewFile))
