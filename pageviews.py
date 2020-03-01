@@ -57,7 +57,7 @@ mime_types = [
 profile = webdriver.FirefoxProfile()
 profile.set_preference("browser.download.folderList", 2)
 profile.set_preference("browser.download.manager.showWhenStarting", False)
-download = os.path.join("home", "james", "GitHub", "wiki-comps-2020", "WikiData-pageviews")
+download = "/home/james/GitHub/wiki-comps-2020/WikiData-pageviews/"
 profile.set_preference("browser.download.dir", download)
 profile.set_preference("browser.download.downloadDir", download)
 # profile.set_preference("browser.helperApps.neverAsk.openFile", ",".join(mime_types))
@@ -80,32 +80,37 @@ def getFile(title):
 files = [format_file_names(title) for title in titles]
 assert(len(titles) == len(files))
 
-for i in range(len(titles)):
-    getFile(titles[i])
-    f = [x for x in os.listdir('/home/james/Downloads/') if x.endswith('.csv')]
-    paths = [os.path.join('/home/james/Downloads/', name) for name in f]
-    newest = max(paths, key=os.path.getctime)
-    shutil.move(newest, os.path.join('/home/james/GitHub/wiki-comps-2020/WikiData-pageviews/', files[i]))
-    print(newest)
+def getPageviews():
+    for i in range(len(titles)):
+        getFile(titles[i])
+        f = [x for x in os.listdir('/home/james/Downloads/') if x.endswith('.csv')]
+        paths = [os.path.join('/home/james/Downloads/', name) for name in f]
+        newest = max(paths, key=os.path.getctime)
+        shutil.move(newest, os.path.join('/home/james/GitHub/wiki-comps-2020/WikiData-pageviews/', files[i]))
 
-driver.quit()
-sys.exit(0)
 
-pageDf = pd.read_csv(os.path.join(path, pageviewFile))
-# prints daily sums
-# print(pageDf.sum(axis=0, skipna=True))
-# prints page title sums
-# print(pageDf.sum(axis=1, skipna=True))
+if (len(os.listdir(path)) != len(titles)):
+    getPageviews()
 
-pageviews = [["Date", "Count"]]
 
-for col in pageDf.columns[1:]:
-    if (dt.strptime(col, "%Y-%m-%d") > endDate):
-        break
-    else:
-        pageviews.append([col, pageDf[col].sum()])
+def reformatFiles():
+    for i in range(len(titles)):
+        pageDf = pd.read_csv(os.path.join(path, files[i]))
+        # prints daily sums
+        # print(pageDf.sum(axis=0, skipna=True))
+        # prints page title sums
+        # print(pageDf.sum(axis=1, skipna=True))
+        pageviews = [["Date", "Count"]]
 
-if (not (os.path.isfile(os.path.join(newpath, "2019-20 Hong Kong protests.csv")))):
-                dfData = pd.DataFrame(pageviews[1:], columns=pageviews[0])
-                dfData.to_csv(os.path.join(newpath, "2019-20 Hong Kong protests.csv"), encoding="utf-8")
+        for col in pageDf.columns[1:]:
+            if (dt.strptime(col, "%Y-%m-%d") > endDate):
+                break
+            else:
+                pageviews.append([col, pageDf[col].sum()])
 
+        if (not (os.path.isfile(os.path.join(newpath, files[i])))):
+                        dfData = pd.DataFrame(pageviews[1:], columns=pageviews[0])
+                        dfData.to_csv(os.path.join(newpath, files[i]), encoding="utf-8")
+
+if (len(os.listdir(newpath)) != len(titles)):
+    reformatFiles()
