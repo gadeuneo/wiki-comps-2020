@@ -63,9 +63,10 @@ profile.set_preference("browser.download.downloadDir", download)
 # profile.set_preference("browser.helperApps.neverAsk.openFile", ",".join(mime_types))
 profile.set_preference("browser.helperApps.neverAsk.saveToDisk", ",".join(mime_types))
 
-driver = webdriver.Firefox(firefox_profile=profile)
 
-def getFile(title, driver):
+
+def getFile(title):
+    driver = webdriver.Firefox(firefox_profile=profile)
     driver.get(url + title)
     time.sleep(10)
     button = driver.find_elements_by_class_name("btn.btn-default.btn-sm.dropdown-toggle")[2]
@@ -78,8 +79,9 @@ def getFile(title, driver):
 
 files = [format_file_names(title) for title in titles]
 assert(len(titles) == len(files))
+
 for i in range(len(titles)):
-    getFile(titles[i], driver)
+    getFile(titles[i])
     f = [x for x in os.listdir('/home/james/Downloads/') if x.endswith('.csv')]
     paths = [os.path.join('/home/james/Downloads/', name) for name in f]
     newest = max(paths, key=os.path.getctime)
