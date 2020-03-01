@@ -19,7 +19,6 @@ import shutil
 
 path = "WikiData-pageviews"
 newpath = "dailyPageviews"
-# pageviewFile = "2019–20 Hong Kong protests-20150701-20200225.csv"
 
 if (not os.path.exists(newpath)):
     os.mkdir(newpath)
@@ -54,12 +53,13 @@ mime_types = [
     'application/x-unknown'
 ]
 
+downloadPath = "/home/james/GitHub/wiki-comps-2020/WikiData-pageviews/"
+
 profile = webdriver.FirefoxProfile()
 profile.set_preference("browser.download.folderList", 2)
 profile.set_preference("browser.download.manager.showWhenStarting", False)
-download = "/home/james/GitHub/wiki-comps-2020/WikiData-pageviews/"
-profile.set_preference("browser.download.dir", download)
-profile.set_preference("browser.download.downloadDir", download)
+profile.set_preference("browser.download.dir", downloadPath)
+profile.set_preference("browser.download.downloadDir", downloadPath)
 # profile.set_preference("browser.helperApps.neverAsk.openFile", ",".join(mime_types))
 profile.set_preference("browser.helperApps.neverAsk.saveToDisk", ",".join(mime_types))
 
@@ -81,12 +81,13 @@ files = [format_file_names(title) for title in titles]
 assert(len(titles) == len(files))
 
 def getPageviews():
+    downloadPath = "/home/james/Downloads/"
     for i in range(len(titles)):
         getFile(titles[i])
-        f = [x for x in os.listdir('/home/james/Downloads/') if x.endswith('.csv')]
-        paths = [os.path.join('/home/james/Downloads/', name) for name in f]
+        f = [x for x in os.listdir(downloadPath) if x.endswith('.csv')]
+        paths = [os.path.join(downloadPath, name) for name in f]
         newest = max(paths, key=os.path.getctime)
-        shutil.move(newest, os.path.join('/home/james/GitHub/wiki-comps-2020/WikiData-pageviews/', files[i]))
+        shutil.move(newest, os.path.join(newpath, files[i]))
 
 
 if (len(os.listdir(path)) != len(titles)):
