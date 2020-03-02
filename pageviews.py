@@ -81,6 +81,7 @@ files = [format_file_names(title) for title in titles]
 assert(len(titles) == len(files))
 
 def getPageviews():
+    # may need different download path if above browser preference did not change default path
     downloadPath = "/home/james/Downloads/"
     for i in range(len(titles)):
         getFile(titles[i])
