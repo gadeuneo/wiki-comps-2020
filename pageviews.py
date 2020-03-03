@@ -1,19 +1,20 @@
+'''
+Gets pageview data of wikipage per date.
+Saves in csv format per page.
+
+James Gardner
+'''
+
 import pandas as pd
 import os
 import sys
+import requests as rq
 from datetime import datetime as dt
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 import time
-import matplotlib.pyplot as plt
-import numpy as np
-#uhuh
-import matplotlib.dates as mdates
-import matplotlib.cbook as cbook
-import matplotlib.ticker as ticker
 from static_helpers import *
-
-from selenium import webdriver
+#from selenium import webdriver
 import shutil
 
 
@@ -32,13 +33,16 @@ today = dt.today()
 assert(startDate <= endDate)
 assert(endDate <= today)
 
+titles = get_titles()
+titles = add_talk_pages(titles)
+
+'''
+Begin WFMLABS pageview collection
+'''
 
 url = '''https://tools.wmflabs.org/redirectviews/?project=en.wikipedia.org
         &platform=all-access&agent=user&range=all-time&sort=views
         &direction=1&view=list&page='''
-
-titles = get_titles()
-titles = add_talk_pages(titles)
 
 mime_types = [
     'text/plain', 
@@ -55,17 +59,18 @@ mime_types = [
 
 downloadPath = "/home/james/GitHub/wiki-comps-2020/WikiData-pageviews/"
 
-profile = webdriver.FirefoxProfile()
-profile.set_preference("browser.download.folderList", 2)
-profile.set_preference("browser.download.manager.showWhenStarting", False)
-profile.set_preference("browser.download.dir", downloadPath)
-profile.set_preference("browser.download.downloadDir", downloadPath)
-# profile.set_preference("browser.helperApps.neverAsk.openFile", ",".join(mime_types))
-profile.set_preference("browser.helperApps.neverAsk.saveToDisk", ",".join(mime_types))
 
-
-
+'''
+    Auto download file from wmflabs.org tool for redirects pageviews
+'''
 def getFile(title):
+    profile = webdriver.FirefoxProfile()
+    profile.set_preference("browser.download.folderList", 2)
+    profile.set_preference("browser.download.manager.showWhenStarting", False)
+    profile.set_preference("browser.download.dir", downloadPath)
+    profile.set_preference("browser.download.downloadDir", downloadPath)
+    # profile.set_preference("browser.helperApps.neverAsk.openFile", ",".join(mime_types))
+    profile.set_preference("browser.helperApps.neverAsk.saveToDisk", ",".join(mime_types))
     driver = webdriver.Firefox(firefox_profile=profile)
     driver.get(url + title)
     time.sleep(10)
@@ -80,12 +85,16 @@ def getFile(title):
 files = [format_file_names(title) for title in titles]
 assert(len(titles) == len(files))
 
+'''
+    moves from download folder to new folder specified above.
+'''
 def getPageviews():
     # may need different download path if above browser preference did not change default path
     downloadPath = "/home/james/Downloads/"
     for i in range(len(titles)):
         getFile(titles[i])
         f = [x for x in os.listdir(downloadPath) if x.endswith('.csv')]
+        # find the most recently modified csv file
         paths = [os.path.join(downloadPath, name) for name in f]
         newest = max(paths, key=os.path.getctime)
         shutil.move(newest, os.path.join(newpath, files[i]))
@@ -94,7 +103,9 @@ def getPageviews():
 if (len(os.listdir(path)) != len(titles)):
     getPageviews()
 
-
+'''
+    Reformats csv file from columns as dates to rows as date
+'''
 def reformatFiles():
     for i in range(len(titles)):
         pageDf = pd.read_csv(os.path.join(path, files[i]))
@@ -116,3 +127,41 @@ def reformatFiles():
 
 if (len(os.listdir(newpath)) != len(titles)):
     reformatFiles()
+
+'''
+End WFMLABS pageview collection
+'''
+
+'''
+Begin REST API pageview collection
+'''
+## YYYYMMDDHH format for dates
+beginDate = 2019121000
+stopDate = 2019121000
+
+restUrl = '''https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia.org/all-access/all-agents/{0}/daily/{1}/{2}'''
+header = {
+    "accept": "application/json"
+}
+
+S = rq.Session()
+
+def getRESTPageviews(S, url, headers, title, begin, end):
+    rest = url.format(title, begin, end)
+    rest = rest.replace(" ","")
+    data = S.get(url=rest, headers = headers).json()
+    return data
+
+pageData = dict()
+
+fomrattedTitles = [t.replace(" ","_") for t in titles]
+
+for title in fomrattedTitles:
+    pageData[title] = getRESTPageviews(S, restUrl, header, title, beginDate, stopDate)
+
+for i in fomrattedTitles:
+    print(pageData[i])
+
+'''
+End REST API pageview collection
+'''

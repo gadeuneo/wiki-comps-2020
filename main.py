@@ -433,11 +433,6 @@ def main():
                 dfRed = pd.DataFrame(redirects)
                 dfRed.to_csv(os.path.join(path, "Redirects" + files[i]), encoding="utf-8")
 
-
-    test = pd.read_csv(os.path.join(path, "Redirects" + files[0]))
-    mydates = getPageviewsHack(S, url, headers, test)
-    # printJsonTree(mydates)
-
     '''
         End Data Collection
     '''
