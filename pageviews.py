@@ -88,7 +88,7 @@ assert(len(titles) == len(files))
 '''
     moves from download folder to new folder specified above.
 '''
-def getPageviews():
+def movePageviews():
     # may need different download path if above browser preference did not change default path
     downloadPath = "/home/james/Downloads/"
     for i in range(len(titles)):
@@ -101,7 +101,7 @@ def getPageviews():
 
 
 if (len(os.listdir(path)) != len(titles)):
-    getPageviews()
+    movePageviews()
 
 '''
     Reformats csv file from columns as dates to rows as date
@@ -159,9 +159,20 @@ fomrattedTitles = [t.replace(" ","_") for t in titles]
 for title in fomrattedTitles:
     pageData[title] = getRESTPageviews(S, restUrl, header, title, beginDate, stopDate)
 
-for i in fomrattedTitles:
-    print(pageData[i])
+# Errors with data not existing for date range for some titles
+# for i in fomrattedTitles:
+#     print(pageData[i])
 
 '''
 End REST API pageview collection
+'''
+
+'''
+Begin MediaWiki API pageview collection
+'''
+
+
+
+'''
+End MediaWiki API pageview collection
 '''
