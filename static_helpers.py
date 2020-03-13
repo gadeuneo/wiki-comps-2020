@@ -10,7 +10,7 @@ def get_credentials():
     username = credentials[0]
     password = credentials[1]
 
-    return username, credentials
+    return username, password
 
 def get_titles():
 
