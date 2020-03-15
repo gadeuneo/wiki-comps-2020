@@ -9,6 +9,8 @@ Source: http://www.cs.carleton.edu/cs_comps/1920/wikipedia/index.php
 
 Paper: https://doi.org/10.1145/2998181.2998232
 
+Project Task Board: https://github.com/gadeuneo/wiki-comps-2020/projects/1
+
 ## api_project.py
 Contains code for collecting redirects, revisions, pageids, and pageviews via MediaWiki API. Accesses the API using a Wiki bot user account with login credentials stored in "credentials.txt" which is excluded via gitignore.
 
