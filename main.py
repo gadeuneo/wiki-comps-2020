@@ -5,7 +5,7 @@ Saves in csv format per revision.
 James Gardner
 '''
 
-import requests
+import requests as rq
 import json
 import os
 import sys
@@ -17,94 +17,7 @@ from static_helpers import *
 
 start = time.time()
 
-'''
-    Begin Helper Functions
-'''
 
-def printJsonTree(d, indent=0):
-    """Print tree of keys in JSON object.
-
-    Prints the different levels of nested keys in a JSON object. When there
-    are no more dictionaries to key into, prints objects type and byte-size.
-    Also iterates through lists of dictionaries.
-
-    Input
-    -----
-    d : dict
-    """
-    for key,value in d.items():
-        print("\t"*indent + str(key),end=" ")
-        if isinstance(value, dict):
-            print(); printJsonTree(value, indent+1)
-        elif isinstance(value, list):
-            for item in value:
-                if isinstance(item, dict):
-                    print(); printJsonTree(item, indent+1)
-                else:
-                    print(": " + str(type(d[key])).split("'")[1] + " - " + str(len(str(d[key]))))
-        else:
-            print(": " + str(type(d[key])).split("'")[1] + " - " + str(len(str(d[key]))))
-
-def printQueryErrors(requestObject):
-    warn = False
-    error = False
-    try:
-        warnings = requestObject['warnings']
-        warn = True
-        print("WARNINGS FROM API! READ MESSAGE TO RESOLVE!")
-        print("*"*80)
-        for key in warnings.keys():
-            print("KEY: " + str(key) + "\n")
-            for id in requestObject['warnings'][key].keys():
-                print(requestObject['warnings'][key][id])
-            print("")
-    except:
-        pass
-
-    try:
-        errors = requestObject['error']
-        error = True
-        print("ERRORS FROM API! READ MESSAGE TO RESOLVE!")
-        print("*"*80)
-        for key in errors.keys():
-            print("KEY: " + str(key) + "\n")
-            print(requestObject['error'][key])
-            print("")
-    except:
-        pass
-
-    if (warn and error):
-        print("*"*80)
-        print("WARNINGS AND ERRORS IN QUERY! READ MESSAGE TO RESOLVE!")
-    elif (warn and not error):
-        print("*"*80)
-        print("WARNINGS IN QUERY! READ MESSAGE TO RESOLVE!")
-    elif (not warn and error):
-        print("*"*80)
-        print("ERRORS IN QUERY! READ MESSAGE TO RESOLVE!")
-    else:
-        print("*"*80)
-        print("QUERY SUCESSFUL!")
-
-def hasError(requestObject):
-    warn = False
-    error = False
-    try:
-        warnings = requestObject['warnings']
-        warn = True
-    except:
-        pass
-
-    try:
-        errors = requestObject['error']
-        error = True
-    except:
-        pass
-
-    if (warn or error):
-        return True
-    else:
-        return False
 '''
     Begin Bot Login Code.
 '''
@@ -322,7 +235,7 @@ def getPageviewsHack(S, url, headers, df):
 '''
 def main():
 
-    S = requests.Session()
+    S = rq.Session()
 
     url = "https://en.wikipedia.org/w/api.php?"
 
@@ -367,7 +280,7 @@ def main():
     # Use pageid for curid to check if correct page is found
     # https://en.wikipedia.org/?curid=
 
-    files = [formatFileNames(title) for title in titles]
+    files = [format_file_names(title) for title in titles]
 
     # Why is it formatted this way? - Jackie
     dates = [["Title", "Page Creation Date"]]
@@ -432,11 +345,6 @@ def main():
             if (not (os.path.isfile(os.path.join(path, "Redirects" + files[i])))):
                 dfRed = pd.DataFrame(redirects)
                 dfRed.to_csv(os.path.join(path, "Redirects" + files[i]), encoding="utf-8")
-
-
-    test = pd.read_csv(os.path.join(path, "Redirects" + files[0]))
-    mydates = getPageviewsHack(S, url, headers, test)
-    # printJsonTree(mydates)
 
     '''
         End Data Collection
