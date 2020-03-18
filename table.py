@@ -12,6 +12,27 @@ def prettyPrint(dictKey):
     newTitle = newTitle.replace("Data", "").replace("_", " ").replace("(dot)",".")
     return newTitle
 
+def formatTop(title):
+    new = str(title)
+    new = new.replace("Data", "")
+    return new
+
+top10 = [
+    "2019–20 Hong Kong protests",
+    "Hong Kong",
+    "Carrie Lam",
+    "2019 Hong Kong extradition bill",
+    "2019 Hong Kong local elections",
+    "Reactions to the 2019–20 Hong Kong protests",
+    "2019 Yuen Long attack",
+    "Tactics and methods surrounding the 2019–20 Hong Kong protests",
+    "One country, two systems",
+    "Umbrella Movement"
+]
+
+top10 = add_talk_pages(top10)
+top10 = [format_file_names(title)[:-4] for title in top10]
+top10 = [formatTop(title) for title in top10]
 
 path = "10years"
 titles = get_titles()
@@ -51,7 +72,9 @@ for key in dataDict.keys():
 table = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews"]]
 
 edSet = set()
+topEdSet = set()
 talkSet = set()
+topTalkSet = set()
 
 for key in dataDict.keys():
     if ("Talk" not in key):
@@ -60,6 +83,8 @@ for key in dataDict.keys():
         edCount = int(dataDict[key]['userid'].nunique())
         edList = dataDict[key]['userid'].tolist()
         edSet.update(edList)
+        if (formatTop(key) in top10):
+            topEdSet.update(edList)
         talkRev = 0
         talkEd = 0
         # will update once pageview data collection has been done
@@ -70,6 +95,8 @@ for key in dataDict.keys():
                 talkEd = int(dataDict[talk]['userid'].nunique())
                 talkList = dataDict[talk]['userid'].tolist()
                 talkSet.update(talkList)
+                if (formatTop(talk) in top10):
+                    topTalkSet.update(talkList)
         table.append([page, revCount, edCount, talkRev, talkEd, pageviews])
 
 
@@ -78,15 +105,27 @@ total = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Ed
 
 tableDf = pd.DataFrame(table[1:], columns=table[0])
 tableDf = tableDf.sort_values(by="Revisions", ascending=False)
+# top 10 rows of dataframe
+tableDf = tableDf.head(10)
 
 revSum = tableDf['Revisions'].sum()
 talkSum = tableDf['Talk Revisions'].sum()
 pageSum = tableDf['Pageviews'].sum()
 
+# sums for all pages, edit/talk
 editorSum = len(edSet)
 talkEditSum = len(talkSet)
 
-total.append(["Total", revSum, editorSum, talkSum, talkEditSum, pageSum])
+totalSet = set()
+totalSet.update(edSet)
+totalSet.update(talkSet)
+# total unique editor count for all pages including talk
+totalSum = len(totalSet)
+
+topEditorSum = len(topEdSet)
+topTalkSum = len(topTalkSet)
+
+total.append(["Total", revSum, topEditorSum, talkSum, topTalkSum, pageSum])
 totalDf = pd.DataFrame(total[1:], columns=table[0])
 
 tableDf = tableDf.append(totalDf)
