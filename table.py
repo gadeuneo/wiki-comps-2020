@@ -48,15 +48,18 @@ for key in dataDict.keys():
     if ("Data" in key):
         allData.append(dataDict[key])
 
-# TODO grab data and make table
-
 table = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews"]]
+
+edSet = set()
+talkSet = set()
 
 for key in dataDict.keys():
     if ("Talk" not in key):
         page = prettyPrint(key)
         revCount = int(dataDict[key]['revid'].count())
         edCount = int(dataDict[key]['userid'].nunique())
+        edList = dataDict[key]['userid'].tolist()
+        edSet.update(edList)
         talkRev = 0
         talkEd = 0
         # will update once pageview data collection has been done
@@ -65,6 +68,8 @@ for key in dataDict.keys():
             if ("Talk" in talk and key.replace("Data","") in talk):
                 talkRev = int(dataDict[talk]['revid'].count())
                 talkEd = int(dataDict[talk]['userid'].nunique())
+                talkList = dataDict[talk]['userid'].tolist()
+                talkSet.update(talkList)
         table.append([page, revCount, edCount, talkRev, talkEd, pageviews])
 
 
@@ -78,10 +83,8 @@ revSum = tableDf['Revisions'].sum()
 talkSum = tableDf['Talk Revisions'].sum()
 pageSum = tableDf['Pageviews'].sum()
 
-# Working -- need to separate talk pages out
-editorSum = 0
-talkEditSum = 0
-
+editorSum = len(edSet)
+talkEditSum = len(talkSet)
 
 total.append(["Total", revSum, editorSum, talkSum, talkEditSum, pageSum])
 totalDf = pd.DataFrame(total[1:], columns=table[0])
