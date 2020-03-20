@@ -16,6 +16,12 @@ news articles. We will *not* be using Wikipedia articles for our citations as
 they can change.
 
 # Removed Titles
+Hong Kong, List of {early 2019, July 2019, August 2019, September 2019,
+October 2019, November 2019, December 2019, January 2020} Hong Kong protests,
+Carrie Lam, Tactics and methods surrounding the 2019-20 Hong Kong protests,
+Causes of  the 2019-20 Hong Kong protests, Art of the 2019-20 Hong Kong
+protests, List of protests in Hong Kong, 2019 Hong Kong local elections,
+Hong Kong-Mainland China conflict, "One Country, two systems", Government of 
 Hong Kong
 
 
