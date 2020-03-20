@@ -1,6 +1,9 @@
 import os
 import sys
 
+import time
+from datetime import datetime
+
 def get_credentials():
 
     with open("credentials.txt", "r", encoding="utf-8") as file:
@@ -156,12 +159,12 @@ def hasError(requestObject):
 
 def time_sanity_check():
     # Convert date to Unix Timestamp
-    startDate = int(time.mktime(dt.strptime("2009-12-10", "%Y-%m-%d").timetuple()))
-    endDate = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
-    today = int(time.mktime(dt.today().timetuple()))
+    start_date =int(time.mktime(datetime.strptime("2009-12-10", "%Y-%m-%d").timetuple()))
+    end_date = int(time.mktime(datetime.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
+    today = int(time.mktime(datetime.today().timetuple()))
 
     # Assertions for proper date args
-    assert(startDate <= endDate)
-    assert(endDate <= today)
+    assert(start_date <= end_date)
+    assert(end_date <= today)
 
     return
