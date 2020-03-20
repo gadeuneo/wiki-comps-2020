@@ -172,7 +172,7 @@ def getRedirects(S, url, headers, pageid):
 
     return allReds
 
-def getCreationDate(S, url, headers, pageid):
+def get_creation_date(S, url, headers, pageid):
     creation = {
         "action": "query",
         "prop": "revisions",
@@ -240,7 +240,7 @@ def create_creation_dates_CSV(session, url, headers, titles):
         page_id = getPageId(session, url, headers, titles[i])
 
         try:
-            creation_date = getCreationDate(session, url, headers, page_id)
+            creation_date = get_creation_date(session, url, headers, page_id)
             dates.append([titles[i],creation_date])
         except:
             print("Page Creation Date not found for {0}".format(titles[i]))
