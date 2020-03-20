@@ -14,14 +14,19 @@ from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 import time
 from static_helpers import *
-#from selenium import webdriver
-import shutil
+
+startTime = time.time()
 
 # Convert date to REST API Time format
-## YYYYMMDDHH format for dates
-startDate = dt.strptime("20191210", "%Y%m%d")
+## YYYYMMDD or YYYYMMDDHH format for dates
+startDate = dt.strptime("20091210", "%Y%m%d")
 endDate = dt.strptime("20191210", "%Y%m%d")
 today = dt.today()
+
+restPath = "restPageviews"
+
+if (not os.path.exists(restPath)):
+    os.mkdir(restPath)
 
 # Assertions for proper date args
 assert(startDate <= endDate)
@@ -47,12 +52,14 @@ def getRESTPageviews(S, url, headers, title, begin, end):
     
     pageviews = [["Date", "Pageviews"]]
 
-    while (newDate <= endDate):       
+    while (newDate < endDate):       
         stop = dt.strftime(newDate, "%Y%m%d")
         rest = url.format(title, start, stop)
         rest = rest.replace(" ","")
         data = S.get(url=rest, headers = headers).json()
         newDate = newDate + timedelta(days=1)
+        # Error in REST API query handling
+        # TODO: figure out how to handle redirects of a page
         if ('type' in data.keys()):
             continue
         else:
@@ -63,13 +70,27 @@ def getRESTPageviews(S, url, headers, title, begin, end):
 
 pageData = dict()
 
-fomrattedTitles = [t.replace(" ","_") for t in titles]
+fomrattedTitles = []
+for t in titles:
+    t = t.replace(" ", "_")
+    t = t.replace(":","(colon)")
+    fomrattedTitles.append(t)
 
 for title in fomrattedTitles:
     pageData[title] = getRESTPageviews(S, restUrl, header, title, startDate, endDate)
 
-# TODO: save data
 
+for fileName in pageData.keys():
+    if (not (os.path.isfile(os.path.join(restPath, fileName + ".csv")))):
+        dfRest = pd.DataFrame(pageData[fileName][1:], columns=pageData[fileName][0])
+        dfRest.to_csv(os.path.join(restPath, fileName + ".csv"))
+    else:
+        restcsv = pd.read_csv(os.path.join(restPath, fileName + ".csv"))
+        # TODO: handle append to file once redirects sorted out
+
+
+endTime = time.time()
+print("Time Elapsed: " + str(endTime - startTime))
 '''
 End REST API pageview collection
 '''

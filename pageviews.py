@@ -1,5 +1,5 @@
 '''
-Gets pageview data of wikipage per date from the wmflabs site.
+Gets pageview data of wikipage per date from the MediaWiki API.
 Saves in csv format per page.
 
 James Gardner
