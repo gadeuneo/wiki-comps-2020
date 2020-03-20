@@ -153,3 +153,15 @@ def hasError(requestObject):
         return True
     else:
         return False
+
+def time_sanity_check():
+    # Convert date to Unix Timestamp
+    startDate = int(time.mktime(dt.strptime("2009-12-10", "%Y-%m-%d").timetuple()))
+    endDate = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
+    today = int(time.mktime(dt.today().timetuple()))
+
+    # Assertions for proper date args
+    assert(startDate <= endDate)
+    assert(endDate <= today)
+
+    return

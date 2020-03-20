@@ -307,14 +307,8 @@ def main():
     # To change included titles, go to titles.txt
     titles = get_titles()
 
-    # Convert date to Unix Timestamp
-    startDate = int(time.mktime(dt.strptime("2009-12-10", "%Y-%m-%d").timetuple()))
-    endDate = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
-    today = int(time.mktime(dt.today().timetuple()))
-
-    # Assertions for proper date args
-    assert(startDate <= endDate)
-    assert(endDate <= today)
+    # Simple assertions about the time
+    time_sanity_check()
 
     # Create is going to be deprecated
     directories = ["10years", "creation"]
