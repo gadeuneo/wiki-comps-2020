@@ -34,12 +34,16 @@ def create_directories(directory_names):
 
     return
 
+# Given a list of titles, returns a copy of the list with talk pages.
+# Doesn't change the original list given.
 def add_talk_pages(titles):
 
-    for i in range(len(titles)):
-        titles.append("Talk:" + titles[i])
+    titles_copy = titles.copy()
 
-    return titles
+    for i in range(len(titles)):
+        titles_copy.append("Talk:" + titles[i])
+
+    return titles_copy
 
 def format_file_names(title):
 
