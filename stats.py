@@ -93,9 +93,139 @@ today = int(time.mktime(dt.today().timetuple()))
 assert(startDate <= endDate)
 assert(endDate <= today)
 
+#separate out "DATA-" articles from "REVISION-", without the .csv
+dataTitleArray = []
+for title in titleArray:
+    if title[0:4] == "Data":
+        dataTitleArray.append(title[:-4])
+
 # TODO: loop over timestamps and get count for each (day/week/month?)
 
 # test get next day epoch time
+
+def makeDayXJaccardFigure(title):
+    article = dataDict[title]
+    targetDict = dict() #each day is a key, value is a set of editors of that day
+    allOtherDict = dict()
+    firstDay = dt.fromtimestamp(startDate).date()
+    lastDay = dt.fromtimestamp(endDate).date()
+    days = []
+    jScore = [] #jaccard score of each day
+    edits = 0
+    articleIndex = 0
+    dailyEditorSet = set()
+    sizeOfArticle = article.shape[0]
+    #Setup
+    currDate = firstDay
+    while(currDate<=lastDay):
+        days.append(currDate)
+        targetDict[currDate] = set()
+        allOtherDict[currDate] = set()
+        currDate+=timedelta(days=1)
+    #missing the first one?, change below too
+    #Fills up targetDict
+    currDate = firstDay
+    for index, rowData in article.iterrows():
+        editDay = dt.strptime(rowData['timestamp'], "%Y-%m-%dT%H:%M:%SZ").date()
+        if(currDate == editDay):
+            if(rowData['userid'] == 0): #anon
+                dailyEditorSet.add("ANON " + rowData['user'])
+            else: #registered user
+                dailyEditorSet.add(rowData['userid'])
+        else:
+            while(currDate<editDay):
+                targetDict[currDate] = dailyEditorSet
+                dailyEditorSet = set()
+                currDate += timedelta(days=1)
+            if(rowData['userid'] == 0): #anon
+                dailyEditorSet.add("ANON " + rowData['user'])
+            else: #registered user
+                dailyEditorSet.add(rowData['userid'])
+        if(index == (sizeOfArticle-1)):
+            targetDict[currDate] = dailyEditorSet
+            dailyEditorSet = set()
+
+    #Fills up allOtherDict
+
+    for otherTitle in dataTitleArray:
+        dailyEditorSet = set()
+        currDate = firstDay
+        if (otherTitle != title):
+            article = dataDict[otherTitle]
+            for index, rowData in article.iterrows():
+                editDay = dt.strptime(rowData['timestamp'], "%Y-%m-%dT%H:%M:%SZ").date()
+                if(currDate == editDay):
+                    if(rowData['userid'] == 0): #anon
+                        dailyEditorSet.add("ANON " + rowData['user'])
+                    else: #registered user
+                        dailyEditorSet.add(rowData['userid'])
+                else:
+                    while(currDate<editDay):
+                        tempSet = allOtherDict.get(currDate)
+                        allOtherDict[currDate] = dailyEditorSet.union(tempSet)
+                        dailyEditorSet = set()
+                        currDate += timedelta(days=1)
+                    if(rowData['userid'] == 0): #anon
+                        dailyEditorSet.add("ANON " + rowData['user'])
+                    else: #registered user
+                        dailyEditorSet.add(rowData['userid'])
+                if(index == (sizeOfArticle-1)):
+                        tempSet = allOtherDict.get(currDate)
+                        allOtherDict[currDate] = dailyEditorSet.union(tempSet)
+                        dailyEditorSet = set()
+    #instead of dictionary try array??
+    print(targetDict)
+    print(title)
+
+def checker():
+    setA = set()
+    targetDay = dt.fromtimestamp(endDate).date() - timedelta(days=1)
+    for title in dataTitleArray:
+        article = dataDict[title]
+        for index, rowData in article.iterrows():
+            editDay = dt.strptime(rowData['timestamp'], "%Y-%m-%dT%H:%M:%SZ").date()
+            if(editDay == targetDay):
+                if(rowData['userid'] == 0): #anon
+                    setA.add("ANON " + rowData['user'])
+                else: #registered user
+                    setA.add(rowData['userid'])
+    print(setA)
+
+
+
+    '''
+    for day in article['timestamp']:
+        editTime = dt.strptime(day, "%Y-%m-%dT%H:%M:%SZ")
+        while(editTime > newDate):
+            jScore.append(edits)
+            epoch = int(newDate.timestamp())
+            days.append(dt.fromtimestamp(epoch))
+            newDate = newDate + timedelta(days=1)
+            edits = 0
+        edits += 1
+    fig, ax = plt.subplots(figsize=(15,7))
+    ax.plot(days, jScore)
+
+    #ax.xaxis.set_major_locator(mdates.MonthLocator())
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m-%d'))
+    #ax.xaxis.set_minor_locator(mdates.DayLocator())
+    ax.format_xdata = mdates.DateFormatter('%Y-%m')
+
+    fig.autofmt_xdate()
+    plt.title(title)
+    #plt.suptitle("10 year aggregate data. Shows number of edits per week in 6 month intervals.")
+    plt.xlabel("Time")
+    plt.ylabel("Jaccard Score")
+
+    subpath = "Jaccard"
+    #
+    os.mkdir(os.path.join(plotPath, subpath))
+    newpath = os.path.join(plotPath, subpath)
+    #
+    if (not os.path.isfile(os.path.join(plotPath, subpath, title + ".png"))):
+        plt.savefig(os.path.join(plotPath, subpath, title + ".png"), bbox_inches="tight")
+    plt.close()'''
 
 def makeTimeXRevisionFigure(title):
     article = dataDict[title]
@@ -240,12 +370,6 @@ def makeMultipleLineFigure(titleArray, titles):
         plt.savefig(os.path.join(plotPath, titles+".png"), bbox_inches="tight")
     plt.close()
 
-#separate out "DATA-" articles from "REVISION-", without the .csv
-dataTitleArray = []
-for title in titleArray:
-    if title[0:4] == "Data":
-        dataTitleArray.append(title[:-4])
-
 '''testing/making statistics below'''
 '''for title in dataTitleArray:
     makeTimeXNumEditorsFigure(title)'''
@@ -269,6 +393,9 @@ if (not os.path.isfile(os.path.join(plotPath, "sample.png"))):
     plt.savefig(os.path.join(plotPath, "sample.png"), bbox_inches="tight")
 '''
 
+#print(dataDict[dataTitleArray[0]])
+makeDayXJaccardFigure(dataTitleArray[15])
+#checker()
 end = time.time()
 print("Time Elapsed: " + str(end-start))
 
