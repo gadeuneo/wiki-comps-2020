@@ -6,8 +6,9 @@ delay between event start time and page creation time.
 
 In addition to copying and deleting irrelevant articles, 
 `creation_dates_analysis.csv` was also reindex using the Pandas function
-`reset_index(inplace=True, drop=True)` on the dataframe. Further analysis will
-be done in a Jupyter Notebook file located in the root directory.
+`reset_index(inplace=True, drop=True)` on the dataframe. Another column for 
+start dates was also added. Further analysis will be done in a Jupyter Notebook
+file located in the root directory.
 
 
 All articles with start dates in `creation_dates_analysis.csv` will have 
@@ -24,9 +25,18 @@ protests, List of protests in Hong Kong, 2019 Hong Kong local elections,
 Hong Kong-Mainland China conflict, "One Country, two systems", Government of 
 Hong Kong
 
+# Start Date Citations
+## __2019-20 Hong Kong protests: 2019-03-15__
 
-# 2019-20 Hong Kong protests: 3/15/19
+Based off of a sit in conducted by Demosistō on this date to bring attention to the Extradition Bill.
 
+English citation: `https://www.hongkongfp.com/2019/03/15/legalised-kidnapping-hong-kong-activists-stage-sit-new-extradition-law/`
+
+Chinese citation: `https://news.now.com/home/local/player?newsId=340955`
+
+## __Hong Kong extradition bill: 2019-02-13__
+
+Based off of the earliest dates on articles talking about the proposal 
 
 2019-20 Hong Kong protests: https://en.wikipedia.org/wiki/2019%E2%80%9320_Hong_Kong_protests
 Look at Date on summary.
