@@ -192,40 +192,6 @@ def get_creation_date(S, url, headers, pageid):
     timestamp = create['query']['pages'][0]['revisions'][0]['timestamp']
     return timestamp
 
-def getPageviewsHack(S, url, headers, df):
-    ids = df['pageid'].tolist()
-    altTitles = df['title'].tolist()
-    index = 0
-    allViews = dict()
-    for pageid in ids:
-        pageviews = {
-            "action": "query",
-            "prop": "pageviews",
-            # "titles": title,
-            "pageids": pageid,
-            "format": "json",
-            "pvipmetric": "pageviews",
-            "pvipcontinue": "",
-            "maxlag": 5
-        }
-
-        done = False
-        allViews[altTitles[index]] = dict()
-        while (not done):
-            views = S.get(url=url, headers=headers, params=pageviews).json()
-            # printJsonTree(views)
-            pageList = views['query']['pages'][str(pageid)]['pageviews']
-            allViews[altTitles[index]].update(pageList)
-            # pvipcontinue param doesn't show up at all
-            if ("continue" in views):
-                views['continue'] = views['continue']['continue']
-                views['pvipcontinue'] = views['continue']['pvipcontinue']
-            else:
-                done = True
-        index += 1
-
-    return allViews
-
 def create_creation_dates_CSV(session, url, headers, titles):
 
     start_time = time.time()
