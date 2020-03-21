@@ -174,7 +174,7 @@ def get_creation_date(S, url, headers, pageid):
     timestamp = create['query']['pages'][0]['revisions'][0]['timestamp']
     return timestamp
 
-def create_creation_dates_CSV(session, url, headers, titles):
+def generate_creation_dates_data(session, url, headers, titles):
 
     start_time = time.time()
 
@@ -226,6 +226,40 @@ def create_creation_dates_CSV(session, url, headers, titles):
     
     return
 
+def generate_revision_data(session, url, headers, titles,
+    start_date, end_date):
+
+    start_time = time.time()
+
+    directory = "10 Year Revision Data"
+    create_directory(directory)
+
+    file_names = [title + ".csv" for title in titles]
+
+    for title, file_name in zip(titles, file_names):
+        bad_data = False
+        bad_redirect = False
+
+        try:
+            page_id = get_page_id(session, url, headers, title)
+            revision_data = getRevisions(session, url, headers, page_id,
+                start=start_date, end=end_date)
+        except:
+            print("Data not found for {0}.".format(title))
+            print("Page ID: {0}".format(page_id))
+
+        complete_path = os.path.join(directory, file_name)
+
+        if (not os.path.isfile(complete_path)):
+            df_revisions = pd.DataFrame(revision_data)
+            df_revisions.to_csv(complete_path, encoding="utf-8")
+
+    end_time = time.time()
+    print("Page revision data took {0} seconds."
+        .format(str(end_time - start_time)))
+
+    return
+
 '''
     End Data Collection Functions
 '''
@@ -250,13 +284,13 @@ def main():
     login(S, url, headers)
 
     endLogin = time.time()
-    print("Login took {0} seconds".format(str(endLogin - start)))
+    print("Login took {0} seconds.".format(str(endLogin - start)))
 
     # To change included titles, go to titles.txt
     titles = get_titles()
 
-    # Simple assertions about the time
-    time_sanity_check()
+    start_date, end_date = format_time(start_date="2009-12-10",
+        end_date="2019-12-10")
 
     # Create is going to be deprecated
     directories = ["10years", "creation"]
@@ -268,9 +302,13 @@ def main():
     # Use pageid for curid to check if correct page is found
     # https://en.wikipedia.org/?curid=
 
-    files = [format_file_names(title) for title in titles_plus_talk]
+    # generate_creation_dates_data(S, url, headers, titles)
 
-    create_creation_dates_CSV(S, url, headers, titles)
+    # Does not work with main article and talk pages for:
+    #   Death of Luo Changqing, List of March-June 2019 Hong Kong protests, and
+    #   List of January 2020 Hong Kong protests.
+    generate_revision_data(S, url, headers, titles_plus_talk,
+        start_date, end_date)
 
     # save data and redirects
     # for i in range(len(titles)):
