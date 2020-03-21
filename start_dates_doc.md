@@ -30,55 +30,32 @@ Hong Kong
 
 Based off of a sit in conducted by Demosistō on this date to bring attention to the Extradition Bill.
 
-English citation: `https://www.hongkongfp.com/2019/03/15/legalised-kidnapping-hong-kong-activists-stage-sit-new-extradition-law/`
+English citation: https://www.hongkongfp.com/2019/03/15/legalised-kidnapping-hong-kong-activists-stage-sit-new-extradition-law/
 
-Chinese citation: `https://news.now.com/home/local/player?newsId=340955`
+Chinese citation: https://news.now.com/home/local/player?newsId=340955
 
 ## __Hong Kong extradition bill: 2019-02-13__
 
-Based off of the earliest dates on articles talking about the proposal 
+Based off of the earliest dates on articles talking about the proposal.
 
-2019-20 Hong Kong protests: https://en.wikipedia.org/wiki/2019%E2%80%9320_Hong_Kong_protests
-Look at Date on summary.
+https://www.scmp.com/news/hong-kong/politics/article/2185902/hong-kong-considering-changing-law-transferring-fugitives-so
 
-2019 Hong Kong extradition bill: https://en.wikipedia.org/wiki/2019_Hong_Kong_extradition_bill
-Using date that bill was published.
+https://www.hongkongfp.com/2019/02/13/trojan-horse-hong-kongs-china-extradition-plans-may-harm-citys-judicial-protections-say-democrats/
 
-Murder of Poon Hiu-wing: https://en.wikipedia.org/wiki/Murder_of_Poon_Hiu-wing
-Look at Date on summary.
+## __Murder of Poon Hiu-wing: 2018-02-17__
 
-Demosistō: https://en.wikipedia.org/wiki/Demosist%C5%8D
-"The party was officially established on 10 April 2016"
+Based off the date of the murder of Poon Hiu-wing.
 
-Civil Human Rights Front: https://en.wikipedia.org/wiki/Civil_Human_Rights_Front
-"Civil Human Rights Front was founded on 13 September 2002"
+https://www.bbc.com/news/world-asia-china-50148577
 
-Hong Kong Human Rights and Democracy Act: https://en.wikipedia.org/wiki/Hong_Kong_Human_Rights_and_Democracy_Act
-"Introduced in the Senate as... on June 13, 2019"
+## __Demosistō: 2016-04-10__
 
-Chinese University of Hong Kong conflict: https://en.wikipedia.org/wiki/Chinese_University_of_Hong_Kong_conflict
-Look at Date on summary.
+Article published on April 11, 2016 stating that "Student leaders behind Hong Kong‘s 2014 pro-democracy protests launched a new political party *Sunday*" which is the day previous of the article's publishing.
 
-Death of Chow Tsz-lok: https://en.wikipedia.org/wiki/Death_of_Chow_Tsz-lok
-"...occurred on 8 November 2019"
+https://www.hongkongfp.com/2016/04/11/new-party-to-seek-vote-on-possible-hong-kong-independence/
 
-Siege of the Hong Kong Polytechnic University: https://en.wikipedia.org/wiki/Siege_of_the_Hong_Kong_Polytechnic_University
-Look at Date on summary.
+## __Umbrella Movement: 2014-09-28__
 
-2019 Yuen Long attack: https://en.wikipedia.org/wiki/2019_Yuen_Long_attack
-"occurred on 21 to 22 July 2019"
+Based off of the date of the Occupy Central movement which is now known as the beginning of the Umbrella Movement.
 
-Storming of the Legislative Council Complex: https://www.npr.org/2019/07/01/737556501/hong-kong-protesters-take-down-wall-at-legislative-council-as-officials-mark-han
-"Protesters charged Hong Kong's Legislative Council building Monday (July 1st)"
-
-Hong Kong Way: https://www.nbcnews.com/news/world/hong-kong-protesters-form-28-mile-human-chain-demanding-democracy-n1045716
-"HONG KONG — Hand-in-hand, protesters formed a 28-mile human chain across 39 train stations in Hong Kong on Friday.(August 23)"
-
-2019 Prince Edward station attack: https://www.bbc.com/news/world-asia-china-49540751
-"People took to the streets on Saturday (August 31) to..."
-
-Death of Chan Yin-lam: https://asiatimes.com/2019/10/friends-not-convinced-girls-death-was-suicide/
-"...body was found in the sea off Yau Tong on September 22."
-
-12 June 2019 Hong Kong protest: https://www.nytimes.com/2019/06/12/world/asia/hong-kong-protest-extradition.html
-"Riot police officers turned downtown Hong Kong into a tear-gas-filled battlefield on Wednesday (June 12)..."
+https://www.bbc.com/news/world-asia-china-30390820
