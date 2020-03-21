@@ -159,7 +159,7 @@ def hasError(requestObject):
 
 def time_sanity_check():
     # Convert date to Unix Timestamp
-    start_date =int(time.mktime(datetime.strptime("2009-12-10", "%Y-%m-%d").timetuple()))
+    start_date = int(time.mktime(datetime.strptime("2009-12-10", "%Y-%m-%d").timetuple()))
     end_date = int(time.mktime(datetime.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
     today = int(time.mktime(datetime.today().timetuple()))
 
