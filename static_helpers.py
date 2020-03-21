@@ -168,3 +168,21 @@ def time_sanity_check():
     assert(end_date <= today)
 
     return
+
+def get_page_id(S, url, headers, title):
+    page = {
+            "action": "query",
+            "prop": "revisions",
+            "titles": title,
+            "format": "json"
+        }
+
+    data = S.get(url=url, headers=headers, params=page).json()
+    if (hasError(data)):
+        print("Query Error! Exiting program!")
+        sys.exit(1)
+    if (int(list(data['query']['pages'].keys())[0]) == -1):
+        print("TITLE: {0} NOT FOUND! PLEASE CHECK TITLE SPELLING!".format(title))
+        sys.exit(1)
+    page_id = list(data['query']['pages'].keys())[0]
+    return page_id

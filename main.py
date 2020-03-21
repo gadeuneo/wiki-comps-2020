@@ -126,24 +126,6 @@ def getPageviews(S, url, headers, pageid):
     allViews.update(pageList)
     return allViews
 
-def getPageId(S, url, headers, title):
-    page = {
-            "action": "query",
-            "prop": "revisions",
-            "titles": title,
-            "format": "json"
-        }
-
-    data = S.get(url=url, headers=headers, params=page).json()
-    if (hasError(data)):
-        print("Query Error! Exiting program!")
-        sys.exit(1)
-    if (int(list(data['query']['pages'].keys())[0]) == -1):
-        print("TITLE: {0} NOT FOUND! PLEASE CHECK TITLE SPELLING!".format(title))
-        sys.exit(1)
-    pageid = list(data['query']['pages'].keys())[0]
-    return pageid
-
 def getRedirects(S, url, headers, pageid):
     redirects = {
         "action": "query",
@@ -203,7 +185,7 @@ def create_creation_dates_CSV(session, url, headers, titles):
 
     # finding and appending all creation dates in the titles list
     for i in range(len(titles)):
-        page_id = getPageId(session, url, headers, titles[i])
+        page_id = get_page_id(session, url, headers, titles[i])
 
         try:
             creation_date = get_creation_date(session, url, headers, page_id)
@@ -295,16 +277,16 @@ def main():
     #     badData = False
     #     badRedirect = False
     #     try:
-    #         data = getRevisions(S, url, headers, getPageId(S, url, headers, titles[i]), start=startDate, end=endDate)
+    #         data = getRevisions(S, url, headers, get_page_id(S, url, headers, titles[i]), start=startDate, end=endDate)
     #     except:
     #         print("Data not found for {0}".format(titles[i]))
-    #         print(getPageId(S, url, headers, titles[i]))
+    #         print(get_page_id(S, url, headers, titles[i]))
     #         badData = True
     #     try:
-    #         redirects = getRedirects(S, url, headers, getPageId(S, url, headers, titles[i]))
+    #         redirects = getRedirects(S, url, headers, get_page_id(S, url, headers, titles[i]))
     #     except:
     #         print("Redirects not found for {0}".format(titles[i]))
-    #         print(getPageId(S, url, headers, titles[i]))
+    #         print(get_page_id(S, url, headers, titles[i]))
     #         badRedirect = True
     #     # TODO: modify path variable
     #     path = "10years"
