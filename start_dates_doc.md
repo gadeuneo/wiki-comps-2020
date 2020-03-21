@@ -18,12 +18,7 @@ they can change.
 
 # Removed Titles
 Hong Kong, List of {early 2019, July 2019, August 2019, September 2019,
-October 2019, November 2019, December 2019, January 2020} Hong Kong protests,
-Carrie Lam, Tactics and methods surrounding the 2019-20 Hong Kong protests,
-Causes of  the 2019-20 Hong Kong protests, Art of the 2019-20 Hong Kong
-protests, List of protests in Hong Kong, 2019 Hong Kong local elections,
-Hong Kong-Mainland China conflict, "One Country, two systems", Government of 
-Hong Kong
+October 2019, November 2019, December 2019, January 2020} Hong Kong protests, Carrie Lam, Tactics and methods surrounding the 2019-20 Hong Kong protests, Causes of  the 2019-20 Hong Kong protests, Art of the 2019-20 Hong Kong protests, List of protests in Hong Kong, 2019 Hong Kong local elections, Hong Kong-Mainland China conflict, "One Country, two systems", Government of Hong Kong, Reactions to the 2019–20 Hong Kong protests
 
 # Start Date Citations
 ## __2019-20 Hong Kong protests: 2019-03-15__
@@ -54,8 +49,44 @@ Article published on April 11, 2016 stating that "Student leaders behind Hong Ko
 
 https://www.hongkongfp.com/2016/04/11/new-party-to-seek-vote-on-possible-hong-kong-independence/
 
+## __Hong Kong 1 July marches: 2019-07-1__
+
+*Note: The article creation date was in 2005. The march that occurred in 2019 is a part of a series of marches that occur on this date.*
+
+Annual event that occurs on this date and this year it is focused on the Extradition Bill. Article below was published on this date.
+
+https://www.bbc.com/news/world-asia-china-48821640
+
+## __Civil Human Rights Front: 2002-09-13__
+
+Snippet from the book "Social Movements in China and Hong Kong: The Expansion of Protest Space" stating that "On 13 September 2002, more than 30 groups formed the Civil Human Rights Front (CHRF)."
+
+https://books.google.com/books?id=3rHQ6LPY22UC&pg=PA56#v=onepage&q&f=false
+
+## __Hong Kong Human Rights and Democracy Act: 2014-11-20__
+
+Using the date found on a hearing for the bill's introduction to Congress.
+
+https://www.govinfo.gov/content/pkg/CHRG-113hhrg92631/pdf/CHRG-113hhrg92631.pdf
+
+## __Chinese University of Hong Kong conflict: 2019-11-11__
+
+Based off of when initial aggressions occurred with the police at Chinese University of Hong Kong. Article below is cited to this date.
+
+https://www.scmp.com/news/hong-kong/politics/article/3037262/tear-gas-fired-campuses-first-time-student-protesters
+
 ## __Umbrella Movement: 2014-09-28__
 
 Based off of the date of the Occupy Central movement which is now known as the beginning of the Umbrella Movement.
 
 https://www.bbc.com/news/world-asia-china-30390820
+
+## __Glory to Hong Kong: 2019-09-12__
+
+https://www.cnn.com/style/article/hong-kong-protest-anthem-intl-hnk/index.html
+
+## __Lennon Wall (Hong Kong): 2014-10-01__
+
+"The project started on October 1, three days after police tried to disperse protesters by firing tear gas."
+
+https://www.scmp.com/news/hong-kong/article/1618852/website-works-display-protesters-notes-lennon-wall
