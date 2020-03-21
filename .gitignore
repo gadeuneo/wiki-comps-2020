@@ -3,6 +3,7 @@ credentials.txt
 
 # Jackie's vscode directory
 .vscode
+scrap.py
 
 # Created by https://www.gitignore.io/api/git,xcode,linux,macos,pycharm,windows,eclipse,intellij,sublimetext,visualstudio,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=git,xcode,linux,macos,pycharm,windows,eclipse,intellij,sublimetext,visualstudio,visualstudiocode

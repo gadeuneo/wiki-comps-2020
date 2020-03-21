@@ -1,6 +1,9 @@
 import os
 import sys
 
+import time
+from datetime import datetime
+
 def get_credentials():
 
     with open("credentials.txt", "r", encoding="utf-8") as file:
@@ -34,12 +37,16 @@ def create_directories(directory_names):
 
     return
 
+# Given a list of titles, returns a copy of the list with talk pages.
+# Doesn't change the original list given.
 def add_talk_pages(titles):
 
-    for i in range(len(titles)):
-        titles.append("Talk:" + titles[i])
+    titles_copy = titles.copy()
 
-    return titles
+    for i in range(len(titles)):
+        titles_copy.append("Talk:" + titles[i])
+
+    return titles_copy
 
 def format_file_names(title):
 
@@ -149,3 +156,15 @@ def hasError(requestObject):
         return True
     else:
         return False
+
+def time_sanity_check():
+    # Convert date to Unix Timestamp
+    start_date =int(time.mktime(datetime.strptime("2009-12-10", "%Y-%m-%d").timetuple()))
+    end_date = int(time.mktime(datetime.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
+    today = int(time.mktime(datetime.today().timetuple()))
+
+    # Assertions for proper date args
+    assert(start_date <= end_date)
+    assert(end_date <= today)
+
+    return

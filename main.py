@@ -172,7 +172,7 @@ def getRedirects(S, url, headers, pageid):
 
     return allReds
 
-def getCreationDate(S, url, headers, pageid):
+def get_creation_date(S, url, headers, pageid):
     creation = {
         "action": "query",
         "prop": "revisions",
@@ -192,39 +192,57 @@ def getCreationDate(S, url, headers, pageid):
     timestamp = create['query']['pages'][0]['revisions'][0]['timestamp']
     return timestamp
 
-def getPageviewsHack(S, url, headers, df):
-    ids = df['pageid'].tolist()
-    altTitles = df['title'].tolist()
-    index = 0
-    allViews = dict()
-    for pageid in ids:
-        pageviews = {
-            "action": "query",
-            "prop": "pageviews",
-            # "titles": title,
-            "pageids": pageid,
-            "format": "json",
-            "pvipmetric": "pageviews",
-            "pvipcontinue": "",
-            "maxlag": 5
-        }
+def create_creation_dates_CSV(session, url, headers, titles):
 
-        done = False
-        allViews[altTitles[index]] = dict()
-        while (not done):
-            views = S.get(url=url, headers=headers, params=pageviews).json()
-            # printJsonTree(views)
-            pageList = views['query']['pages'][str(pageid)]['pageviews']
-            allViews[altTitles[index]].update(pageList)
-            # pvipcontinue param doesn't show up at all
-            if ("continue" in views):
-                views['continue'] = views['continue']['continue']
-                views['pvipcontinue'] = views['continue']['pvipcontinue']
-            else:
-                done = True
-        index += 1
+    start_time = time.time()
 
-    return allViews
+    # Why is it formatted this way? - Jackie
+    dates = [["Titles", "Page Creation Date"]]
+
+    bad_creation = False
+
+    # finding and appending all creation dates in the titles list
+    for i in range(len(titles)):
+        page_id = getPageId(session, url, headers, titles[i])
+
+        try:
+            creation_date = get_creation_date(session, url, headers, page_id)
+            dates.append([titles[i],creation_date])
+        except:
+            print("Page Creation Date not found for {0}".format(titles[i]))
+            print(page_id)
+            bad_creation = True
+    
+    # sanity checking the dates
+    if ((len(dates) - 1) != len(titles) or bad_creation):
+        print("Error with collecting page creation dates. Nothing was changed.")
+        return
+
+    creation_date_directory = "creation"
+    CSV_file_name = "creation_dates.csv"
+    CSV_location = os.path.join(creation_date_directory, CSV_file_name)
+
+    # convert dates into a CSV file
+    if (not os.path.isfile(CSV_location)):
+        df_dates = pd.DataFrame(dates[1:], columns=dates[0])
+        df_dates.to_csv(CSV_location, encoding="utf-8")
+
+    # make changes to already created CSV file
+    else:
+        creation_csv = pd.read_csv(CSV_location)
+
+        for i in range(len(titles)):
+            if (titles[i] not in creation_csv['Titles']):
+                creation_csv.append(dates[i], ignore_index=True)
+        
+        creation_csv.to_csv(CSV_location, encoding="utf-8")
+
+    # print the time it took
+    end_time = time.time()
+    print("Page creation dates took {0} seconds."
+        .format(str(end_time - start_time)))
+    
+    return
 
 '''
     End Data Collection Functions
@@ -255,104 +273,58 @@ def main():
     # To change included titles, go to titles.txt
     titles = get_titles()
 
-    # Convert date to Unix Timestamp
-    startDate = int(time.mktime(dt.strptime("2009-12-10", "%Y-%m-%d").timetuple()))
-    endDate = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
-    today = int(time.mktime(dt.today().timetuple()))
-
-    # Assertions for proper date args
-    assert(startDate <= endDate)
-    assert(endDate <= today)
-
-    # Skip pageviews for now...
-    # views = getPageviews(getPageId(title))
-
-    # exits program to prevent creating files for now...
-    # sys.exit(0)
+    # Simple assertions about the time
+    time_sanity_check()
 
     # Create is going to be deprecated
     directories = ["10years", "creation"]
 
     create_directories(directories)
 
-    titles = add_talk_pages(titles)
+    titles_plus_talk = add_talk_pages(titles)
 
     # Use pageid for curid to check if correct page is found
     # https://en.wikipedia.org/?curid=
 
-    files = [format_file_names(title) for title in titles]
+    files = [format_file_names(title) for title in titles_plus_talk]
 
-    # Why is it formatted this way? - Jackie
-    dates = [["Title", "Page Creation Date"]]
-
-    endPrep = time.time()
-    print("Prep took {0} seconds".format(str(endPrep - endLogin)))
-
-    creation_date_directory = "creation"
-
-    # save page creation dates with titles as csv file
-    badCreation = False
-    for i in range(len(titles)):
-        page_id = getPageId(S, url, headers, titles[i])
-
-        try:
-            creationDate = getCreationDate(S, url, headers, page_id)
-            dates.append([titles[i], creationDate])
-        except:
-            print("Page Creation Date not found for {0}".format(titles[i]))
-            print(page_id)
-            badCreation = True
-
-    if ((len(dates) -1) != len(files) or badCreation):
-        print("Error with collecting page creation dates!")
-    elif (not (os.path.isfile(os.path.join(creation_date_directory, "CreationDates.csv")))):
-        dfDates = pd.DataFrame(dates[1:], columns=dates[0])
-        dfDates.to_csv(os.path.join(creation_date_directory, "CreationDates.csv"), encoding="utf-8")
-    else:
-        creationcsv = pd.read_csv(os.path.join(creation_date_directory, "CreationDates.csv"))
-        for i in range(len(titles)):
-            if (titles[i] not in creationcsv['Title']):
-                creationcsv.append(dates[i], ignore_index=True)
-        creationcsv.to_csv(os.path.join(creation_date_directory, "CreationDates.csv"), encoding="utf-8")
-
-    endCreate = time.time()
-    print("Page creation dates took {0} seconds".format(str(endCreate - endPrep)))
+    create_creation_dates_CSV(S, url, headers, titles)
 
     # save data and redirects
-    for i in range(len(titles)):
-        badData = False
-        badRedirect = False
-        try:
-            data = getRevisions(S, url, headers, getPageId(S, url, headers, titles[i]), start=startDate, end=endDate)
-        except:
-            print("Data not found for {0}".format(titles[i]))
-            print(getPageId(S, url, headers, titles[i]))
-            badData = True
-        try:
-            redirects = getRedirects(S, url, headers, getPageId(S, url, headers, titles[i]))
-        except:
-            print("Redirects not found for {0}".format(titles[i]))
-            print(getPageId(S, url, headers, titles[i]))
-            badRedirect = True
-        # TODO: modify path variable
-        path = "10years"
+    # for i in range(len(titles)):
+    #     badData = False
+    #     badRedirect = False
+    #     try:
+    #         data = getRevisions(S, url, headers, getPageId(S, url, headers, titles[i]), start=startDate, end=endDate)
+    #     except:
+    #         print("Data not found for {0}".format(titles[i]))
+    #         print(getPageId(S, url, headers, titles[i]))
+    #         badData = True
+    #     try:
+    #         redirects = getRedirects(S, url, headers, getPageId(S, url, headers, titles[i]))
+    #     except:
+    #         print("Redirects not found for {0}".format(titles[i]))
+    #         print(getPageId(S, url, headers, titles[i]))
+    #         badRedirect = True
+    #     # TODO: modify path variable
+    #     path = "10years"
 
-        if (not badData):
-            if (not (os.path.isfile(os.path.join(path, "Data" + files[i])))):
-                dfData = pd.DataFrame(data)
-                dfData.to_csv(os.path.join(path, "Data" + files[i]), encoding="utf-8")
-        if (not badRedirect):
-            if (not (os.path.isfile(os.path.join(path, "Redirects" + files[i])))):
-                dfRed = pd.DataFrame(redirects)
-                dfRed.to_csv(os.path.join(path, "Redirects" + files[i]), encoding="utf-8")
+    #     if (not badData):
+    #         if (not (os.path.isfile(os.path.join(path, "Data" + files[i])))):
+    #             dfData = pd.DataFrame(data)
+    #             dfData.to_csv(os.path.join(path, "Data" + files[i]), encoding="utf-8")
+    #     if (not badRedirect):
+    #         if (not (os.path.isfile(os.path.join(path, "Redirects" + files[i])))):
+    #             dfRed = pd.DataFrame(redirects)
+    #             dfRed.to_csv(os.path.join(path, "Redirects" + files[i]), encoding="utf-8")
 
     '''
         End Data Collection
     '''
 
-    end = time.time()
-    print("Data collection took {0} seconds".format(str(end - endCreate)))
+    # print("Data collection took {0} seconds".format(str(end - endCreate)))
 
+    end = time.time()
     print("Time Elapsed: " + str(end - start))
 
 if __name__ == "__main__":
