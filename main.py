@@ -226,8 +226,7 @@ def generate_creation_dates_data(session, url, headers, titles):
     
     return
 
-def generate_revision_data(session, url, headers, titles,
-    start_date, end_date):
+def generate_revision_data(session, url, headers, titles, start_date, end_date):
 
     start_time = time.time()
 
@@ -237,8 +236,6 @@ def generate_revision_data(session, url, headers, titles,
     file_names = [title + ".csv" for title in titles]
 
     for title, file_name in zip(titles, file_names):
-        bad_data = False
-        bad_redirect = False
 
         try:
             page_id = get_page_id(session, url, headers, title)
@@ -253,9 +250,46 @@ def generate_revision_data(session, url, headers, titles,
         if (not os.path.isfile(complete_path)):
             df_revisions = pd.DataFrame(revision_data)
             df_revisions.to_csv(complete_path, encoding="utf-8")
+        else:
+            print("Did not overwrite {0} because it currently exists!"
+                .format(file_name))
 
     end_time = time.time()
     print("Page revision data took {0} seconds."
+        .format(str(end_time - start_time)))
+
+    return
+
+def generate_redirect_data(session, url, headers, titles, start_date, end_date):
+
+    start_time = time.time()
+
+    directory = "10 Year Redirect Data"
+    create_directory(directory)
+
+    file_names = [title + ".csv" for title in titles]
+
+    for title, file_name in zip(titles, file_names):
+
+        try:
+            page_id = get_page_id(session, url, headers, title)
+            redirect_data = getRevisions(session, url, headers, page_id,
+                start=start_date, end=end_date)
+        except:
+            print("Data not found for {0}.".format(title))
+            print("Page ID: {0}".format(page_id))
+        
+        complete_path = os.path.join(directory, file_name)
+
+        if (not os.path.isfile(complete_path)):
+            df_redirects = pd.DataFrame(redirect_data)
+            df_redirects.to_csv(complete_path, encoding="utf-8")
+        else:
+            print("Did not overwrite {0} because it currently exists!"
+                .format(file_name))
+
+    end_time = time.time()
+    print("Page redirect data took {0} seconds."
         .format(str(end_time - start_time)))
 
     return
@@ -304,45 +338,27 @@ def main():
 
     # generate_creation_dates_data(S, url, headers, titles)
 
-    # Does not work with main article and talk pages for:
-    #   Death of Luo Changqing, List of March-June 2019 Hong Kong protests, and
-    #   List of January 2020 Hong Kong protests.
-    generate_revision_data(S, url, headers, titles_plus_talk,
-        start_date, end_date)
+    '''
+        BUG: Pages: "Death/Killing of Luo Changqing", "List of March-June 2019
+        Hong Kong protests", and "List of January 2020 Hong Kong protests" were
+        not found. This includes their talk pages.
+    '''
 
-    # save data and redirects
-    # for i in range(len(titles)):
-    #     badData = False
-    #     badRedirect = False
-    #     try:
-    #         data = getRevisions(S, url, headers, get_page_id(S, url, headers, titles[i]), start=startDate, end=endDate)
-    #     except:
-    #         print("Data not found for {0}".format(titles[i]))
-    #         print(get_page_id(S, url, headers, titles[i]))
-    #         badData = True
-    #     try:
-    #         redirects = getRedirects(S, url, headers, get_page_id(S, url, headers, titles[i]))
-    #     except:
-    #         print("Redirects not found for {0}".format(titles[i]))
-    #         print(get_page_id(S, url, headers, titles[i]))
-    #         badRedirect = True
-    #     # TODO: modify path variable
-    #     path = "10years"
+    '''
+        Uncomment the relevant data you want updated or generated.
+    '''
 
-    #     if (not badData):
-    #         if (not (os.path.isfile(os.path.join(path, "Data" + files[i])))):
-    #             dfData = pd.DataFrame(data)
-    #             dfData.to_csv(os.path.join(path, "Data" + files[i]), encoding="utf-8")
-    #     if (not badRedirect):
-    #         if (not (os.path.isfile(os.path.join(path, "Redirects" + files[i])))):
-    #             dfRed = pd.DataFrame(redirects)
-    #             dfRed.to_csv(os.path.join(path, "Redirects" + files[i]), encoding="utf-8")
+    # generate_revision_data(S, url, headers, titles_plus_talk,
+    #     start_date, end_date)
+
+    # generate_redirect_data(S, url, headers, titles,
+    #     start_date, end_date)
 
     '''
         End Data Collection
     '''
 
-    # print("Data collection took {0} seconds".format(str(end - endCreate)))
+    print("Data collection took {0} seconds".format(str(end - endCreate)))
 
     end = time.time()
     print("Time Elapsed: " + str(end - start))
