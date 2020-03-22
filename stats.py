@@ -102,15 +102,14 @@ for title in titleArray:
 # TODO: loop over timestamps and get count for each (day/week/month?)
 
 # test get next day epoch time
-
 def makeDayXJaccardFigure(title):
     article = dataDict[title]
     targetDict = dict() #each day is a key, value is a set of editors of that day
     allOtherDict = dict()
-    firstDay = dt.fromtimestamp(startDate).date()
+    firstDay = dt.fromtimestamp(int(time.mktime(dt.strptime("2019-01-10", "%Y-%m-%d").timetuple()))).date()
     lastDay = dt.fromtimestamp(endDate).date()
     days = []
-    jScore = [] #jaccard score of each day
+    jaccard = [] #jaccard score of each day
     edits = 0
     articleIndex = 0
     dailyEditorSet = set()
@@ -122,7 +121,6 @@ def makeDayXJaccardFigure(title):
         targetDict[currDate] = set()
         allOtherDict[currDate] = set()
         currDate+=timedelta(days=1)
-    #missing the first one?, change below too
     #Fills up targetDict
     currDate = firstDay
     for index, rowData in article.iterrows():
@@ -146,12 +144,12 @@ def makeDayXJaccardFigure(title):
             dailyEditorSet = set()
 
     #Fills up allOtherDict
-
     for otherTitle in dataTitleArray:
         dailyEditorSet = set()
         currDate = firstDay
         if (otherTitle != title):
             article = dataDict[otherTitle]
+            sizeOfArticle = article.shape[0]
             for index, rowData in article.iterrows():
                 editDay = dt.strptime(rowData['timestamp'], "%Y-%m-%dT%H:%M:%SZ").date()
                 if(currDate == editDay):
@@ -173,41 +171,22 @@ def makeDayXJaccardFigure(title):
                         tempSet = allOtherDict.get(currDate)
                         allOtherDict[currDate] = dailyEditorSet.union(tempSet)
                         dailyEditorSet = set()
-    #instead of dictionary try array??
-    print(targetDict)
-    print(title)
-
-def checker():
-    setA = set()
-    targetDay = dt.fromtimestamp(endDate).date() - timedelta(days=1)
-    for title in dataTitleArray:
-        article = dataDict[title]
-        for index, rowData in article.iterrows():
-            editDay = dt.strptime(rowData['timestamp'], "%Y-%m-%dT%H:%M:%SZ").date()
-            if(editDay == targetDay):
-                if(rowData['userid'] == 0): #anon
-                    setA.add("ANON " + rowData['user'])
-                else: #registered user
-                    setA.add(rowData['userid'])
-    print(setA)
+    #Calculate Jaccard
+    for day in days:
+        setA = targetDict[day]
+        setB = allOtherDict[day]
+        if(len(setA.union(setB))==0):
+            jScore = 0
+        else:
+            jScore = len(setA.intersection(setB))/len(setA.union(setB))*100
+        jaccard.append(jScore)
 
 
-
-    '''
-    for day in article['timestamp']:
-        editTime = dt.strptime(day, "%Y-%m-%dT%H:%M:%SZ")
-        while(editTime > newDate):
-            jScore.append(edits)
-            epoch = int(newDate.timestamp())
-            days.append(dt.fromtimestamp(epoch))
-            newDate = newDate + timedelta(days=1)
-            edits = 0
-        edits += 1
     fig, ax = plt.subplots(figsize=(15,7))
-    ax.plot(days, jScore)
+    ax.plot(days, jaccard)
 
     #ax.xaxis.set_major_locator(mdates.MonthLocator())
-    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=1))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m-%d'))
     #ax.xaxis.set_minor_locator(mdates.DayLocator())
     ax.format_xdata = mdates.DateFormatter('%Y-%m')
@@ -220,12 +199,12 @@ def checker():
 
     subpath = "Jaccard"
     #
-    os.mkdir(os.path.join(plotPath, subpath))
-    newpath = os.path.join(plotPath, subpath)
+    #os.mkdir(os.path.join(plotPath, subpath))
+    #newpath = os.path.join(plotPath, subpath)
     #
     if (not os.path.isfile(os.path.join(plotPath, subpath, title + ".png"))):
         plt.savefig(os.path.join(plotPath, subpath, title + ".png"), bbox_inches="tight")
-    plt.close()'''
+    plt.close()
 
 def makeTimeXRevisionFigure(title):
     article = dataDict[title]
@@ -393,10 +372,7 @@ if (not os.path.isfile(os.path.join(plotPath, "sample.png"))):
     plt.savefig(os.path.join(plotPath, "sample.png"), bbox_inches="tight")
 '''
 
-#print(dataDict[dataTitleArray[0]])
-makeDayXJaccardFigure(dataTitleArray[15])
-#checker()
-end = time.time()
-print("Time Elapsed: " + str(end-start))
+for title in dataTitleArray:
+    makeDayXJaccardFigure(title)
 
 sys.exit(0)
