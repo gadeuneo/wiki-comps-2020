@@ -322,17 +322,15 @@ def main():
     start_collection = time.time()
 
     '''
-        BUG: Pages: "Death/Killing of Luo Changqing", "List of March-June 2019
-        Hong Kong protests", and "List of January 2020 Hong Kong protests" were
-        not found. This includes their talk pages.
+        BUG: Pages: "Death/Killing of Luo Changqing" and "List of March-June
+        2019 Hong Kong protests" were not found. This includes their talk pages.
     '''
     generate_revision_data(S, url, headers, titles_plus_talk,
         start_date, end_date)
 
     '''
         BUG: Pages: "Civil Human Rights Front", "Hong Kong Way",  and "List of
-        {March-June 2019, December 2019, January 2020} Hong Kong protests" were
-        not found.
+        {March-June, December} 2019 Hong Kong protests" were not found.
     '''
     generate_redirect_data(S, url, headers, titles,
         start_date, end_date)
