@@ -37,6 +37,12 @@ def create_directories(directory_names):
 
     return
 
+def create_directory(directory_name):
+    if (not os.path.exists(directory_name)):
+        os.mkdir(directory_name)
+    
+    return
+
 # Given a list of titles, returns a copy of the list with talk pages.
 # Doesn't change the original list given.
 def add_talk_pages(titles):
@@ -157,14 +163,32 @@ def hasError(requestObject):
     else:
         return False
 
-def time_sanity_check():
+def format_time(start_date, end_date):
     # Convert date to Unix Timestamp
-    start_date =int(time.mktime(datetime.strptime("2009-12-10", "%Y-%m-%d").timetuple()))
-    end_date = int(time.mktime(datetime.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
+    start_date = int(time.mktime(datetime.strptime(start_date, "%Y-%m-%d").timetuple()))
+    end_date = int(time.mktime(datetime.strptime(end_date, "%Y-%m-%d").timetuple()))
     today = int(time.mktime(datetime.today().timetuple()))
 
     # Assertions for proper date args
     assert(start_date <= end_date)
     assert(end_date <= today)
 
-    return
+    return start_date, end_date
+
+def get_page_id(S, url, headers, title):
+    page = {
+            "action": "query",
+            "prop": "revisions",
+            "titles": title,
+            "format": "json"
+        }
+
+    data = S.get(url=url, headers=headers, params=page).json()
+    if (hasError(data)):
+        print("Query Error! Exiting program!")
+        sys.exit(1)
+    if (int(list(data['query']['pages'].keys())[0]) == -1):
+        print("TITLE: {0} NOT FOUND! PLEASE CHECK TITLE SPELLING!".format(title))
+        sys.exit(1)
+    page_id = list(data['query']['pages'].keys())[0]
+    return page_id
