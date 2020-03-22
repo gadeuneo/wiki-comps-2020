@@ -61,7 +61,7 @@ def login(S, url, headers):
     Begin Data Collection Functions
 '''
 
-def getRevisions(S, url, headers, pageid, start=None, end=None):
+def get_revisions(S, url, headers, pageid, start=None, end=None):
     if (start == None or end == None):
         print("ERROR, need start and end date!")
         sys.exit(1)
@@ -105,28 +105,7 @@ def getRevisions(S, url, headers, pageid, start=None, end=None):
 
         return allRevs
 
-def getPageviews(S, url, headers, pageid):
-    pageviews = {
-        "action": "query",
-        "prop": "pageviews",
-        # "titles": title,
-        "pageids": pageid,
-        "format": "json",
-        "pvipmetric": "pageviews",
-        "pvipcontinue": "",
-        "maxlag": 5
-    }
-
-    # TODO fix issues with getting pageviews OR find another metric
-    done = False
-    views = S.get(url=url, headers=headers, params=pageviews).json()
-    # printJsonTree(views)
-    pageList = views['query']['pages'][pageid]['pageviews']
-    allViews = {}
-    allViews.update(pageList)
-    return allViews
-
-def getRedirects(S, url, headers, pageid):
+def get_redirects(S, url, headers, pageid):
     redirects = {
         "action": "query",
         "prop": "redirects",
@@ -239,20 +218,22 @@ def generate_revision_data(session, url, headers, titles, start_date, end_date):
 
         try:
             page_id = get_page_id(session, url, headers, title)
-            revision_data = getRevisions(session, url, headers, page_id,
+            revision_data = get_revisions(session, url, headers, page_id,
                 start=start_date, end=end_date)
+
+            complete_path = os.path.join(directory, file_name)
+
+            if (not os.path.isfile(complete_path)):
+                df_revisions = pd.DataFrame(revision_data)
+                df_revisions.to_csv(complete_path, encoding="utf-8")
+            else:
+                print("Did not overwrite {0} because it currently exists!"
+                    .format(file_name))
         except:
             print("Data not found for {0}.".format(title))
             print("Page ID: {0}".format(page_id))
 
-        complete_path = os.path.join(directory, file_name)
 
-        if (not os.path.isfile(complete_path)):
-            df_revisions = pd.DataFrame(revision_data)
-            df_revisions.to_csv(complete_path, encoding="utf-8")
-        else:
-            print("Did not overwrite {0} because it currently exists!"
-                .format(file_name))
 
     end_time = time.time()
     print("Page revision data took {0} seconds."
@@ -273,20 +254,20 @@ def generate_redirect_data(session, url, headers, titles, start_date, end_date):
 
         try:
             page_id = get_page_id(session, url, headers, title)
-            redirect_data = getRevisions(session, url, headers, page_id,
-                start=start_date, end=end_date)
+            redirect_data = get_redirects(session, url, headers, page_id)
+            
+            complete_path = os.path.join(directory, file_name)
+
+            if (not os.path.isfile(complete_path)):
+                df_redirects = pd.DataFrame(redirect_data)
+                df_redirects.to_csv(complete_path, encoding="utf-8")
+            else:
+                print("Did not overwrite {0} because it currently exists!"
+                    .format(file_name))
         except:
             print("Data not found for {0}.".format(title))
             print("Page ID: {0}".format(page_id))
         
-        complete_path = os.path.join(directory, file_name)
-
-        if (not os.path.isfile(complete_path)):
-            df_redirects = pd.DataFrame(redirect_data)
-            df_redirects.to_csv(complete_path, encoding="utf-8")
-        else:
-            print("Did not overwrite {0} because it currently exists!"
-                .format(file_name))
 
     end_time = time.time()
     print("Page redirect data took {0} seconds."
@@ -326,11 +307,6 @@ def main():
     start_date, end_date = format_time(start_date="2009-12-10",
         end_date="2019-12-10")
 
-    # Create is going to be deprecated
-    directories = ["10years", "creation"]
-
-    create_directories(directories)
-
     titles_plus_talk = add_talk_pages(titles)
 
     # Use pageid for curid to check if correct page is found
@@ -338,27 +314,37 @@ def main():
 
     # generate_creation_dates_data(S, url, headers, titles)
 
-    '''
-        BUG: Pages: "Death/Killing of Luo Changqing", "List of March-June 2019
-        Hong Kong protests", and "List of January 2020 Hong Kong protests" were
-        not found. This includes their talk pages.
-    '''
 
     '''
         Uncomment the relevant data you want updated or generated.
     '''
 
-    # generate_revision_data(S, url, headers, titles_plus_talk,
-    #     start_date, end_date)
+    start_collection = time.time()
 
-    # generate_redirect_data(S, url, headers, titles,
-    #     start_date, end_date)
+    '''
+        BUG: Pages: "Death/Killing of Luo Changqing", "List of March-June 2019
+        Hong Kong protests", and "List of January 2020 Hong Kong protests" were
+        not found. This includes their talk pages.
+    '''
+    generate_revision_data(S, url, headers, titles_plus_talk,
+        start_date, end_date)
+
+    '''
+        BUG: Pages: "Civil Human Rights Front", "Hong Kong Way",  and "List of
+        {March-June 2019, December 2019, January 2020} Hong Kong protests" were
+        not found.
+    '''
+    generate_redirect_data(S, url, headers, titles,
+        start_date, end_date)
+
+    end_collection = time.time()
 
     '''
         End Data Collection
     '''
 
-    print("Data collection took {0} seconds".format(str(end - endCreate)))
+    print("Data collection took {0} seconds."
+        .format(str(end_collection - start_collection)))
 
     end = time.time()
     print("Time Elapsed: " + str(end - start))
