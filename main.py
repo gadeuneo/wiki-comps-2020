@@ -180,7 +180,7 @@ def create_creation_dates_data(session, url, headers, titles, debug_mode=False):
         return
 
     creation_date_directory = "creation"
-    CSV_file_name = "creation_dates.csv"
+    CSV_file_name = "creation_dates_updated.csv"
     CSV_location = os.path.join(creation_date_directory, CSV_file_name)
 
     if (not debug_mode):
@@ -248,7 +248,7 @@ def create_revision_data(session, url, headers, titles, start_date, end_date,
 
     return
 
-def generate_redirect_data(session, url, headers, titles, start_date, end_date,
+def create_redirect_data(session, url, headers, titles, start_date, end_date,
     debug_mode=False):
 
     start_time = time.time()
@@ -310,17 +310,13 @@ def main():
 
     # To change included titles, go to titles.txt
     titles = get_titles()
+    titles_plus_talk = add_talk_pages(titles)
 
     start_date, end_date = format_time(start_date="2009-12-10",
         end_date="2019-12-10")
 
-    titles_plus_talk = add_talk_pages(titles)
-
     # Use pageid for curid to check if correct page is found
     # https://en.wikipedia.org/?curid=
-
-    # generate_creation_dates_data(S, url, headers, titles)
-
 
     '''
         Uncomment the relevant data you want updated or generated.
@@ -329,18 +325,23 @@ def main():
     start_collection = time.time()
 
     '''
+        BUG:
+    '''
+    create_creation_dates_data(S, url, headers, titles, debug_mode=False)
+
+    '''
         BUG: Pages: "Death/Killing of Luo Changqing" and "List of March-June
         2019 Hong Kong protests" were not found. This includes their talk pages.
     '''
-    create_revision_data(S, url, headers, titles_plus_talk,
-        start_date, end_date, debug_mode=True)
+    # create_revision_data(S, url, headers, titles_plus_talk,
+    #     start_date, end_date, debug_mode=True)
 
     '''
         BUG: Pages: "Civil Human Rights Front", "Hong Kong Way",  and "List of
         {March-June, December} 2019 Hong Kong protests" were not found.
     '''
     # create_redirect_data(S, url, headers, titles,
-    #     start_date, end_date)
+    #     start_date, end_date, debug_mode=True)
 
     end_collection = time.time()
 
