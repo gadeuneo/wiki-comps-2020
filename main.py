@@ -153,7 +153,7 @@ def get_creation_date(S, url, headers, pageid):
     timestamp = create['query']['pages'][0]['revisions'][0]['timestamp']
     return timestamp
 
-def generate_creation_dates_data(session, url, headers, titles):
+def create_creation_dates_data(session, url, headers, titles):
 
     start_time = time.time()
 
@@ -205,7 +205,7 @@ def generate_creation_dates_data(session, url, headers, titles):
     
     return
 
-def generate_revision_data(session, url, headers, titles, start_date, end_date):
+def create_revision_data(session, url, headers, titles, start_date, end_date):
 
     start_time = time.time()
 
@@ -329,14 +329,14 @@ def main():
         BUG: Pages: "Death/Killing of Luo Changqing" and "List of March-June
         2019 Hong Kong protests" were not found. This includes their talk pages.
     '''
-    generate_revision_data(S, url, headers, titles_plus_talk,
+    create_revision_data(S, url, headers, titles_plus_talk,
         start_date, end_date)
 
     '''
         BUG: Pages: "Civil Human Rights Front", "Hong Kong Way",  and "List of
         {March-June, December} 2019 Hong Kong protests" were not found.
     '''
-    # generate_redirect_data(S, url, headers, titles,
+    # create_redirect_data(S, url, headers, titles,
     #     start_date, end_date)
 
     end_collection = time.time()
