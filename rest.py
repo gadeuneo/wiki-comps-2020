@@ -46,6 +46,7 @@ header = {
 
 S = rq.Session()
 
+# TODO: make more efficient way - currently takes too long
 def getRESTPageviews(S, url, headers, title, begin, end):
     start = dt.strftime(begin, "%Y%m%d")
     newDate = startDate
@@ -60,7 +61,9 @@ def getRESTPageviews(S, url, headers, title, begin, end):
         newDate = newDate + timedelta(days=1)
         # Error in REST API query handling
         # TODO: figure out how to handle redirects of a page
+        # NOTE: is this the same as the wmflabs tool?
         if ('type' in data.keys()):
+            # Go to next iteration of loop - data not found
             continue
         else:
             saveDate = dt.strftime(newDate, "%Y-%m-%d")
@@ -91,6 +94,7 @@ for fileName in pageData.keys():
 
 endTime = time.time()
 print("Time Elapsed: " + str(endTime - startTime))
+
 '''
 End REST API pageview collection
 '''
