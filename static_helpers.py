@@ -86,7 +86,7 @@ def add_talk_pages(titles):
 
     titles_copy = titles.copy()
 
-    for title in titles_copy:
+    for title in titles:
         titles_copy.append("Talk:" + title)
 
     return titles_copy

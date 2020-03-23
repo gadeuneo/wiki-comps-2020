@@ -225,6 +225,10 @@ def generate_revision_data(session, url, headers, titles, start_date, end_date):
 
             if (not os.path.isfile(complete_path)):
                 df_revisions = pd.DataFrame(revision_data)
+
+                # Add page_id as a column in the dataframe.
+                df_revisions['page_id'] = page_id
+
                 df_revisions.to_csv(complete_path, encoding="utf-8")
             else:
                 print("Did not overwrite {0} because it currently exists!"
@@ -332,8 +336,8 @@ def main():
         BUG: Pages: "Civil Human Rights Front", "Hong Kong Way",  and "List of
         {March-June, December} 2019 Hong Kong protests" were not found.
     '''
-    generate_redirect_data(S, url, headers, titles,
-        start_date, end_date)
+    # generate_redirect_data(S, url, headers, titles,
+    #     start_date, end_date)
 
     end_collection = time.time()
 
