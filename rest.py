@@ -13,6 +13,8 @@ from datetime import datetime as dt
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 import time
+
+# functions that are frequently accessed by other files
 from static_helpers import *
 
 startTime = time.time()
