@@ -283,9 +283,6 @@ def generate_redirect_data(session, url, headers, titles, start_date, end_date):
     End Data Collection Functions
 '''
 
-'''
-    Begin Data Collection
-'''
 def main():
 
     S = rq.Session()
@@ -340,10 +337,6 @@ def main():
     #     start_date, end_date)
 
     end_collection = time.time()
-
-    '''
-        End Data Collection
-    '''
 
     print("Data collection took {0} seconds."
         .format(str(end_collection - start_collection)))
