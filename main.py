@@ -153,7 +153,7 @@ def get_creation_date(S, url, headers, pageid):
     timestamp = create['query']['pages'][0]['revisions'][0]['timestamp']
     return timestamp
 
-def create_creation_dates_data(session, url, headers, titles):
+def create_creation_dates_data(session, url, headers, titles, debug_mode=False):
 
     start_time = time.time()
 
@@ -183,20 +183,21 @@ def create_creation_dates_data(session, url, headers, titles):
     CSV_file_name = "creation_dates.csv"
     CSV_location = os.path.join(creation_date_directory, CSV_file_name)
 
-    # convert dates into a CSV file
-    if (not os.path.isfile(CSV_location)):
-        df_dates = pd.DataFrame(dates[1:], columns=dates[0])
-        df_dates.to_csv(CSV_location, encoding="utf-8")
+    if (not debug_mode):
+        # convert dates into a CSV file
+        if (not os.path.isfile(CSV_location)):
+            df_dates = pd.DataFrame(dates[1:], columns=dates[0])
+            df_dates.to_csv(CSV_location, encoding="utf-8")
 
-    # make changes to already created CSV file
-    else:
-        creation_csv = pd.read_csv(CSV_location)
+        # make changes to already created CSV file
+        else:
+            creation_csv = pd.read_csv(CSV_location)
 
-        for i in range(len(titles)):
-            if (titles[i] not in creation_csv['Titles']):
-                creation_csv.append(dates[i], ignore_index=True)
-        
-        creation_csv.to_csv(CSV_location, encoding="utf-8")
+            for i in range(len(titles)):
+                if (titles[i] not in creation_csv['Titles']):
+                    creation_csv.append(dates[i], ignore_index=True)
+            
+            creation_csv.to_csv(CSV_location, encoding="utf-8")
 
     # print the time it took
     end_time = time.time()
@@ -205,7 +206,8 @@ def create_creation_dates_data(session, url, headers, titles):
     
     return
 
-def create_revision_data(session, url, headers, titles, start_date, end_date):
+def create_revision_data(session, url, headers, titles, start_date, end_date,
+    debug_mode=False):
 
     start_time = time.time()
 
@@ -223,16 +225,17 @@ def create_revision_data(session, url, headers, titles, start_date, end_date):
 
             complete_path = os.path.join(directory, file_name)
 
-            if (not os.path.isfile(complete_path)):
-                df_revisions = pd.DataFrame(revision_data)
+            df_revisions = pd.DataFrame(revision_data)
 
-                # Add page_id as a column in the dataframe.
-                df_revisions['page_id'] = page_id
+            # Add page_id as a column in the dataframe.
+            df_revisions['page_id'] = page_id
 
-                df_revisions.to_csv(complete_path, encoding="utf-8")
-            else:
-                print("Did not overwrite {0} because it currently exists!"
-                    .format(file_name))
+            if (not debug_mode):
+                if (not os.path.isfile(complete_path)):
+                    df_revisions.to_csv(complete_path, encoding="utf-8")
+                else:
+                    print("Did not overwrite {0} because it currently exists!"
+                        .format(file_name))
         except:
             print("Data not found for {0}.".format(title))
             print("Page ID: {0}".format(page_id))
@@ -245,7 +248,8 @@ def create_revision_data(session, url, headers, titles, start_date, end_date):
 
     return
 
-def generate_redirect_data(session, url, headers, titles, start_date, end_date):
+def generate_redirect_data(session, url, headers, titles, start_date, end_date,
+    debug_mode=False):
 
     start_time = time.time()
 
@@ -261,13 +265,15 @@ def generate_redirect_data(session, url, headers, titles, start_date, end_date):
             redirect_data = get_redirects(session, url, headers, page_id)
             
             complete_path = os.path.join(directory, file_name)
+            
+            df_redirects = pd.DataFrame(redirect_data)
 
-            if (not os.path.isfile(complete_path)):
-                df_redirects = pd.DataFrame(redirect_data)
-                df_redirects.to_csv(complete_path, encoding="utf-8")
-            else:
-                print("Did not overwrite {0} because it currently exists!"
-                    .format(file_name))
+            if (not debug_mode):
+                if (not os.path.isfile(complete_path)):
+                    df_redirects.to_csv(complete_path, encoding="utf-8")
+                else:
+                    print("Did not overwrite {0} because it currently exists!"
+                        .format(file_name))
         except:
             print("Data not found for {0}.".format(title))
             print("Page ID: {0}".format(page_id))
@@ -327,7 +333,7 @@ def main():
         2019 Hong Kong protests" were not found. This includes their talk pages.
     '''
     create_revision_data(S, url, headers, titles_plus_talk,
-        start_date, end_date)
+        start_date, end_date, debug_mode=True)
 
     '''
         BUG: Pages: "Civil Human Rights Front", "Hong Kong Way",  and "List of
