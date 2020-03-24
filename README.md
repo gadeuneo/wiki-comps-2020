@@ -16,7 +16,7 @@ __Project Task Board:__ https://github.com/gadeuneo/wiki-comps-2020/projects/1
 ### `titles.txt`
 Contains all the Wikipedia articles in our analysis.
 
-### `main.py`
+### `pull_data.py`
 Contains all the code that pulls the relevant, necessary data for analysis. This includes: `creation/creation_dates.csv`, `10 Year Redirect Data/*`, and `10 Year Revision Data/*`. If data needs to be updated, delete the relevant file and rerun the relevant helper function to pull that data. These *user-facing* functions include: `generate_creation_dates_data()`, `generate_revision_data()`, and `generate_redirect_data()`.
 
 *Note: `main.py` access MediaWiki API using a Wiki bot user account with login credentials stored in `credentials.txt` which is excluded via `.gitignore`.*
