@@ -14,6 +14,10 @@ from datetime import datetime
 '''
 def get_credentials():
 
+    if (not os.path.isfile("credentials.txt")):
+        print("You are missing the credentials.txt file. Exiting program.")
+        exit()
+
     with open("credentials.txt", "r", encoding="utf-8") as file:
         credentials = file.read()
 
