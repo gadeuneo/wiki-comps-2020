@@ -98,6 +98,7 @@ dataTitleArray = []
 for title in titleArray:
     if title[0:4] == "Data":
         dataTitleArray.append(title[:-4])
+print(dataTitleArray)
 
 def makeTimeXRevisionFigure(title):
     article = dataDict[title]
@@ -112,8 +113,10 @@ def makeTimeXRevisionFigure(title):
             counts.append(edits)
             epoch = int(newDate.timestamp())
             days.append(dt.fromtimestamp(epoch))
-            newDate = newDate + timedelta(days=1)
+            # alter the timedelta to set edits by day, week, or month
+            #newDate = newDate + timedelta(days=1)
             #newDate = newDate + timedelta(days=7)
+            newDate = newDate + timedelta(days=30)
             edits = 0
         edits += 1
     fig, ax = plt.subplots(figsize=(15,7))
@@ -131,10 +134,13 @@ def makeTimeXRevisionFigure(title):
     plt.xlabel("Time")
     plt.ylabel("Number Edits")
 
-    subpath = "10y Time vs Num Revisions"
+    # subpath = "10y Time vs Num Revisions"
+    subpath = "10y Time vs Num Revisions - Edits by Month"    
     # os.mkdir(os.path.join(plotPath, subpath))
     # newpath = os.path.join(plotPath, subpath)
     if (not os.path.isfile(os.path.join(plotPath, subpath, title + ".png"))):
         plt.savefig(os.path.join(plotPath, subpath, title + ".png"), bbox_inches="tight")
     plt.close()
 
+# for title in dataTitleArray:
+#     makeTimeXRevisionFigure(title)
