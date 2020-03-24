@@ -180,7 +180,7 @@ def create_creation_dates_data(session, url, headers, titles, debug_mode=False):
         return
 
     creation_date_directory = "creation"
-    CSV_file_name = "creation_dates_updated.csv"
+    CSV_file_name = "creation_dates.csv"
     CSV_location = os.path.join(creation_date_directory, CSV_file_name)
 
     if (not debug_mode):
@@ -324,24 +324,20 @@ def main():
 
     start_collection = time.time()
 
-    '''
-        BUG:
-    '''
-    create_creation_dates_data(S, url, headers, titles, debug_mode=False)
+    # create_creation_dates_data(S, url, headers, titles, debug_mode=False)
 
     '''
-        BUG: Pages: "Death/Killing of Luo Changqing" and "List of March-June
-        2019 Hong Kong protests" were not found. This includes their talk pages.
+        BUG: "Death/Killing of Luo Changqing" and its talk page were not found.
     '''
     # create_revision_data(S, url, headers, titles_plus_talk,
-    #     start_date, end_date, debug_mode=True)
+    #     start_date, end_date, debug_mode=False)
 
     '''
         BUG: Pages: "Civil Human Rights Front", "Hong Kong Way",  and "List of
-        {March-June, December} 2019 Hong Kong protests" were not found.
+        December 2019 Hong Kong protests" were not found.
     '''
-    # create_redirect_data(S, url, headers, titles,
-    #     start_date, end_date, debug_mode=True)
+    create_redirect_data(S, url, headers, titles,
+        start_date, end_date, debug_mode=False)
 
     end_collection = time.time()
 
