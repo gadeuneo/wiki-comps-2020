@@ -21,8 +21,11 @@ Contains all the code that pulls the relevant, necessary data for analysis. This
 
 *Note: `main.py` access MediaWiki API using a Wiki bot user account with login credentials stored in `credentials.txt` which is excluded via `.gitignore`.*
 
-### `wiki_notebook.ipynb`
+### `create_comp_csv.ipynb`
 Contains the code that generates the `10year.csv` file that concatenates all the .csv files in `10 Year Revision Data`.
+
+### `time_diagram.ipynb`
+Contains the code that generates the `day_difference_figure.png` file. It generates this data with the `creation_dates_analysis.csv` file which contains the event start dates and their page creation dates that were manually inputted and cited in the `start_dates_doc.md`.
 
 ### `stats.py`
 Contains code for calculating various metrics such as Jaccard Similarity or correlations between pages and creating plots.
