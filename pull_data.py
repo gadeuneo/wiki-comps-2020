@@ -214,7 +214,7 @@ def create_revision_data(session, url, headers, titles, start_date, end_date,
     directory = "10 Year Revision Data"
     create_directory(directory)
 
-    file_names = [title + ".csv" for title in titles]
+    file_names = [title.replace(":", "-") + ".csv" for title in titles]
 
     for title, file_name in zip(titles, file_names):
 
@@ -329,15 +329,15 @@ def main():
     '''
         BUG: "Death/Killing of Luo Changqing" and its talk page were not found.
     '''
-    # create_revision_data(S, url, headers, titles_plus_talk,
-    #     start_date, end_date, debug_mode=False)
+    create_revision_data(S, url, headers, titles_plus_talk,
+        start_date, end_date, debug_mode=False)
 
     '''
         BUG: Pages: "Civil Human Rights Front", "Hong Kong Way",  and "List of
         December 2019 Hong Kong protests" were not found.
     '''
-    create_redirect_data(S, url, headers, titles,
-        start_date, end_date, debug_mode=False)
+    # create_redirect_data(S, url, headers, titles,
+    #     start_date, end_date, debug_mode=False)
 
     end_collection = time.time()
 
