@@ -5,7 +5,7 @@ Saves in csv format per page.
 James Gardner
 '''
 
-import pandas as pd
+
 import os
 import sys
 import requests as rq
@@ -13,11 +13,13 @@ from datetime import datetime as dt
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 import time
-
-# functions that are frequently accessed by other files
 from static_helpers import *
 
 startTime = time.time()
+
+sys.path.append('/Accounts/gardnerj2/.local/lib/python3.5/site-packages')
+
+import pandas as pd
 
 # Convert date to REST API Time format
 ## YYYYMMDD or YYYYMMDDHH format for dates
@@ -48,7 +50,6 @@ header = {
 
 S = rq.Session()
 
-# TODO: make more efficient way - currently takes too long
 def getRESTPageviews(S, url, headers, title, begin, end):
     start = dt.strftime(begin, "%Y%m%d")
     newDate = startDate
@@ -63,9 +64,7 @@ def getRESTPageviews(S, url, headers, title, begin, end):
         newDate = newDate + timedelta(days=1)
         # Error in REST API query handling
         # TODO: figure out how to handle redirects of a page
-        # NOTE: is this the same as the wmflabs tool?
         if ('type' in data.keys()):
-            # Go to next iteration of loop - data not found
             continue
         else:
             saveDate = dt.strftime(newDate, "%Y-%m-%d")
@@ -96,7 +95,6 @@ for fileName in pageData.keys():
 
 endTime = time.time()
 print("Time Elapsed: " + str(endTime - startTime))
-
 '''
 End REST API pageview collection
 '''
