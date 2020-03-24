@@ -1,19 +1,19 @@
 # Documentation and Citations for Start Date Column in `creation_dates_analysis.csv`
-`creation_dates_analysis.csv` is a copy of `creation_dates.csv` without talk 
-pages and articles that do not have recent start dates, e.g. Hong Kong. These 
-articles will not be relevant to our analysis as we are trying to look at the 
+`creation_dates_analysis.csv` is a copy of `creation_dates.csv` without talk
+pages and articles that do not have recent start dates, e.g. Hong Kong. These
+articles will not be relevant to our analysis as we are trying to look at the
 delay between event start time and page creation time.
 
-In addition to copying and deleting irrelevant articles, 
+In addition to copying and deleting irrelevant articles,
 `creation_dates_analysis.csv` was also reindex using the Pandas function
-`reset_index(inplace=True, drop=True)` on the dataframe. Another column for 
+`reset_index(inplace=True, drop=True)` on the dataframe. Another column for
 start dates was also added. Further analysis will be done in a Jupyter Notebook
 file located in the root directory.
 
 
-All articles with start dates in `creation_dates_analysis.csv` will have 
-relevant citations below for the date we chose. These citations will mainly be 
-news articles. We will *not* be using Wikipedia articles for our citations as 
+All articles with start dates in `creation_dates_analysis.csv` will have
+relevant citations below for the date we chose. These citations will mainly be
+news articles. We will *not* be using Wikipedia articles for our citations as
 they can change.
 
 # Removed Titles
@@ -31,7 +31,7 @@ Chinese citation: https://news.now.com/home/local/player?newsId=340955
 
 ## __Hong Kong extradition bill: 2019-02-13__
 
-Based off of the earliest dates on articles talking about the proposal.
+Based off of the earliest dates on articles from *South China Morning Post* and *Hong Kong Free Press* talking about the proposal.
 
 https://www.scmp.com/news/hong-kong/politics/article/2185902/hong-kong-considering-changing-law-transferring-fugitives-so
 
@@ -39,7 +39,7 @@ https://www.hongkongfp.com/2019/02/13/trojan-horse-hong-kongs-china-extradition-
 
 ## __Murder of Poon Hiu-wing: 2018-02-17__
 
-Based off the date of the murder of Poon Hiu-wing.
+Based off the date of the murder of Poon Hiu-wing. Article from *BBC* reports on this event.
 
 https://www.bbc.com/news/world-asia-china-50148577
 
@@ -53,7 +53,7 @@ https://www.hongkongfp.com/2016/04/11/new-party-to-seek-vote-on-possible-hong-ko
 
 *Note: The article creation date was in 2005. The march that occurred in 2019 is a part of a series of marches that occur on this date.*
 
-Annual event that occurs on this date and this year it is focused on the Extradition Bill. Article below was published on this date.
+Annual event that occurs on this date and this year it is focused on the Extradition Bill. Article from *BBC* below was published on this date.
 
 https://www.bbc.com/news/world-asia-china-48821640
 
@@ -71,13 +71,13 @@ https://www.govinfo.gov/content/pkg/CHRG-113hhrg92631/pdf/CHRG-113hhrg92631.pdf
 
 ## __Chinese University of Hong Kong conflict: 2019-11-11__
 
-Based off of when initial aggressions occurred with the police at Chinese University of Hong Kong. Article below is cited to this date.
+Based off of when initial aggressions occurred with the police at Chinese University of Hong Kong. Article from *South China Morning Post* below is cited to this date.
 
 https://www.scmp.com/news/hong-kong/politics/article/3037262/tear-gas-fired-campuses-first-time-student-protesters
 
 ## __Death of Chow Tsz-lok: 2019-11-08__
 
-The article cited below's publication date is on November 8, 2019 which states "A university student who suffered a severe brain injury after he fell from a car park early on Monday near an area of confrontation between protesters and police died on *Friday morning*." Friday morning is referring to the date of publication.
+The article from *South China Morning Post* cited below's publication date is on November 8, 2019 which states "A university student who suffered a severe brain injury after he fell from a car park early on Monday near an area of confrontation between protesters and police died on *Friday morning*." Friday morning is referring to the date of publication.
 
 https://www.scmp.com/news/hong-kong/politics/article/3036833/hong-kong-student-who-suffered-severe-brain-injury-after
 
@@ -131,28 +131,30 @@ https://www.scmp.com/news/hong-kong/politics/article/3014100/hundreds-gather-nea
 
 ## __Umbrella Movement: 2014-09-28__
 
-Based off of the date of the Occupy Central movement which is now known as the beginning of the Umbrella Movement.
+Based off of the date of the Occupy Central movement which is now known as the beginning of the Umbrella Movement. *BBC* article below lists the start date and progression of the Umbrella Movement as it unfolded.
 
 https://www.bbc.com/news/world-asia-china-30390820
 
-## __Glory to Hong Kong: 2019-09-12__
+## __Glory to Hong Kong: 2019-08-26__
+
+From *CNN*, "Thomas -- who works in the music industry and is in his mid-20s -- said he began composing the the tune in June, and published the first version of it on August 26 on LIHKG."
 
 https://www.cnn.com/style/article/hong-kong-protest-anthem-intl-hnk/index.html
 
 ## __Lennon Wall (Hong Kong): 2014-10-01__
 
-"The project started on October 1, three days after police tried to disperse protesters by firing tear gas."
+From the *South China Morning Post*, "The project started on October 1, three days after police tried to disperse protesters by firing tear gas."
 
 https://www.scmp.com/news/hong-kong/article/1618852/website-works-display-protesters-notes-lennon-wall
 
 ## __HKmap.live: 2019-10-09__
 
-Based off of the article below.
+Based off of the article from *Reuters* below.
 
 https://www.reuters.com/article/us-hongkong-protests-apple/apple-pulls-police-tracking-app-used-in-hong-kong-protests-after-consulting-authorities-idUSKBN1WP09U?
 
 ## __Killing of Luo Changqing: 2019-11-14__
 
-Based off of the article below stating, "Government-contracted cleaner Luo Changqing died in hospital on November 14 after sustaining injuries during the clash in Sheung Shui the day before."
+Based off of the article from the *South China Morning Post* below stating, "Government-contracted cleaner Luo Changqing died in hospital on November 14 after sustaining injuries during the clash in Sheung Shui the day before."
 
 https://www.scmp.com/news/hong-kong/politics/article/3038928/hong-kong-protests-call-peace-son-luo-changqing-killed
