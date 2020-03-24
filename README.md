@@ -27,6 +27,9 @@ Contains the code that generates the `10year.csv` file that concatenates all the
 ### `time_diagram.ipynb`
 Contains the code that generates the `day_difference_figure.png` file. It generates this data with the `creation_dates_analysis.csv` file which contains the event start dates and their page creation dates that were manually inputted and cited in the `start_dates_doc.md`.
 
+### `revision_analysis.ipynb`
+Contains the code that generates both `desc_all.csv` and `desc_page.csv`. This notebook requires the revision data contained in the `10 Year Revision Data` directory.
+
 ### `stats.py`
 Contains code for calculating various metrics such as Jaccard Similarity or correlations between pages and creating plots.
 
