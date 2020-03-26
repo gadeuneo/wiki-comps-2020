@@ -35,6 +35,7 @@ top10 = [format_file_names(title)[:-4] for title in top10]
 top10 = [formatTop(title) for title in top10]
 
 path = "10years"
+viewPath = "dailyPageviews"
 titles = get_titles()
 titles = add_talk_pages(titles)
 
@@ -87,10 +88,12 @@ for key in dataDict.keys():
             topEdSet.update(edList)
         talkRev = 0
         talkEd = 0
+        print(key)
         # will update once pageview data collection has been done
         pageviews = 0
         for talk in dataDict.keys():
             if ("Talk" in talk and key.replace("Data","") in talk):
+                print(talk)
                 talkRev = int(dataDict[talk]['revid'].count())
                 talkEd = int(dataDict[talk]['userid'].nunique())
                 talkList = dataDict[talk]['userid'].tolist()

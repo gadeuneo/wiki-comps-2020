@@ -21,8 +21,6 @@ import matplotlib.ticker as ticker
 # functions that are frequently accessed by other files
 from static_helpers import *
 
-# TODO: Make graphs
-
 path = "dailyPageviews"
 
 figPath = "pageviews"
