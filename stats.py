@@ -106,7 +106,7 @@ def makeDayXJaccardFigure(title):
     article = dataDict[title]
     targetDict = dict() #each day is a key, value is a set of editors of that day
     allOtherDict = dict()
-    firstDay = dt.fromtimestamp(int(time.mktime(dt.strptime("2019-01-10", "%Y-%m-%d").timetuple()))).date()
+    firstDay = dt.fromtimestamp(int(time.mktime(dt.strptime("2019-06-01", "%Y-%m-%d").timetuple()))).date()
     lastDay = dt.fromtimestamp(endDate).date()
     days = []
     jaccard = [] #jaccard score of each day
@@ -172,6 +172,8 @@ def makeDayXJaccardFigure(title):
                         allOtherDict[currDate] = dailyEditorSet.union(tempSet)
                         dailyEditorSet = set()
     #Calculate Jaccard
+    jaccardAndEditor = []
+    currItem = []
     for day in days:
         setA = targetDict[day]
         setB = allOtherDict[day]
@@ -180,15 +182,21 @@ def makeDayXJaccardFigure(title):
         else:
             jScore = len(setA.intersection(setB))/len(setA.union(setB))*100
         jaccard.append(jScore)
+        currItem.append(day)
+        currItem.append(jScore)
+        currItem.append(len(setA))
+        currItem.append(len(setB))
+        jaccardAndEditor.append(currItem)
+        currItem = []
 
-
+    print(jaccardAndEditor)
     fig, ax = plt.subplots(figsize=(15,7))
     ax.plot(days, jaccard)
 
     #ax.xaxis.set_major_locator(mdates.MonthLocator())
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=1))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m-%d'))
-    #ax.xaxis.set_minor_locator(mdates.DayLocator())
+    ax.xaxis.set_minor_locator(mdates.DayLocator())
     ax.format_xdata = mdates.DateFormatter('%Y-%m')
 
     fig.autofmt_xdate()
@@ -301,6 +309,8 @@ def makeTimeXNumEditorsFigure(title):
 '''for title in dataTitleArray:
     makeTimeXNumEditorsFigure(title)'''
 
-topTenAfterJune2019()
+title = dataTitleArray[0]
+makeDayXJaccardFigure(title)
+print(title)
 
 sys.exit(0)
