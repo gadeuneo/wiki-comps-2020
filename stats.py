@@ -206,6 +206,32 @@ def makeDayXJaccardFigure(title):
         plt.savefig(os.path.join(plotPath, subpath, title + ".png"), bbox_inches="tight")
     plt.close()
 
+def topTenAfterJune2019():
+    startDate = dt.fromtimestamp(int(time.mktime(dt.strptime("2019-6-10", "%Y-%m-%d").timetuple())))
+    topTenList = []
+    curr = []
+    for title in dataTitleArray:
+        article = dataDict[title]
+        editCount = 0
+        for index, row in article.iterrows():
+            currDate = dt.strptime(row['timestamp'], "%Y-%m-%dT%H:%M:%SZ")
+            if(currDate>=startDate):
+                editCount+=1
+        curr.append(title)
+        curr.append(editCount)
+        topTenList.append(curr)
+        curr = []
+    #bubble sort
+    length = len(topTenList)
+    for i in range (length):
+        for j in range (0, length-i-1):
+            if topTenList[j][1]>topTenList[j+1][1]:
+                topTenList[j], topTenList[j+1] = topTenList[j+1], topTenList[j]
+    print(topTenList)
+
+
+
+
 def makeTimeXNumEditorsFigure(title):
     article = dataDict[title]
     newDate = dt.fromtimestamp(startDate)
@@ -275,7 +301,6 @@ def makeTimeXNumEditorsFigure(title):
 '''for title in dataTitleArray:
     makeTimeXNumEditorsFigure(title)'''
 
-for title in dataTitleArray:
-    makeDayXJaccardFigure(title)
+topTenAfterJune2019()
 
 sys.exit(0)
