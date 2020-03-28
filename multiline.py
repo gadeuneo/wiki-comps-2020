@@ -26,8 +26,8 @@ register_matplotlib_converters()
 start = time.time()
 
 # folder of files
-path = "data"
-plotPath = "figures"
+path = "10 Year Revision Data"
+plotPath = "figures/Multi-Line"
 
 directories = ["figures"]
 
@@ -37,26 +37,31 @@ create_directories(directories)
 titles = get_titles()
 
 # adds talk pages
-titles = add_talk_pages(titles)
+#titles = add_talk_pages(titles)
+
+
+titles = add_revision_talk_pages(titles)
 
 # converts titles to filename format
-titles = [format_file_names(title) for title in titles]
+# titles = [format_file_names(title) for title in titles]
+# titleArray = []
+# for title in titles:
+#     titleArray.append("Data" + title)
+#     titleArray.append("Redirects" + title)
+#
+# # check if file exists, if not, remove from list of titles
+# for title in titles:
+#     if (not os.path.isfile(os.path.join(path, "Data" + title))):
+#         filename = "Data" + title
+#         titleArray.remove(filename)
+#
+#     if (not (os.path.isfile(os.path.join(path, "Redirects" + title)))):
+#         filename = "Redirects" + title
+#         titleArray.remove(filename)
+titles = [add_file_extension(title) for title in titles]
 titleArray = []
 for title in titles:
-    titleArray.append("Data" + title)
-    titleArray.append("Redirects" + title)
-
-# check if file exists, if not, remove from list of titles
-for title in titles:
-    if (not os.path.isfile(os.path.join(path, "Data" + title))):
-        filename = "Data" + title
-        titleArray.remove(filename)
-
-    if (not (os.path.isfile(os.path.join(path, "Redirects" + title)))):
-        filename = "Redirects" + title
-        titleArray.remove(filename)
-
-
+    titleArray.append(title)
 ##### TODO: merge files? -- Which ones? How?
 ##### TODO: save merged files?
 
@@ -66,8 +71,7 @@ dataDict = dict()
 
 for f in titleArray:
     dataDict[f[:-4]] = pd.read_csv(os.path.join(path, f))
-
-# print(dataDict.keys())
+#print(dataDict.keys())
 
 allData = []
 allRed = []
@@ -85,7 +89,7 @@ for key in dataDict.keys():
 #print(revisionData.to_string())
 
 # Convert date to Unix Timestamp
-startDate = int(time.mktime(dt.strptime("2019-6-10", "%Y-%m-%d").timetuple()))
+startDate = int(time.mktime(dt.strptime("2009-12-10", "%Y-%m-%d").timetuple()))
 endDate = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
 today = int(time.mktime(dt.today().timetuple()))
 # Assertions for proper date args
@@ -98,35 +102,26 @@ assert(endDate <= today)
 
 
 def makeMultipleLineFigure(titleArray, titles):
-    for title in titleArray[:19]:
+    for title in titleArray[:10]:
         key = title[:-4]
-        if key[0:4]=="Data":
+        if key[0:4]!="Talk":
             article = dataDict[key]
             newDate = dt.fromtimestamp(startDate)
             days = []
             counts = []
             #counts the edits
             edits = 0
-            #plt.figure(figsize=(15,7))
             for day in article['timestamp']:
                 editTime = dt.strptime(day, "%Y-%m-%dT%H:%M:%SZ")
                 while(editTime > newDate):
                     counts.append(edits)
                     epoch = int(newDate.timestamp())
                     days.append(dt.fromtimestamp(epoch))
-                    #newDate = newDate + timedelta(days=1)
-                    newDate = newDate + timedelta(days=7)
+                    # newDate = newDate + timedelta(days=1)
+                    # newDate = newDate + timedelta(days=7)
+                    newDate = newDate + timedelta(days=30)
                     edits = 0
                 edits += 1
-            '''fig, ax = plt.subplots(figsize=(15,7))
-            ax.plot(days, counts)
-            ax.xaxis.set_major_locator(mdates.MonthLocator())
-            #ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
-            ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m-%d'))
-            ax.xaxis.set_minor_locator(mdates.DayLocator())
-            ax.format_xdata = mdates.DateFormatter('%Y-%m')
-
-            fig.autofmt_xdate()'''
             plt.plot(days, counts, label= title)
             plt.gcf().set_size_inches(15,7)
 
@@ -139,6 +134,7 @@ def makeMultipleLineFigure(titleArray, titles):
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.5, box.height])
     plt.legend(bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0.)
+    # Need to add subpath so that its easier to change which directory being used
     if (not os.path.isfile(os.path.join(plotPath, titles+".png"))):
         plt.savefig(os.path.join(plotPath, titles+".png"), bbox_inches="tight")
     plt.close()
@@ -150,7 +146,7 @@ for title in titleArray:
         dataTitleArray.append(title[:-4])
 
 #makeMultipleLineFigure(titleArray, "Edits by Day of Top 10 Most Revised Articles")
-makeMultipleLineFigure(titleArray, "Edits by Week of Top 10 Most Revised Articles - 6 Month Span")
+makeMultipleLineFigure(titleArray, "Edits by Month of Top 10 Most Revised Articles")
 
 
 end = time.time()

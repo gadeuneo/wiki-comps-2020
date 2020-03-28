@@ -7,9 +7,9 @@ from datetime import datetime
 '''
     Description: Reads the first two lines in credentials.txt which should be
     the username and password of the MediaWiki API bot.
-    
+
     Input: Nothing.
-    
+
     Output: Two strings, username and password.
 '''
 def get_credentials():
@@ -74,7 +74,7 @@ def create_directories(directory_names):
 def create_directory(directory_name):
     if (not os.path.exists(directory_name)):
         os.mkdir(directory_name)
-    
+
     return
 
 '''
@@ -92,6 +92,26 @@ def add_talk_pages(titles):
 
     for title in titles:
         titles_copy.append("Talk:" + title)
+
+    return titles_copy
+
+'''
+    Description: Performs same task as add_talk_pages(). Used to handle files
+    that are formatted in a different way than the files found in the other
+    file directories.
+
+    Input: A list of strings.
+
+    Output: A copy of the list with the additional titles with "Talk-" appended
+    to the front.
+'''
+
+def add_revision_talk_pages(titles):
+
+    titles_copy = titles.copy()
+
+    for title in titles:
+        titles_copy.append("Talk-" + title)
 
     return titles_copy
 
@@ -117,6 +137,18 @@ def format_file_names(title):
 
     return title + ".csv"
 
+'''
+    Description: Given a string, appends ".csv" to the title. Needed to handle
+    files that are formatted in a different way than the files found in the other
+    file directories.
+
+    Input: A string/title.
+
+    Output: A modified string that has ".csv" appended to the end.
+'''
+
+def add_file_extension(title):
+    return title + ".csv"
 '''
     Description: Given a complete path to a particular file, returns True or
     False based on if it exists.
