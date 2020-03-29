@@ -5,6 +5,7 @@ from datetime import datetime as dt
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 import time
+# https://realpython.com/numpy-scipy-pandas-correlation-python/
 import scipy.stats
 import matplotlib.pyplot as plt
 
