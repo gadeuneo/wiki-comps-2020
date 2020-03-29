@@ -106,7 +106,7 @@ def makeDayXJaccardFigure(title):
     article = dataDict[title]
     targetDict = dict() #each day is a key, value is a set of editors of that day
     allOtherDict = dict()
-    firstDay = dt.fromtimestamp(int(time.mktime(dt.strptime("2019-06-01", "%Y-%m-%d").timetuple()))).date()
+    firstDay = dt.fromtimestamp(int(time.mktime(dt.strptime("2019-01-01", "%Y-%m-%d").timetuple()))).date()
     lastDay = dt.fromtimestamp(endDate).date()
     days = []
     jaccard = [] #jaccard score of each day
@@ -171,12 +171,13 @@ def makeDayXJaccardFigure(title):
                         tempSet = allOtherDict.get(currDate)
                         allOtherDict[currDate] = dailyEditorSet.union(tempSet)
                         dailyEditorSet = set()
-    #Calculate Jaccard
-    jaccardAndEditor = []
+    #Calculate Jaccard, but also
+    jaccardAndEditor = [] #compiles a list of [date/jaccardScore/NumUniqueEditorsOfTargetArticle/NumUniqueEditorsOfOtherArticles] items
     currItem = []
+    setB = set()
     for day in days:
         setA = targetDict[day]
-        setB = allOtherDict[day]
+        setB = setB.union(allOtherDict[day])
         if(len(setA.union(setB))==0):
             jScore = 0
         else:
@@ -188,8 +189,8 @@ def makeDayXJaccardFigure(title):
         currItem.append(len(setB))
         jaccardAndEditor.append(currItem)
         currItem = []
+    #printPeaks(jaccardAndEditor, 10) #Finds top 10 peaks
 
-    print(jaccardAndEditor)
     fig, ax = plt.subplots(figsize=(15,7))
     ax.plot(days, jaccard)
 
@@ -214,6 +215,15 @@ def makeDayXJaccardFigure(title):
         plt.savefig(os.path.join(plotPath, subpath, title + ".png"), bbox_inches="tight")
     plt.close()
 
+def printPeaks(dataInput, num):
+    length = len(dataInput)
+    for i in range (length):
+        for j in range (0, length-i-1):
+            if dataInput[j][1]<dataInput[j+1][1]:
+                dataInput[j], dataInput[j+1] = dataInput[j+1], dataInput[j]
+    for i in range (0, 10):
+        print(dataInput[i])
+
 def topTenAfterJune2019():
     startDate = dt.fromtimestamp(int(time.mktime(dt.strptime("2019-6-10", "%Y-%m-%d").timetuple())))
     topTenList = []
@@ -236,9 +246,6 @@ def topTenAfterJune2019():
             if topTenList[j][1]>topTenList[j+1][1]:
                 topTenList[j], topTenList[j+1] = topTenList[j+1], topTenList[j]
     print(topTenList)
-
-
-
 
 def makeTimeXNumEditorsFigure(title):
     article = dataDict[title]
@@ -309,8 +316,8 @@ def makeTimeXNumEditorsFigure(title):
 '''for title in dataTitleArray:
     makeTimeXNumEditorsFigure(title)'''
 
-title = dataTitleArray[0]
-makeDayXJaccardFigure(title)
-print(title)
+for title in dataTitleArray:
+    makeDayXJaccardFigure(title)
+    print(title)
 
 sys.exit(0)
