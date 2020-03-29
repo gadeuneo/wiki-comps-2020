@@ -7,6 +7,29 @@ from dateutil.relativedelta import relativedelta
 import time
 import scipy.stats
 import matplotlib.pyplot as plt
+
+# https://stackoverflow.com/questions/30284693/pythonic-way-to-store-top-10-results
+from heapq import heappush, heappushpop
+
+# https://stackoverflow.com/questions/42985030/inserting-dictionary-to-heap-python
+from functools import total_ordering
+
+@total_ordering
+class KeyDict(object):
+    def __init__(self, key, lst):
+        self.key = key
+        self.lst = lst
+
+    def __lt__(self, other):
+        return self.key < other.key
+
+    def __eq__(self, other):
+        return self.key == other.key
+
+    def __repr__(self):
+        return '{0.__class__.__name__}(key={0.key}, lst={0.lst})'.format(self)
+
+
 from static_helpers import *
 
 pageviewPath = "dailyPageviews"
@@ -28,24 +51,35 @@ for f in viewFiles:
 
 keys = list(viewDict.keys())
 
-for key in keys:
-    x = viewDict[key]['Count']
-    for k in keys:
-        if (key != k):
-            y = viewDict[k]['Count']
-            # print(x.corr(y))
-            slope, intercept, r, p, stderr = scipy.stats.linregress(x, y)
-            line = "Regression line: y={0} + {1}x, r={2}".format(intercept, slope, r)
-            fig, ax = plt.subplots()
-            ax.plot(x, y, linewidth=0, marker='s', label='Data points')
-            ax.plot(x, intercept + slope * x, label=line)
-            ax.set_xlabel(key + " Pageviews")
-            ax.set_ylabel(k + " Pageviews")
-            ax.legend(facecolor='white')
-            plt.savefig(os.path.join(savepath, key+k + ".png"), dpi=300)
-            plt.close()
-            sys.exit(0)
+heap = []
 
-            
+for keyx in keys:
+    x = viewDict[keyx]['Count']
+    for keyy in keys:
+        if (keyx != keyy):
+            y = viewDict[keyy]['Count']
 
-# TODO: save only top 5 correlations (only positive? or top abs values?)
+            corr = x.corr(y)
+            # change for top N views corr
+            if (len(heap) < 10):
+                heappush(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
+            else:
+                heappushpop(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
+
+topNViews = sorted(heap, reverse=True)
+
+for item in topNViews:
+    x = item.lst[0]
+    y = item.lst[1]
+    keyx = item.lst[2]
+    keyy = item.lst[3]
+    slope, intercept, r, p, stderr = scipy.stats.linregress(x, y)
+    line = "Regression line: y={0} + {1}x, r={2}".format(intercept, slope, r)
+    fig, ax = plt.subplots()
+    ax.plot(x, y, linewidth=0, marker='s', label='Data points')
+    ax.plot(x, intercept + slope * x, label=line)
+    ax.set_xlabel(keyx + " Pageviews")
+    ax.set_ylabel(keyy + " Pageviews")
+    ax.legend(facecolor='white')
+    plt.savefig(os.path.join(savepath, keyx+" " +keyy + ".png"), dpi=300)
+    plt.close()
