@@ -14,6 +14,7 @@ from heapq import heappush, heappushpop
 # https://stackoverflow.com/questions/42985030/inserting-dictionary-to-heap-python
 from functools import total_ordering
 
+# https://docs.python.org/3.6/library/functools.html#functools.total_ordering
 @total_ordering
 class KeyDict(object):
     def __init__(self, key, lst):
