@@ -59,16 +59,25 @@ for title in titles:
 
 dataDict = dict()
 
+
+viewFiles = os.listdir(viewPath)
+viewFiles = [f[:-4] for f in viewFiles]
+
+print(viewFiles[5])
+print(titleArray[0])
+### ??????? Why is this True but the below loop all False?
+print(viewFiles[5] in titleArray[0])
+
+for f in viewFiles:
+    print(f in titleArray)
+
+sys.exit(0)
+
 for f in titleArray:
     if ("Data" in f):
         dataDict[f[:-4]] = pd.read_csv(os.path.join(path, f))
 
 # print(dataDict.keys())
-
-allData = []
-for key in dataDict.keys():
-    if ("Data" in key):
-        allData.append(dataDict[key])
 
 table = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews"]]
 
@@ -88,7 +97,6 @@ for key in dataDict.keys():
             topEdSet.update(edList)
         talkRev = 0
         talkEd = 0
-        print(key)
         # will update once pageview data collection has been done
         pageviews = 0
         for talk in dataDict.keys():
