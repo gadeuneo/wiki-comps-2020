@@ -34,54 +34,101 @@ class KeyDict(object):
 
 from static_helpers import *
 
+revisionPath = "10 Year Revision Data"
 pageviewPath = "dailyPageviews"
-figPath = "pageCorr"
-savepath = os.path.join("figures", figPath)
 
-if (not os.path.exists(savepath)):
-    os.mkdir(savepath)
+pageviewSavePath = os.path.join("figures", "pageviewCorr")
+revisionSavePath = os.path.join("figures", "revisionCorr")
+
+if (not os.path.exists(pageviewSavePath)):
+    os.mkdir(pageviewSavePath)
+
+if (not os.path.exists(revisionSavePath)):
+    os.mkdir(revisionSavePath)
 
 
 viewFiles = os.listdir(pageviewPath)
+revisonFiles = os.listdir(revisionPath)
 
 viewDict = dict()
+revisionDict = dict()
 
 for f in viewFiles:
     viewDict[f[:-4]] = pd.read_csv(os.path.join(pageviewPath, f))
 
-# print(viewDict.keys())
+for r in revisonFiles:
+    revisionDict[r[:-4]] = pd.read_csv(os.path.join(revisionPath, r))
 
-keys = list(viewDict.keys())
 
-heap = []
+def plotViewCorrelations(dct):
+    keys = list(dct.keys())
+    heap = []
+    for keyx in keys:
+        x = dct[keyx]['Count']
+        for keyy in keys:
+            if (keyx != keyy):
+                y = dct[keyy]['Count']
+                corr = x.corr(y)
+                # change for top N views corr
+                if (len(heap) < 10):
+                    heappush(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
+                else:
+                    heappushpop(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
 
-for keyx in keys:
-    x = viewDict[keyx]['Count']
-    for keyy in keys:
-        if (keyx != keyy):
-            y = viewDict[keyy]['Count']
+    topNViews = sorted(heap, reverse=True)
 
-            corr = x.corr(y)
-            # change for top N views corr
-            if (len(heap) < 10):
-                heappush(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
-            else:
-                heappushpop(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
+    for item in topNViews:
+        x = item.lst[0]
+        y = item.lst[1]
+        keyx = item.lst[2]
+        keyy = item.lst[3]
+        slope, intercept, r, p, stderr = scipy.stats.linregress(x, y)
+        line = "Regression line: y={0} + {1}x, r={2}".format(intercept, slope, r)
+        fig, ax = plt.subplots()
+        ax.plot(x, y, linewidth=0, marker='s', label='Data points')
+        ax.plot(x, intercept + slope * x, label=line)
+        ax.set_xlabel(keyx + " Pageviews")
+        ax.set_ylabel(keyy + " Pageviews")
+        ax.legend(facecolor='white')
+        plt.savefig(os.path.join(pageviewSavePath, keyx+" " +keyy + ".png"), dpi=300)
+        plt.close()
 
-topNViews = sorted(heap, reverse=True)
+# TODO: handle different dates for revisions
+def plotRevisonCorrelations(dct):
+    print("TODO: Handle different dates")
+    sys.exit(0)
+    keys = list(dct.keys())
+    heap = []
+    for keyx in keys:
+        x = dct[keyx]['Count']
+        for keyy in keys:
+            if (keyx != keyy):
+                y = dct[keyy]['Count']
+                corr = x.corr(y)
+                # change for top N views corr
+                if (len(heap) < 10):
+                    heappush(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
+                else:
+                    heappushpop(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
 
-for item in topNViews:
-    x = item.lst[0]
-    y = item.lst[1]
-    keyx = item.lst[2]
-    keyy = item.lst[3]
-    slope, intercept, r, p, stderr = scipy.stats.linregress(x, y)
-    line = "Regression line: y={0} + {1}x, r={2}".format(intercept, slope, r)
-    fig, ax = plt.subplots()
-    ax.plot(x, y, linewidth=0, marker='s', label='Data points')
-    ax.plot(x, intercept + slope * x, label=line)
-    ax.set_xlabel(keyx + " Pageviews")
-    ax.set_ylabel(keyy + " Pageviews")
-    ax.legend(facecolor='white')
-    plt.savefig(os.path.join(savepath, keyx+" " +keyy + ".png"), dpi=300)
-    plt.close()
+    topNViews = sorted(heap, reverse=True)
+
+    for item in topNViews:
+        x = item.lst[0]
+        y = item.lst[1]
+        keyx = item.lst[2]
+        keyy = item.lst[3]
+        slope, intercept, r, p, stderr = scipy.stats.linregress(x, y)
+        line = "Regression line: y={0} + {1}x, r={2}".format(intercept, slope, r)
+        fig, ax = plt.subplots()
+        ax.plot(x, y, linewidth=0, marker='s', label='Data points')
+        ax.plot(x, intercept + slope * x, label=line)
+        ax.set_xlabel(keyx + " Pageviews")
+        ax.set_ylabel(keyy + " Pageviews")
+        ax.legend(facecolor='white')
+        plt.savefig(os.path.join(pageviewSavePath, keyx+" " +keyy + ".png"), dpi=300)
+        plt.close()
+
+
+plotViewCorrelations(viewDict)
+plotRevisonCorrelations(revisionDict)
