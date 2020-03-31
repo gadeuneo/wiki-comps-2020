@@ -106,7 +106,7 @@ def makeDayXJaccardFigure(title):
     article = dataDict[title]
     targetDict = dict() #each day is a key, value is a set of editors of that day
     allOtherDict = dict()
-    firstDay = dt.fromtimestamp(int(time.mktime(dt.strptime("2019-01-01", "%Y-%m-%d").timetuple()))).date()
+    firstDay = dt.fromtimestamp(int(time.mktime(dt.strptime("2019-06-01", "%Y-%m-%d").timetuple()))).date()
     lastDay = dt.fromtimestamp(endDate).date()
     days = []
     jaccard = [] #jaccard score of each day
@@ -131,6 +131,8 @@ def makeDayXJaccardFigure(title):
             else: #registered user
                 dailyEditorSet.add(rowData['userid'])
         else:
+            while(currDate<firstDay):
+                currDate += timedelta(days=1)
             while(currDate<editDay):
                 targetDict[currDate] = dailyEditorSet
                 dailyEditorSet = set()
@@ -158,6 +160,8 @@ def makeDayXJaccardFigure(title):
                     else: #registered user
                         dailyEditorSet.add(rowData['userid'])
                 else:
+                    while(currDate<firstDay):
+                        currDate += timedelta(days=1)
                     while(currDate<editDay):
                         tempSet = allOtherDict.get(currDate)
                         allOtherDict[currDate] = dailyEditorSet.union(tempSet)
@@ -189,15 +193,16 @@ def makeDayXJaccardFigure(title):
         currItem.append(len(setB))
         jaccardAndEditor.append(currItem)
         currItem = []
-    #printPeaks(jaccardAndEditor, 10) #Finds top 10 peaks
+        setA = set()
+    printPeaks(jaccardAndEditor, 10) #Finds top 10 peaks
 
-    fig, ax = plt.subplots(figsize=(15,7))
+    fig, ax = plt.subplots(figsize=(20,4))
     ax.plot(days, jaccard)
 
     #ax.xaxis.set_major_locator(mdates.MonthLocator())
     ax.xaxis.set_major_locator(mdates.MonthLocator(interval=1))
     ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m-%d'))
-    ax.xaxis.set_minor_locator(mdates.DayLocator())
+    #ax.xaxis.set_minor_locator(mdates.DayLocator())
     ax.format_xdata = mdates.DateFormatter('%Y-%m')
 
     fig.autofmt_xdate()
@@ -224,8 +229,8 @@ def printPeaks(dataInput, num):
     for i in range (0, 10):
         print(dataInput[i])
 
-def topTenAfterJune2019():
-    startDate = dt.fromtimestamp(int(time.mktime(dt.strptime("2019-6-10", "%Y-%m-%d").timetuple())))
+def topTenAfterDate(date):
+    startDate = dt.fromtimestamp(int(time.mktime(dt.strptime(date, "%Y-%m-%d").timetuple())))
     topTenList = []
     curr = []
     for title in dataTitleArray:
@@ -319,5 +324,6 @@ def makeTimeXNumEditorsFigure(title):
 for title in dataTitleArray:
     makeDayXJaccardFigure(title)
     print(title)
+
 
 sys.exit(0)
