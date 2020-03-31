@@ -9,7 +9,7 @@ from static_helpers import *
 
 def prettyPrint(dictKey):
     newTitle = str(dictKey)
-    newTitle = newTitle.replace("Data", "").replace("_", " ").replace("(dot)",".")
+    newTitle = newTitle.replace("Data", "").replace("_", " ").replace("(dot)",".").replace("(colon)","-")
     return newTitle
 
 def formatTop(title):
@@ -17,6 +17,8 @@ def formatTop(title):
     new = new.replace("Data", "")
     return new
 
+
+#### TODO: determine top 10 metric - exclude Talk pages
 top10 = [
     "2019–20 Hong Kong protests",
     "Hong Kong",
@@ -34,50 +36,28 @@ top10 = add_talk_pages(top10)
 top10 = [format_file_names(title)[:-4] for title in top10]
 top10 = [formatTop(title) for title in top10]
 
-path = "10years"
+####
+
+
+path = "10 Year Revision Data"
 viewPath = "dailyPageviews"
-titles = get_titles()
-titles = add_talk_pages(titles)
 
-# converts titles to filename format
-titles = [format_file_names(title) for title in titles]
-titleArray = []
-for title in titles:
-    titleArray.append("Data" + title)
-    titleArray.append("Redirects" + title)
-
-# check if file exists, if not, remove from list of titles
-for title in titles:
-    if (not os.path.isfile(os.path.join(path, "Data" + title))):
-        filename = "Data" + title
-        titleArray.remove(filename)
-
-    if (not (os.path.isfile(os.path.join(path, "Redirects" + title)))):
-        filename = "Redirects" + title
-        titleArray.remove(filename)
+revisionFiles = os.listdir(path)
 
 
 dataDict = dict()
 
+for f in revisionFiles:
+    dataDict[f[:-4]] = pd.read_csv(os.path.join(path,f))
+
 
 viewFiles = os.listdir(viewPath)
-viewFiles = [f[:-4] for f in viewFiles]
 
-print(viewFiles[5])
-print(titleArray[0])
-### ??????? Why is this True but the below loop all False?
-print(viewFiles[5] in titleArray[0])
 
-for f in viewFiles:
-    print(f in titleArray)
+# for f in viewFiles:
+#     print(prettyPrint(f))
+#     print(prettyPrint(f) in revisionFiles)
 
-sys.exit(0)
-
-for f in titleArray:
-    if ("Data" in f):
-        dataDict[f[:-4]] = pd.read_csv(os.path.join(path, f))
-
-# print(dataDict.keys())
 
 table = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews"]]
 
@@ -101,7 +81,6 @@ for key in dataDict.keys():
         pageviews = 0
         for talk in dataDict.keys():
             if ("Talk" in talk and key.replace("Data","") in talk):
-                print(talk)
                 talkRev = int(dataDict[talk]['revid'].count())
                 talkEd = int(dataDict[talk]['userid'].nunique())
                 talkList = dataDict[talk]['userid'].tolist()
