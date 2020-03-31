@@ -17,6 +17,15 @@ def formatTop(title):
     new = new.replace("Data", "")
     return new
 
+def addUnderscore(key):
+    s = str(key)
+    s = s.replace(" ", "_")
+    return s
+
+def formatTalk(key):
+    s = str(key)
+    s = s.replace("Talk-", "Talk(colon)")
+    return s
 
 #### TODO: determine top 10 metric - exclude Talk pages
 top10 = [
@@ -48,11 +57,15 @@ revisionFiles = os.listdir(path)
 dataDict = dict()
 
 for f in revisionFiles:
-    dataDict[f[:-4]] = pd.read_csv(os.path.join(path,f))
+    dataDict[f[:-4]] = pd.read_csv(os.path.join(path, f))
 
 
 viewFiles = os.listdir(viewPath)
 
+viewDict = dict()
+
+for f in viewFiles:
+    viewDict[f[:-4]] = pd.read_csv(os.path.join(viewPath, f))
 
 # for f in viewFiles:
 #     print(prettyPrint(f))
@@ -78,7 +91,10 @@ for key in dataDict.keys():
         talkRev = 0
         talkEd = 0
         # will update once pageview data collection has been done
-        pageviews = 0
+        revIndex = [i for i, s in enumerate(revisionFiles) if key in s]
+        viewIndex = [i for i, s in enumerate(viewFiles) if addUnderscore(key) in s]
+        if (len(viewIndex) != 0):
+            pageviews = viewDict[viewFiles[viewIndex[0]][:-4]]['Count'].sum()
         for talk in dataDict.keys():
             if ("Talk" in talk and key.replace("Data","") in talk):
                 talkRev = int(dataDict[talk]['revid'].count())
@@ -87,6 +103,10 @@ for key in dataDict.keys():
                 talkSet.update(talkList)
                 if (formatTop(talk) in top10):
                     topTalkSet.update(talkList)
+                revIndex = [i for i, s in enumerate(revisionFiles) if talk in s]
+                viewIndex = [i for i, s in enumerate(viewFiles) if formatTalk(addUnderscore(talk)) in s]
+                if (len(viewIndex) != 0):
+                    pageviews += viewDict[viewFiles[viewIndex[0]][:-4]]['Count'].sum()
         table.append([page, revCount, edCount, talkRev, talkEd, pageviews])
 
 
