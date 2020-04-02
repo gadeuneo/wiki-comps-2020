@@ -8,6 +8,8 @@ import time
 # https://realpython.com/numpy-scipy-pandas-correlation-python/
 import scipy.stats
 import matplotlib.pyplot as plt
+# https://stackoverflow.com/questions/36420908/can-i-draw-a-regression-line-and-show-parameters-using-scatterplot-with-a-pandas
+import seaborn as sns
 
 # https://stackoverflow.com/questions/30284693/pythonic-way-to-store-top-10-results
 from heapq import heappush, heappushpop
@@ -132,9 +134,16 @@ def plotRevisonCorrelations(dct):
         x.name = "X"
         y.name = "Y"
         df = pd.concat([x,y], axis = 1)
-        ax = df.plot(x='X', y='Y', style=['o', 'rx'])
-        fig = ax.get_figure()
-        fig.savefig(os.path.join(revisionPath, keyx+" " +keyy + ".png"), dpi=300)
+
+        sns_plot = sns.lmplot(x='X',y='Y',data=df,fit_reg=True)
+        # https://stackoverflow.com/questions/31632637/label-axes-on-seaborn-barplot
+        sns_plot.set(xlabel = keyx + " Revisons", ylabel=keyy + " Revisions")
+        sns_plot.savefig(os.path.join(revisionSavePath, keyx+" " +keyy + ".png"))
+        # ax = df.plot(x='X', y='Y', kind='scatter')
+        # ax.set_xlabel(keyx + " Revisions")
+        # ax.set_ylabel(keyy + " Revisions")
+        # fig = ax.get_figure()
+        # fig.savefig(os.path.join(revisionSavePath, keyx+" " +keyy + ".png"), dpi=300)
 
 
 plotViewCorrelations(viewDict)
