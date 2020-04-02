@@ -152,7 +152,8 @@ def returnAllOtherDict(targetTitle, firstDay, lastDay):
                 editDay = dt.strptime(rowData['timestamp'], "%Y-%m-%dT%H:%M:%SZ").date()
                 if(currDate == editDay):
                     if(rowData['userid'] == 0): #anon
-                        dailyEditorSet.add("ANON " + rowData['user'])
+                        p=0
+                        #dailyEditorSet.add("ANON " + rowData['user'])
                     else: #registered user
                         dailyEditorSet.add(rowData['userid'])
                 else:
@@ -164,7 +165,8 @@ def returnAllOtherDict(targetTitle, firstDay, lastDay):
                         dailyEditorSet = set()
                         currDate += timedelta(days=1)
                     if(rowData['userid'] == 0): #anon
-                        dailyEditorSet.add("ANON " + rowData['user'])
+                        p=0
+                        #dailyEditorSet.add("ANON " + rowData['user'])
                     else: #registered user
                         dailyEditorSet.add(rowData['userid'])
                 if(index == (sizeOfArticle-1)):
@@ -186,8 +188,10 @@ def returnTargetDict(article, firstDay, lastDay):
     for index, rowData in article.iterrows():
         editDay = dt.strptime(rowData['timestamp'], "%Y-%m-%dT%H:%M:%SZ").date()
         if(currDate == editDay):
+
             if(rowData['userid'] == 0): #anon
-                dailyEditorSet.add("ANON " + rowData['user'])
+                p = 0
+                #dailyEditorSet.add("ANON " + rowData['user'])
             else: #registered user
                 dailyEditorSet.add(rowData['userid'])
         else:
@@ -198,7 +202,8 @@ def returnTargetDict(article, firstDay, lastDay):
                 dailyEditorSet = set()
                 currDate += timedelta(days=1)
             if(rowData['userid'] == 0): #anon
-                dailyEditorSet.add("ANON " + rowData['user'])
+                p = 0
+                #dailyEditorSet.add("ANON " + rowData['user'])
             else: #registered user
                 dailyEditorSet.add(rowData['userid'])
         if(index == (sizeOfArticle-1)):
