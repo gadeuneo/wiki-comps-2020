@@ -66,7 +66,7 @@ def plotViewCorrelations(dct):
     for keyx in keys:
         x = dct[keyx]['Count']
         for keyy in keys:
-            if (keyx != keyy):
+            if (keyx != keyy and "Talk" not in keyx and "Talk" not in keyy):
                 y = dct[keyy]['Count']
                 corr = x.corr(y)
                 # change for top N views corr
@@ -95,15 +95,26 @@ def plotViewCorrelations(dct):
 
 # TODO: handle different dates for revisions
 def plotRevisonCorrelations(dct):
-    print("TODO: Handle different dates")
-    sys.exit(0)
     keys = list(dct.keys())
     heap = []
     for keyx in keys:
-        x = dct[keyx]['Count']
+        xdf = dct[keyx]
+        xdf['timestamp'] = pd.to_datetime(xdf['timestamp'])
+        # https://stackoverflow.com/questions/48961892/python-pandas-group-by-day-and-count-for-each-day
+        # https://stackoverflow.com/questions/56653774/how-do-i-fill-in-missing-dates-with-zeros-for-a-pandas-groupby-list
+        xdf = xdf.set_index('timestamp').resample('D')['size'].count()
+        # https://stackoverflow.com/questions/26097916/convert-pandas-series-to-dataframe
+        xdf = xdf.to_frame().reset_index()
+        xdf.columns = ['timestamp', 'Count']
+        x = xdf['Count']
         for keyy in keys:
-            if (keyx != keyy):
-                y = dct[keyy]['Count']
+            if (keyx != keyy and "Talk" not in keyx and "Talk" not in keyy):
+                ydf = dct[keyy]
+                ydf['timestamp'] = pd.to_datetime(ydf['timestamp'])
+                ydf = ydf.set_index('timestamp').resample('D')['size'].count()
+                ydf = ydf.to_frame().reset_index()
+                ydf.columns = ['timestamp', 'Count']
+                y = ydf['Count']
                 corr = x.corr(y)
                 # change for top N views corr
                 if (len(heap) < 10):
@@ -118,16 +129,12 @@ def plotRevisonCorrelations(dct):
         y = item.lst[1]
         keyx = item.lst[2]
         keyy = item.lst[3]
-        slope, intercept, r, p, stderr = scipy.stats.linregress(x, y)
-        line = "Regression line: y={0} + {1}x, r={2}".format(intercept, slope, r)
-        fig, ax = plt.subplots()
-        ax.plot(x, y, linewidth=0, marker='s', label='Data points')
-        ax.plot(x, intercept + slope * x, label=line)
-        ax.set_xlabel(keyx + " Pageviews")
-        ax.set_ylabel(keyy + " Pageviews")
-        ax.legend(facecolor='white')
-        plt.savefig(os.path.join(pageviewSavePath, keyx+" " +keyy + ".png"), dpi=300)
-        plt.close()
+        x.name = "X"
+        y.name = "Y"
+        df = pd.concat([x,y], axis = 1)
+        ax = df.plot(x='X', y='Y', style=['o', 'rx'])
+        fig = ax.get_figure()
+        fig.savefig(os.path.join(revisionPath, keyx+" " +keyy + ".png"), dpi=300)
 
 
 plotViewCorrelations(viewDict)
