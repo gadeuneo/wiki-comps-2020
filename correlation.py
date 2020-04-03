@@ -36,11 +36,18 @@ class KeyDict(object):
 
 from static_helpers import *
 
+
+def prettyPrint(dictKey):
+    newTitle = str(dictKey)
+    newTitle = newTitle.replace("Data", "").replace("_", " ").replace("(dot)",".").replace("(colon)","-")
+    return newTitle
+
 revisionPath = "10 Year Revision Data"
 pageviewPath = "dailyPageviews"
 
 pageviewSavePath = os.path.join("figures", "pageviewCorr")
 revisionSavePath = os.path.join("figures", "revisionCorr")
+viewRevSavePath = os.path.join("figures", "pageview-revisionCorr")
 
 if (not os.path.exists(pageviewSavePath)):
     os.mkdir(pageviewSavePath)
@@ -48,6 +55,8 @@ if (not os.path.exists(pageviewSavePath)):
 if (not os.path.exists(revisionSavePath)):
     os.mkdir(revisionSavePath)
 
+if (not os.path.exists(viewRevSavePath)):
+    os.mkdir(viewRevSavePath)
 
 viewFiles = os.listdir(pageviewPath)
 revisonFiles = os.listdir(revisionPath)
@@ -95,7 +104,6 @@ def plotViewCorrelations(dct):
         plt.savefig(os.path.join(pageviewSavePath, keyx+" " +keyy + ".png"), dpi=300)
         plt.close()
 
-# TODO: handle different dates for revisions
 def plotRevisonCorrelations(dct):
     keys = list(dct.keys())
     heap = []
@@ -146,5 +154,48 @@ def plotRevisonCorrelations(dct):
         # fig.savefig(os.path.join(revisionSavePath, keyx+" " +keyy + ".png"), dpi=300)
 
 
+def plotRVCorrelations(viewDct, revDct):
+    viewKeys = list(viewDct.keys())
+    revKeys = list(revDct.keys())
+    heap = []
+    for keyx in viewKeys:
+        x = viewDct[keyx]['Count']
+        for keyy in revKeys:
+            if (prettyPrint(keyx) != prettyPrint(keyy) and "Talk" not in keyx and "Talk" not in keyy):
+                ydf = revDct[keyy]
+                ydf['timestamp'] = pd.to_datetime(ydf['timestamp'])
+                ydf = ydf.set_index('timestamp').resample('D')['size'].count()
+                ydf = ydf.to_frame().reset_index()
+                ydf.columns = ['timestamp', 'Count']
+                y = ydf['Count']
+                corr = x.corr(y)
+                # change for top N views corr
+                if (len(heap) < 10):
+                    heappush(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
+                else:
+                    heappushpop(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
+
+    topNViews = sorted(heap, reverse=True)
+
+    for item in topNViews:
+        x = item.lst[0]
+        y = item.lst[1]
+        keyx = item.lst[2]
+        keyy = item.lst[3]
+        x.name = "X"
+        y.name = "Y"
+        df = pd.concat([x,y], axis = 1)
+
+        sns_plot = sns.lmplot(x='X',y='Y',data=df,fit_reg=True)
+        # https://stackoverflow.com/questions/31632637/label-axes-on-seaborn-barplot
+        sns_plot.set(xlabel = keyx + " Pageviews", ylabel=keyy + " Revisions")
+        sns_plot.savefig(os.path.join(viewRevSavePath, keyx+" " +keyy + ".png"))
+        # ax = df.plot(x='X', y='Y', kind='scatter')
+        # ax.set_xlabel(keyx + " Revisions")
+        # ax.set_ylabel(keyy + " Revisions")
+        # fig = ax.get_figure()
+        # fig.savefig(os.path.join(revisionSavePath, keyx+" " +keyy + ".png"), dpi=300)
+
 plotViewCorrelations(viewDict)
 plotRevisonCorrelations(revisionDict)
+plotRVCorrelations(viewDict, revisionDict)
