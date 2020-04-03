@@ -88,11 +88,13 @@ def plotViewCorrelations(dct):
 
     topNViews = sorted(heap, reverse=True)
 
+    table = [["Article 1", "Article 2", "Corr."]]
+
     for item in topNViews:
         x = item.lst[0]
         y = item.lst[1]
-        keyx = item.lst[2]
-        keyy = item.lst[3]
+        keyx = prettyPrint(item.lst[2])
+        keyy = prettyPrint(item.lst[3])
         slope, intercept, r, p, stderr = scipy.stats.linregress(x, y)
         line = "Regression line: y={0} + {1}x, r={2}".format(intercept, slope, r)
         fig, ax = plt.subplots()
@@ -103,6 +105,11 @@ def plotViewCorrelations(dct):
         ax.legend(facecolor='white')
         plt.savefig(os.path.join(pageviewSavePath, keyx+" " +keyy + ".png"), dpi=300)
         plt.close()
+        table.append([keyx, keyy, item.key])
+
+    tableDf = pd.DataFrame(table[1:], columns=table[0])
+    tableDf = tableDf.sort_values(by="Corr.", ascending=False)
+    tableDf.to_csv("pageviewCorr.csv", encoding="utf-8")
 
 def plotRevisonCorrelations(dct):
     keys = list(dct.keys())
@@ -134,11 +141,13 @@ def plotRevisonCorrelations(dct):
 
     topNViews = sorted(heap, reverse=True)
 
+    table = [["Article 1", "Article 2", "Corr."]]
+
     for item in topNViews:
         x = item.lst[0]
         y = item.lst[1]
-        keyx = item.lst[2]
-        keyy = item.lst[3]
+        keyx = prettyPrint(item.lst[2])
+        keyy = prettyPrint(item.lst[3])
         x.name = "X"
         y.name = "Y"
         df = pd.concat([x,y], axis = 1)
@@ -152,6 +161,11 @@ def plotRevisonCorrelations(dct):
         # ax.set_ylabel(keyy + " Revisions")
         # fig = ax.get_figure()
         # fig.savefig(os.path.join(revisionSavePath, keyx+" " +keyy + ".png"), dpi=300)
+        table.append([keyx, keyy, item.key])
+
+    tableDf = pd.DataFrame(table[1:], columns=table[0])
+    tableDf = tableDf.sort_values(by="Corr.", ascending=False)
+    tableDf.to_csv("revisionCorr.csv", encoding="utf-8")
 
 
 def plotRVCorrelations(viewDct, revDct):
@@ -177,11 +191,13 @@ def plotRVCorrelations(viewDct, revDct):
 
     topNViews = sorted(heap, reverse=True)
 
+    table = [["Pageviews", "Revisions", "Corr."]]
+
     for item in topNViews:
         x = item.lst[0]
         y = item.lst[1]
-        keyx = item.lst[2]
-        keyy = item.lst[3]
+        keyx = prettyPrint(item.lst[2])
+        keyy = prettyPrint(item.lst[3])
         x.name = "X"
         y.name = "Y"
         df = pd.concat([x,y], axis = 1)
@@ -195,6 +211,11 @@ def plotRVCorrelations(viewDct, revDct):
         # ax.set_ylabel(keyy + " Revisions")
         # fig = ax.get_figure()
         # fig.savefig(os.path.join(revisionSavePath, keyx+" " +keyy + ".png"), dpi=300)
+        table.append([keyx, keyy, item.key])
+
+    tableDf = pd.DataFrame(table[1:], columns=table[0])
+    tableDf = tableDf.sort_values(by="Corr.", ascending=False)
+    tableDf.to_csv("pageview-revisionCorr.csv", encoding="utf-8")
 
 plotViewCorrelations(viewDict)
 plotRevisonCorrelations(revisionDict)
