@@ -107,10 +107,10 @@ for key in dataDict.keys():
                     topTalkSet.update(talkList)
                 revIndex = [i for i, s in enumerate(revisionFiles) if talk in s]
                 viewIndex = [i for i, s in enumerate(viewFiles) if formatTalk(addUnderscore(talk)) in s]
-                if (len(viewIndex) != 0):
-                    pageviews += viewDict[viewFiles[viewIndex[0]][:-4]]['Count'].sum()
-                else:
-                    print(talk + " pageview file not found")
+                # if (len(viewIndex) != 0):
+                #     pageviews += viewDict[viewFiles[viewIndex[0]][:-4]]['Count'].sum()
+                # else:
+                #     print(talk + " pageview file not found")
         table.append([page, revCount, edCount, talkRev, talkEd, pageviews])
 
 
