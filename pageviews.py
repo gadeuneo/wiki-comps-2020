@@ -21,6 +21,8 @@ import matplotlib.ticker as ticker
 # functions that are frequently accessed by other files
 from static_helpers import *
 
+start = time.time()
+
 path = "dailyPageviews"
 
 figPath = "pageviews"
@@ -73,6 +75,9 @@ def plotPageviews(pageDict):
 
 plotPageviews(views)
 
+endPage = time.time()
+print("Plotting pageviews took {0} seconds.".format(str(endPage - start)))
+
 def plotTopNPageviews(pageDict):
     allDays = []
     allNumViews = []
@@ -82,7 +87,7 @@ def plotTopNPageviews(pageDict):
             numViews = []
             for index, row in pageDict[key].iterrows():
                 viewDate = dt.strptime(row['Date'], "%Y-%m-%d")
-                if (viewDate > dt.strptime("2019-01-01", "%Y-%m-%d")):
+                if (viewDate >= dt.strptime("2019-06-01", "%Y-%m-%d")):
                     days.append(viewDate)
                     numViews.append(row['Count'])
 
@@ -93,7 +98,9 @@ def plotTopNPageviews(pageDict):
     plt.title("Top N Pageviews Corr")
     plt.xlabel("Days")
     plt.ylabel("Pageview Count")
-    plt.savefig(os.path.join(savepath,"TopNPageviewCorrSince2019.png"), dpi=300)
+    plt.savefig(os.path.join("figures","TopNPageviewCorrSince2019.png"), dpi=300)
     plt.close()
 
 plotTopNPageviews(views)
+endTop = time.time()
+print("Plotting top pageviews took {0} seconds".format(str(endTop - endPage)))
