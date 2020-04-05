@@ -81,10 +81,12 @@ print("Plotting pageviews took {0} seconds.".format(str(endPage - start)))
 def plotTopNPageviews(pageDict):
     allDays = []
     allNumViews = []
+    keyNames = []
     for key in pageDict.keys():
         if (key in topNCorr):
             days = []
             numViews = []
+            keyNames.append(key)
             for index, row in pageDict[key].iterrows():
                 viewDate = dt.strptime(row['Date'], "%Y-%m-%d")
                 if (viewDate >= dt.strptime("2019-06-01", "%Y-%m-%d")):
@@ -94,10 +96,11 @@ def plotTopNPageviews(pageDict):
             allDays.append(days)
             allNumViews.append(numViews)
     for i in range(len(allDays)):
-        plt.plot(allDays[i], allNumViews[i])
+        plt.plot(allDays[i], allNumViews[i], label=keyNames[i])
     plt.title("Top N Pageviews Corr")
     plt.xlabel("Days")
     plt.ylabel("Pageview Count")
+    plt.legend()
     plt.savefig(os.path.join("figures","TopNPageviewCorrSince2019.png"), dpi=300)
     plt.close()
 
