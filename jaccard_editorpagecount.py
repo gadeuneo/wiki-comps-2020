@@ -150,13 +150,11 @@ def bubbleSortList(dataInput):
                 dataInput[j], dataInput[j+1] = dataInput[j+1], dataInput[j]
     return dataInput
 
-def makeMultiLineGraph(start, end):
-    startDate = dt.fromtimestamp(int(time.mktime(dt.strptime(start, "%Y-%m-%d").timetuple()))).date()
-    endDate = dt.fromtimestamp(int(time.mktime(dt.strptime(end, "%Y-%m-%d").timetuple()))).date()
-
+def makeMultiLineGraph():
     for i in range (0, 6):
-        endDate += relativedelta(months=+1)
+        endDate -= relativedelta(months=+1)
         data = getPlotData()
+        print(data)
         plt.plot(data[0], data[1], label= endDate)
         plt.gcf().set_size_inches(15,7)
     figureTitle = "Pagecount VS Editors over time"
@@ -228,12 +226,33 @@ def makePagecountVSNumOfEditors():
     if (not os.path.isfile(os.path.join(plotPath, subpath, figureTitle + ".png"))):
         plt.savefig(os.path.join(plotPath, subpath, figureTitle + ".png"), bbox_inches="tight")
     plt.close()
-'''Testing below'''
+
+
+'''MultiLineGraph Code Below - moved here due to global variable problems'''
 start = "2009-01-01"
-end = "2019-6-01"
+end = "2018-12-01"
 startDate = dt.fromtimestamp(int(time.mktime(dt.strptime(start, "%Y-%m-%d").timetuple()))).date()
 endDate = dt.fromtimestamp(int(time.mktime(dt.strptime(end, "%Y-%m-%d").timetuple()))).date()
-makeMultiLineGraph(start, end)
-#print(getEditorPageList()) # prints Editor along with the pages they editted, sorted\
-#printAveragePages()
+for i in range (0, 12):
+    endDate += relativedelta(months=+1)
+    data = getPlotData()
+    print(data)
+    plt.plot(data[0], data[1], label= endDate)
+    plt.gcf().set_size_inches(15,7)
+figureTitle = "Pagecount VS Editors over time"
+plt.title(figureTitle)
+plt.xlabel("Number of Pages Editors Edit In")
+plt.ylabel("Number of Editors")
+
+subpath = "Jaccard"
+ax = plt.subplot(111)
+box = ax.get_position()
+ax.set_position([box.x0, box.y0, box.width * 0.5, box.height])
+plt.legend(bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0.)
+if (not os.path.isfile(os.path.join(plotPath, subpath, figureTitle + ".png"))):
+    plt.savefig(os.path.join(plotPath, subpath, figureTitle + ".png"), bbox_inches="tight")
+plt.close()
+''' MultiLineGraph Code ends '''
+
+
 sys.exit(0)
