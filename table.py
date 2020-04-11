@@ -91,10 +91,16 @@ for key in dataDict.keys():
         talkRev = 0
         talkEd = 0
         # will update once pageview data collection has been done
+        # https://stackoverflow.com/questions/10367020/compare-two-lists-in-python-and-return-indices-of-matched-values
         revIndex = [i for i, s in enumerate(revisionFiles) if key in s]
         viewIndex = [i for i, s in enumerate(viewFiles) if addUnderscore(key) in s]
         if (len(viewIndex) != 0):
-            pageviews = viewDict[viewFiles[viewIndex[0]][:-4]]['Count'].sum()
+            temp = viewDict[viewFiles[viewIndex[0]][:-4]]
+            temp['Date'] = pd.to_datetime(temp['Date'])
+            mask = (temp['Date'] > dt.strptime("2009-12-10", "%Y-%m-%d")) & (temp['Date'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+            df = temp.loc[mask]
+            pageviews = df['Count'].sum()
+            # pageviews = viewDict[viewFiles[viewIndex[0]][:-4]]['Count'].sum()
         else:
             print(key + " Pageview file not found")
         for talk in dataDict.keys():
