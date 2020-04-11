@@ -5,6 +5,7 @@ from datetime import datetime as dt
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 import time
+import math
 # https://realpython.com/numpy-scipy-pandas-correlation-python/
 import scipy.stats
 import matplotlib.pyplot as plt
@@ -80,6 +81,8 @@ def plotViewCorrelations(dct):
             if (keyx != keyy and "Talk" not in keyx and "Talk" not in keyy):
                 y = dct[keyy]['Count']
                 corr = x.corr(y)
+                if (math.isnan(corr)):
+                    continue
                 # change for top N views corr
                 if (len(heap) < 10):
                     heappush(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
@@ -133,6 +136,8 @@ def plotRevisonCorrelations(dct):
                 ydf.columns = ['timestamp', 'Count']
                 y = ydf['Count']
                 corr = x.corr(y)
+                if (math.isnan(corr)):
+                    continue
                 # change for top N views corr
                 if (len(heap) < 10):
                     heappush(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
@@ -182,7 +187,9 @@ def plotRVCorrelations(viewDct, revDct):
                 ydf = ydf.to_frame().reset_index()
                 ydf.columns = ['timestamp', 'Count']
                 y = ydf['Count']
-                corr = x.corr(y)
+                corr = x.corr(y).item()
+                if (math.isnan(corr)):
+                    continue
                 # change for top N views corr
                 if (len(heap) < 10):
                     heappush(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
@@ -211,7 +218,7 @@ def plotRVCorrelations(viewDct, revDct):
         # ax.set_ylabel(keyy + " Revisions")
         # fig = ax.get_figure()
         # fig.savefig(os.path.join(revisionSavePath, keyx+" " +keyy + ".png"), dpi=300)
-        table.append([keyx, keyy, item.key])
+        table.append([keyx, keyy, item.lst[4]])
 
     tableDf = pd.DataFrame(table[1:], columns=table[0])
     tableDf = tableDf.sort_values(by="Corr.", ascending=False)
