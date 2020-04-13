@@ -95,6 +95,7 @@ for key in dataDict.keys():
         revIndex = [i for i, s in enumerate(revisionFiles) if key in s]
         viewIndex = [i for i, s in enumerate(viewFiles) if addUnderscore(key) in s]
         if (len(viewIndex) != 0):
+            # https://stackoverflow.com/questions/29370057/select-dataframe-rows-between-two-dates
             temp = viewDict[viewFiles[viewIndex[0]][:-4]]
             temp['Date'] = pd.to_datetime(temp['Date'])
             mask = (temp['Date'] > dt.strptime("2009-12-10", "%Y-%m-%d")) & (temp['Date'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
