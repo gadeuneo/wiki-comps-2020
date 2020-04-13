@@ -145,34 +145,33 @@ def returnAllOtherDict(targetTitle, firstDay, lastDay):
     for otherTitle in dataTitleArray:
         dailyEditorSet = set()
         currDate = firstDay
-        if (otherTitle != targetTitle):
-            article = dataDict[otherTitle]
-            sizeOfArticle = article.shape[0]
-            for index, rowData in article.iterrows():
-                editDay = dt.strptime(rowData['timestamp'], "%Y-%m-%dT%H:%M:%SZ").date()
-                if(currDate == editDay):
-                    if(rowData['userid'] == 0): #anon
-                        p=0
-                        #dailyEditorSet.add("ANON " + rowData['user'])
-                    else: #registered user
-                        dailyEditorSet.add(rowData['userid'])
-                else:
-                    while(currDate<firstDay):
-                        currDate += timedelta(days=1)
-                    while(currDate<editDay):
-                        tempSet = allOtherDict.get(currDate)
-                        allOtherDict[currDate] = dailyEditorSet.union(tempSet)
-                        dailyEditorSet = set()
-                        currDate += timedelta(days=1)
-                    if(rowData['userid'] == 0): #anon
-                        p=0
-                        #dailyEditorSet.add("ANON " + rowData['user'])
-                    else: #registered user
-                        dailyEditorSet.add(rowData['userid'])
-                if(index == (sizeOfArticle-1)):
-                        tempSet = allOtherDict.get(currDate)
-                        allOtherDict[currDate] = dailyEditorSet.union(tempSet)
-                        dailyEditorSet = set()
+        article = dataDict[otherTitle]
+        sizeOfArticle = article.shape[0]
+        for index, rowData in article.iterrows():
+            editDay = dt.strptime(rowData['timestamp'], "%Y-%m-%dT%H:%M:%SZ").date()
+            if(currDate == editDay):
+                if(rowData['userid'] == 0): #anon
+                    p=0
+                    #dailyEditorSet.add("ANON " + rowData['user'])
+                else: #registered user
+                    dailyEditorSet.add(rowData['userid'])
+            else:
+                while(currDate<firstDay):
+                    currDate += timedelta(days=1)
+                while(currDate<editDay):
+                    tempSet = allOtherDict.get(currDate)
+                    allOtherDict[currDate] = dailyEditorSet.union(tempSet)
+                    dailyEditorSet = set()
+                    currDate += timedelta(days=1)
+                if(rowData['userid'] == 0): #anon
+                    p=0
+                    #dailyEditorSet.add("ANON " + rowData['user'])
+                else: #registered user
+                    dailyEditorSet.add(rowData['userid'])
+            if(index == (sizeOfArticle-1)):
+                    tempSet = allOtherDict.get(currDate)
+                    allOtherDict[currDate] = dailyEditorSet.union(tempSet)
+                    dailyEditorSet = set()
     return allOtherDict
 
 def returnTargetDict(article, firstDay, lastDay):

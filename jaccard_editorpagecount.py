@@ -16,6 +16,7 @@ import matplotlib.ticker as ticker
 #uhuh
 import copy
 from static_helpers import *
+import math
 
 register_matplotlib_converters()
 start = time.time()
@@ -150,14 +151,19 @@ def bubbleSortList(dataInput):
                 dataInput[j], dataInput[j+1] = dataInput[j+1], dataInput[j]
     return dataInput
 
+def logTransform(data):
+    returnData = []
+    for item in data:
+        returnData.append(math.log(item, 2))
+    return returnData
+
 def makeMultiLineGraph():
-    for i in range (0, 6):
-        endDate -= relativedelta(months=+1)
-        data = getPlotData()
-        print(data)
-        plt.plot(data[0], data[1], label= endDate)
-        plt.gcf().set_size_inches(15,7)
-    figureTitle = "Pagecount VS Editors over time"
+    data = getPlotData()
+    print(data)
+    yAxis = logTransform(data[1])
+    plt.plot(data[0], yAxis, label= endDate)
+    plt.gcf().set_size_inches(15,7)
+    figureTitle = "Log-Transformed - Pagecount VS Editors over time ending" + str(endDate)
     plt.title(figureTitle)
     plt.xlabel("Number of Pages Editors Edit In")
     plt.ylabel("Number of Editors")
@@ -216,7 +222,7 @@ def makePagecountVSNumOfEditors():
     plt.title(figureTitle)
     #plt.suptitle("10 year aggregate data. Shows number of edits per week in 6 month intervals.")
     plt.xlabel("Number of Pages Editors Edit In")
-    plt.ylabel("Number of Editors")
+    plt.ylabel("Number of Editors (10^x)")
 
     subpath = "Jaccard"
     #
@@ -230,19 +236,20 @@ def makePagecountVSNumOfEditors():
 
 '''MultiLineGraph Code Below - moved here due to global variable problems'''
 start = "2009-01-01"
-end = "2018-12-01"
+end = "2018-12-31"
 startDate = dt.fromtimestamp(int(time.mktime(dt.strptime(start, "%Y-%m-%d").timetuple()))).date()
 endDate = dt.fromtimestamp(int(time.mktime(dt.strptime(end, "%Y-%m-%d").timetuple()))).date()
 for i in range (0, 12):
     endDate += relativedelta(months=+1)
     data = getPlotData()
     print(data)
-    plt.plot(data[0], data[1], label= endDate)
+    yAxis = logTransform(data[1])
+    plt.plot(data[0], yAxis, label= endDate)
     plt.gcf().set_size_inches(15,7)
-figureTitle = "Pagecount VS Editors over time"
+figureTitle = "Log-Transformed - Pagecount VS Editors over time"
 plt.title(figureTitle)
 plt.xlabel("Number of Pages Editors Edit In")
-plt.ylabel("Number of Editors")
+plt.ylabel("Number of Editors (in log base 2)")
 
 subpath = "Jaccard"
 ax = plt.subplot(111)
@@ -252,7 +259,7 @@ plt.legend(bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0.)
 if (not os.path.isfile(os.path.join(plotPath, subpath, figureTitle + ".png"))):
     plt.savefig(os.path.join(plotPath, subpath, figureTitle + ".png"), bbox_inches="tight")
 plt.close()
-''' MultiLineGraph Code ends '''
+'''MultiLineGraph Code ends '''
 
 
 sys.exit(0)
