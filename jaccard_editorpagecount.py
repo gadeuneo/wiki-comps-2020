@@ -235,8 +235,8 @@ def makePagecountVSNumOfEditors():
 
 
 '''MultiLineGraph Code Below - moved here due to global variable problems'''
-start = "2009-01-01"
-end = "2018-12-31"
+start = "2009-01-10"
+end = "2018-12-10"
 startDate = dt.fromtimestamp(int(time.mktime(dt.strptime(start, "%Y-%m-%d").timetuple()))).date()
 endDate = dt.fromtimestamp(int(time.mktime(dt.strptime(end, "%Y-%m-%d").timetuple()))).date()
 for i in range (0, 12):
