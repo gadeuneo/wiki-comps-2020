@@ -98,7 +98,7 @@ for key in dataDict.keys():
             # https://stackoverflow.com/questions/29370057/select-dataframe-rows-between-two-dates
             temp = viewDict[viewFiles[viewIndex[0]][:-4]]
             temp['Date'] = pd.to_datetime(temp['Date'])
-            mask = (temp['Date'] > dt.strptime("2009-12-10", "%Y-%m-%d")) & (temp['Date'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+            mask = (temp['Date'] >= dt.strptime("2009-12-10", "%Y-%m-%d")) & (temp['Date'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
             df = temp.loc[mask]
             pageviews = df['Count'].sum()
             # pageviews = viewDict[viewFiles[viewIndex[0]][:-4]]['Count'].sum()
