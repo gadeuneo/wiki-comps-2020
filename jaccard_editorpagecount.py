@@ -154,7 +154,7 @@ def bubbleSortList(dataInput):
 def logTransform(data):
     returnData = []
     for item in data:
-        returnData.append(math.log(item, 2))
+        returnData.append(math.log(item, 10))
     return returnData
 
 def makeMultiLineGraph():
@@ -249,7 +249,7 @@ for i in range (0, 12):
 figureTitle = "Log-Transformed - Pagecount VS Editors over time"
 plt.title(figureTitle)
 plt.xlabel("Number of Pages Editors Edit In")
-plt.ylabel("Number of Editors (in log base 2)")
+plt.ylabel("Number of Editors (in log base 10)")
 
 subpath = "Jaccard"
 ax = plt.subplot(111)
