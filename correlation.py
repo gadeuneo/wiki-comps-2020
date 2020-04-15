@@ -76,10 +76,22 @@ def plotViewCorrelations(dct):
     keys = list(dct.keys())
     heap = []
     for keyx in keys:
-        x = dct[keyx]['Count']
+        temp = dct[keyx]
+        temp['Date'] = pd.to_datetime(temp['Date'])
+        mask = (temp['Date'] >= dt.strptime("2019-06-10", "%Y-%m-%d")) & (temp['Date'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+        df = temp.loc[mask]
+        x = df['Count']
+        # x = dct[keyx]['Count']
         for keyy in keys:
             if (keyx != keyy and "Talk" not in keyx and "Talk" not in keyy):
-                y = dct[keyy]['Count']
+                temp = dct[keyy]
+                temp['Date'] = pd.to_datetime(temp['Date'])
+                mask = (temp['Date'] >= dt.strptime("2019-06-10", "%Y-%m-%d")) & (temp['Date'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+                df = temp.loc[mask]
+                y = df['Count']
+                # y = dct[keyy]['Count']
+
+                # Pearson's correlation coefficient
                 corr = x.corr(y)
                 if (math.isnan(corr)):
                     continue
@@ -126,7 +138,14 @@ def plotRevisonCorrelations(dct):
         # https://stackoverflow.com/questions/26097916/convert-pandas-series-to-dataframe
         xdf = xdf.to_frame().reset_index()
         xdf.columns = ['timestamp', 'Count']
-        x = xdf['Count']
+        # https://stackoverflow.com/questions/46295355/pandas-cant-compare-offset-naive-and-offset-aware-datetimes
+        xdf['timestamp'] = xdf['timestamp'].dt.tz_localize(None)
+
+        mask = (xdf['timestamp'] >= dt.strptime("2019-06-10", "%Y-%m-%d")) & (xdf['timestamp'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+        df = xdf.loc[mask]
+        x = df['Count']
+
+        # x = xdf['Count']
         for keyy in keys:
             if (keyx != keyy and "Talk" not in keyx and "Talk" not in keyy):
                 ydf = dct[keyy]
@@ -134,7 +153,13 @@ def plotRevisonCorrelations(dct):
                 ydf = ydf.set_index('timestamp').resample('D')['size'].count()
                 ydf = ydf.to_frame().reset_index()
                 ydf.columns = ['timestamp', 'Count']
-                y = ydf['Count']
+                ydf['timestamp'] = ydf['timestamp'].dt.tz_localize(None)
+
+                mask = (ydf['timestamp'] >= dt.strptime("2019-06-10", "%Y-%m-%d")) & (ydf['timestamp'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+                df = ydf.loc[mask]
+                y = df['Count']
+
+                # y = ydf['Count']
                 corr = x.corr(y)
                 if (math.isnan(corr)):
                     continue
@@ -178,7 +203,13 @@ def plotRVCorrelations(viewDct, revDct):
     revKeys = list(revDct.keys())
     heap = []
     for keyx in viewKeys:
-        x = viewDct[keyx]['Count']
+        temp = viewDct[keyx]
+        temp['Date'] = pd.to_datetime(temp['Date'])
+        mask = (temp['Date'] >= dt.strptime("2019-06-10", "%Y-%m-%d")) & (temp['Date'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+        df = temp.loc[mask]
+        x = df['Count']
+
+        # x = viewDct[keyx]['Count']
         for keyy in revKeys:
             if (prettyPrint(keyx) != prettyPrint(keyy) and "Talk" not in keyx and "Talk" not in keyy):
                 ydf = revDct[keyy]
@@ -186,8 +217,14 @@ def plotRVCorrelations(viewDct, revDct):
                 ydf = ydf.set_index('timestamp').resample('D')['size'].count()
                 ydf = ydf.to_frame().reset_index()
                 ydf.columns = ['timestamp', 'Count']
-                y = ydf['Count']
-                corr = x.corr(y).item()
+                ydf['timestamp'] = ydf['timestamp'].dt.tz_localize(None)
+
+                mask = (ydf['timestamp'] >= dt.strptime("2019-06-10", "%Y-%m-%d")) & (ydf['timestamp'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+                df = ydf.loc[mask]
+                y = df['Count']
+
+                # y = ydf['Count']
+                corr = x.corr(y)
                 if (math.isnan(corr)):
                     continue
                 # change for top N views corr
