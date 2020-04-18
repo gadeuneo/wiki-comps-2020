@@ -1,3 +1,10 @@
+'''
+    Creates pre-analysis table of data.
+    Includes totals for the top 10 pages by revision count
+    (not including Talk pages).
+    Also has grand totals (including Talk pages).
+'''
+
 import pandas as pd
 import os
 import sys
@@ -7,6 +14,7 @@ from dateutil.relativedelta import relativedelta
 import time
 from static_helpers import *
 
+# Helper functions to compare files of pageviews and revisions
 def prettyPrint(dictKey):
     newTitle = str(dictKey)
     newTitle = newTitle.replace("Data", "").replace("_", " ").replace("(dot)",".").replace("(colon)","-")
@@ -27,7 +35,8 @@ def formatTalk(key):
     s = s.replace("Talk-", "Talk(colon)")
     return s
 
-#### TODO: determine top 10 metric - exclude Talk pages
+
+#### Manual Top 10 Pages excluding Talk pages
 top10 = [
     "2019–20 Hong Kong protests",
     "Hong Kong",
@@ -46,7 +55,6 @@ top10 = [format_file_names(title)[:-4] for title in top10]
 top10 = [formatTop(title) for title in top10]
 
 ####
-
 
 path = "10 Year Revision Data"
 viewPath = "dailyPageviews"
@@ -78,6 +86,8 @@ edSet = set()
 topEdSet = set()
 talkSet = set()
 topTalkSet = set()
+
+talkPageviews = 0
 
 for key in dataDict.keys():
     if ("Talk" not in key):
@@ -114,15 +124,20 @@ for key in dataDict.keys():
                     topTalkSet.update(talkList)
                 revIndex = [i for i, s in enumerate(revisionFiles) if talk in s]
                 viewIndex = [i for i, s in enumerate(viewFiles) if formatTalk(addUnderscore(talk)) in s]
-                # if (len(viewIndex) != 0):
-                #     pageviews += viewDict[viewFiles[viewIndex[0]][:-4]]['Count'].sum()
+                if (len(viewIndex) != 0):
+                    temp = viewDict[viewFiles[viewIndex[0]][:-4]]
+                    temp['Date'] = pd.to_datetime(temp['Date'])
+                    mask = (temp['Date'] >= dt.strptime("2009-12-10", "%Y-%m-%d")) & (temp['Date'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+                    df = temp.loc[mask]
+                    talkPageviews += df['Count'].sum()
+                    # talkPageviews += viewDict[viewFiles[viewIndex[0]][:-4]]['Count'].sum()
                 # else:
                 #     print(talk + " pageview file not found")
         table.append([page, revCount, edCount, talkRev, talkEd, pageviews])
 
 
 total = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews"]]
-
+grandTotal = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews"]]
 
 tableDf = pd.DataFrame(table[1:], columns=table[0])
 tableDf = tableDf.sort_values(by="Revisions", ascending=False)
@@ -146,7 +161,7 @@ totalSum = len(totalSet)
 topEditorSum = len(topEdSet)
 topTalkSum = len(topTalkSet)
 
-total.append(["Total", revSum, topEditorSum, talkSum, topTalkSum, pageSum])
+total.append(["Total of Top 10 pages by Revision Count", revSum, topEditorSum, talkSum, topTalkSum, pageSum])
 totalDf = pd.DataFrame(total[1:], columns=table[0])
 
 tableDf = tableDf.append(totalDf)
