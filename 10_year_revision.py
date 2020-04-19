@@ -26,7 +26,7 @@ register_matplotlib_converters()
 start = time.time()
 
 # folder of files
-path = "10years"
+path = "10 Year Revision Data"
 plotPath = "figures"
 
 directories = ["figures"]
@@ -37,30 +37,35 @@ create_directories(directories)
 titles = get_titles()
 
 # adds talk pages
-titles = add_talk_pages(titles)
+# titles = add_talk_pages(titles)
+
+titles = add_revision_talk_pages(titles)
 
 # converts titles to filename format
-titles = [format_file_names(title) for title in titles]
-titleArray = []
-for title in titles:
-    titleArray.append("Data" + title)
-    titleArray.append("Redirects" + title)
-
-# check if file exists, if not, remove from list of titles
-for title in titles:
-    if (not os.path.isfile(os.path.join(path, "Data" + title))):
-        filename = "Data" + title
-        titleArray.remove(filename)
-
-    if (not (os.path.isfile(os.path.join(path, "Redirects" + title)))):
-        filename = "Redirects" + title
-        titleArray.remove(filename)
+# titles = [format_file_names(title) for title in titles]
+# titleArray = []
+# for title in titles:
+#     titleArray.append("Data" + title)
+#     titleArray.append("Redirects" + title)
+#
+# # check if file exists, if not, remove from list of titles
+# for title in titles:
+#     if (not os.path.isfile(os.path.join(path, "Data" + title))):
+#         filename = "Data" + title
+#         titleArray.remove(filename)
+#
+#     if (not (os.path.isfile(os.path.join(path, "Redirects" + title)))):
+#         filename = "Redirects" + title
+#         titleArray.remove(filename)
 
 
 ##### TODO: merge files? -- Which ones? How?
 ##### TODO: save merged files?
-
-
+titles = [add_file_extension(title) for title in titles]
+titleArray = []
+for title in titles:
+    titleArray.append(title)
+    
 dataDict = dict()
 
 
@@ -77,12 +82,12 @@ for key in dataDict.keys():
     else:
         allRed.append(dataDict[key])
 
-revisionData = pd.concat(allData, ignore_index=True, sort=False)
-revisionData['timestamp'] = pd.to_datetime(revisionData['timestamp'])
-# TODO: double check inplace param
-revisionData.sort_values(by='timestamp', inplace = True)
-revisionData['timestamp'] = revisionData['timestamp'].astype(str)
-revisionData['timestamp'] = revisionData['timestamp'].str.replace(" ", "T").str[:-6] + "Z"
+# revisionData = pd.concat(allData, ignore_index=True, sort=False)
+# revisionData['timestamp'] = pd.to_datetime(revisionData['timestamp'])
+# # TODO: double check inplace param
+# revisionData.sort_values(by='timestamp', inplace = True)
+# revisionData['timestamp'] = revisionData['timestamp'].astype(str)
+# revisionData['timestamp'] = revisionData['timestamp'].str.replace(" ", "T").str[:-6] + "Z"
 #print(revisionData.to_string())
 
 # Convert date to Unix Timestamp
@@ -98,27 +103,39 @@ dataTitleArray = []
 for title in titleArray:
     if title[0:4] == "Data":
         dataTitleArray.append(title[:-4])
-print(dataTitleArray)
 
 def makeTimeXRevisionFigure(title):
-    article = dataDict[title]
+    key = title[:-4]
+    article = dataDict[key]
+    sizeOfArticle = article.shape[0]
     newDate = dt.fromtimestamp(startDate)
+    prevDate = newDate
     days = []
     counts = []
     #counts the edits
+    dayCount = 0
     edits = 0
     for day in article['timestamp']:
         editTime = dt.strptime(day, "%Y-%m-%dT%H:%M:%SZ")
+        dayCount += 1
         while(editTime > newDate):
             counts.append(edits)
-            epoch = int(newDate.timestamp())
+            epoch = int(prevDate.timestamp())
             days.append(dt.fromtimestamp(epoch))
             # alter the timedelta to set edits by day, week, or month
             #newDate = newDate + timedelta(days=1)
             #newDate = newDate + timedelta(days=7)
+            prevDate = newDate
             newDate = newDate + timedelta(days=30)
             edits = 0
         edits += 1
+        if dayCount == sizeOfArticle:
+            counts.append(edits)
+            # Changed to prevDate so that edits are paired with the
+            # correct timedelta.
+            epoch = int(prevDate.timestamp())
+            days.append(dt.fromtimestamp(epoch))
+
     fig, ax = plt.subplots(figsize=(15,7))
     ax.plot(days, counts)
 
@@ -135,12 +152,12 @@ def makeTimeXRevisionFigure(title):
     plt.ylabel("Number Edits")
 
     # subpath = "10y Time vs Num Revisions"
-    subpath = "10y Time vs Num Revisions - Edits by Month"    
+    subpath = "10y Time vs Num Revisions - Edits by Month"
     # os.mkdir(os.path.join(plotPath, subpath))
     # newpath = os.path.join(plotPath, subpath)
     if (not os.path.isfile(os.path.join(plotPath, subpath, title + ".png"))):
         plt.savefig(os.path.join(plotPath, subpath, title + ".png"), bbox_inches="tight")
     plt.close()
 
-# for title in dataTitleArray:
-#     makeTimeXRevisionFigure(title)
+for title in titleArray:
+    makeTimeXRevisionFigure(title)
