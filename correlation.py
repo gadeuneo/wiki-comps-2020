@@ -94,6 +94,9 @@ def plotViewCorrelations(dct):
                 # Pearson's correlation coefficient
                 corr = x.corr(y)
                 if (math.isnan(corr)):
+                    print(keyx)
+                    print(keyy)
+                    print("#################")
                     continue
                 # change for top N views corr
                 if (len(heap) < 10):
