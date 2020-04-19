@@ -233,7 +233,7 @@ def makePagecountVSNumOfEditors():
         plt.savefig(os.path.join(plotPath, subpath, figureTitle + ".png"), bbox_inches="tight")
     plt.close()
 
-
+'''Normalized'''
 '''MultiLineGraph Code Below - moved here due to global variable problems'''
 start = "2009-01-10"
 end = "2018-12-10"

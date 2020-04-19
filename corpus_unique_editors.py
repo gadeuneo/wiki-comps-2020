@@ -115,7 +115,7 @@ def plotMonthly():
             oldSet = monthlyDict.get(yearMonth)
             newSet = oldSet.union(item[1])
             monthlyDict[yearMonth] = newSet
-
+            
     xAxisElements = []
     yAxisElements = []
     for key in monthlyDict:
@@ -140,10 +140,6 @@ def plotMonthly():
     if (not os.path.isfile(os.path.join(plotPath, subpath, figureTitle + ".png"))):
         plt.savefig(os.path.join(plotPath, subpath, figureTitle + ".png"), bbox_inches="tight")
     plt.close()
-
-
-
-
 
 def plotAbsoluteOverTimeGraph():
     data = returnData()
