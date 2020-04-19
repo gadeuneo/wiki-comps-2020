@@ -130,7 +130,7 @@ def makeMultipleLineFigure(titleArray, titles):
                         # newDate = newDate + timedelta(days=7)
                         # prevDate keeps track of the date before newDate
                         prevDate = newDate
-                        newDate = newDate + timedelta(days=1)
+                        newDate = newDate + timedelta(days=7)
                         edits = 0
                     edits += 1
                     # Edge case for last timedelta in articles
