@@ -145,10 +145,11 @@ topPageSum = topDf['Pageviews'].sum()
 
 # sums for all pages, edit/talk
 for k in dataDict.keys():
-    if (prettyPrint(k) in topDf['Article']):
+    if (prettyPrint(k) in topDf['Article'].tolist()):
         topEdSet.update(edSets[k])
         talkKey = "Talk-" + k
         topTalkSet.update(talkSets[talkKey])
+
 
 topEditorSum = len(topEdSet)
 topTalkSum = len(topTalkSet)
@@ -169,6 +170,7 @@ for k in dataDict.keys():
 
 totalEdCount = len(totalEd)
 totalTalkEdCount = len(totalTalkEd)
+
 # total unique editor count for all pages including talk
 totalUniqueEds = set()
 totalUniqueEds.update(totalEd)
