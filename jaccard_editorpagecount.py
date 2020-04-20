@@ -238,7 +238,8 @@ def normalize(data, date):
         returnData.append(item/numActiveArticleDict.get(date))
     return returnData
 
-'''For Nomalization of Data - produces a dictionary of the number of active articles each day'''
+'''
+#For Nomalization of Data - produces a dictionary of the number of active articles each day
 start = "2009-01-10"
 end = "2019-12-10"
 startDate = dt.fromtimestamp(int(time.mktime(dt.strptime(start, "%Y-%m-%d").timetuple()))).date()
@@ -255,19 +256,23 @@ for title in dataTitleArray:
         else:
             numActiveArticleDict[time] = numActiveArticleDict.get(time)+1
         time += timedelta(days=1)
+'''
 
-
-'''MultiLineGraph Code Below - moved here due to global variable problems'''
+#MultiLineGraph Code Below - moved here due to global variable problems
+start = "2009-01-10"
+end = "2019-12-10"
+startDate = dt.fromtimestamp(int(time.mktime(dt.strptime(start, "%Y-%m-%d").timetuple()))).date()
+endDate = dt.fromtimestamp(int(time.mktime(dt.strptime(end, "%Y-%m-%d").timetuple()))).date()
 for i in range (0, 10):
     data = getPlotData()
-    xAxis = normalize(data[0], endDate)
+    xAxis = logTransform(data[0])
     yAxis = logTransform(data[1])
     plt.plot(xAxis, yAxis, label= endDate)
     plt.gcf().set_size_inches(15,7)
     endDate -= relativedelta(months=+1)
-figureTitle = "Normalized Pagecount VS Editors"
+figureTitle = "Log Transformed - Page Count vs Number Editors"
 plt.title(figureTitle)
-plt.xlabel("Pages Editted/Active Pages")
+plt.xlabel("Pages Editted (in log base 10)")
 plt.ylabel("Number of Editors (in log base 10)")
 
 subpath = "Jaccard"
@@ -278,6 +283,6 @@ plt.legend(bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0.)
 if (not os.path.isfile(os.path.join(plotPath, subpath, figureTitle + ".png"))):
     plt.savefig(os.path.join(plotPath, subpath, figureTitle + ".png"), bbox_inches="tight")
 plt.close()
-'''MultiLineGraph Code ends'''
+#MultiLineGraph Code ends
 
 sys.exit(0)
