@@ -136,16 +136,16 @@ grandTotal = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Ta
 tableDf = pd.DataFrame(table[1:], columns=table[0])
 tableDf = tableDf.sort_values(by="Revisions", ascending=False)
 # top 10 rows of dataframe
-top = tableDf.head(10)
+topDf = tableDf.head(10)
 
 # Top 10 rows totals
-topRevSum = top['Revisions'].sum()
-topTalkRevSum = top['Talk Revisions'].sum()
-topPageSum = top['Pageviews'].sum()
+topRevSum = topDf['Revisions'].sum()
+topTalkRevSum = topDf['Talk Revisions'].sum()
+topPageSum = topDf['Pageviews'].sum()
 
 # sums for all pages, edit/talk
 for k in dataDict.keys():
-    if (prettyPrint(k) in top['Article']):
+    if (prettyPrint(k) in topDf['Article']):
         topEdSet.update(edSets[k])
         talkKey = "Talk-" + k
         topTalkSet.update(talkSets[talkKey])
@@ -153,20 +153,38 @@ for k in dataDict.keys():
 topEditorSum = len(topEdSet)
 topTalkSum = len(topTalkSet)
 
-# TODO: get total for ALL pages
-# totalSet = set()
-# totalSet.update(edSet)
-# totalSet.update(talkSet)
+# Totals for ALL pages
+totalRev = tableDf['Revisions'].sum()
+totalTalkRev = tableDf['Talk Revisions'].sum()
+totalPageviews = tableDf['Pageviews'].sum()
 
+totalEd = set()
+totalTalkEd = set()
+
+for k in dataDict.keys():
+    if ("Talk" not in k):
+        totalEd.update(edSets[k])
+    else:
+        totalTalkEd.update(talkSets[k])
+
+totalEdCount = len(totalEd)
+totalTalkEdCount = len(totalTalkEd)
 # total unique editor count for all pages including talk
-# totalSum = len(totalSet)
-
-
+totalUniqueEds = set()
+totalUniqueEds.update(totalEd)
+totalUniqueEds.update(totalTalkEd)
+totalUniqueEdCount = len(totalUniqueEds)
 
 total.append(["Total of Top 10 pages by Revision Count", topRevSum, topEditorSum, topTalkRevSum, topTalkSum, topPageSum])
 totalDf = pd.DataFrame(total[1:], columns=table[0])
 
-tableDf = tableDf.append(totalDf)
-# print(tableDf.to_string())
-tableDf.to_csv("Table.csv", encoding="utf-8")
+grandTotal.append(["Grand Totals for all pages", totalRev, totalEdCount, totalTalkRev, totalTalkEdCount, totalPageviews])
+grandDf = pd.DataFrame(grandTotal[1:], columns=grandTotal[0])
+
+finalDf = topDf.append(totalDf)
+finalDf = finalDf.append(grandDf)
+
+finalDf.to_csv("Table.csv", encoding="utf-8")
+
+print("The total number of unique editors is: {0}".format(totalUniqueEdCount))
 
