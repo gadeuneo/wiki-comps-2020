@@ -36,42 +36,17 @@ def formatTalk(key):
     return s
 
 
-#### Manual Top 10 Pages excluding Talk pages
-top10 = [
-    "2019–20 Hong Kong protests",
-    "Hong Kong",
-    "Carrie Lam",
-    "2019 Hong Kong extradition bill",
-    "2019 Hong Kong local elections",
-    "Reactions to the 2019–20 Hong Kong protests",
-    "2019 Yuen Long attack",
-    "Tactics and methods surrounding the 2019–20 Hong Kong protests",
-    "One country, two systems",
-    "Umbrella Movement"
-]
-
-top10 = add_talk_pages(top10)
-top10 = [format_file_names(title)[:-4] for title in top10]
-top10 = [formatTop(title) for title in top10]
-
-####
-
 path = "10 Year Revision Data"
 viewPath = "dailyPageviews"
 
 revisionFiles = os.listdir(path)
-
+viewFiles = os.listdir(viewPath)
 
 dataDict = dict()
-
 for f in revisionFiles:
     dataDict[f[:-4]] = pd.read_csv(os.path.join(path, f))
 
-
-viewFiles = os.listdir(viewPath)
-
 viewDict = dict()
-
 for f in viewFiles:
     viewDict[f[:-4]] = pd.read_csv(os.path.join(viewPath, f))
 
@@ -82,25 +57,34 @@ for f in viewFiles:
 
 table = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews"]]
 
-edSet = set()
-topEdSet = set()
-talkSet = set()
-topTalkSet = set()
+edSets = dict()
+talkSets = dict()
 
 talkPageviews = 0
+
+startDate = dt.strptime("2009-12-10", "%Y-%m-%d")
+endDate = dt.strptime("2019-12-10", "%Y-%m-%d")
 
 for key in dataDict.keys():
     if ("Talk" not in key):
         page = prettyPrint(key)
-        revCount = int(dataDict[key]['revid'].count())
-        edCount = int(dataDict[key]['userid'].nunique())
-        edList = dataDict[key]['userid'].tolist()
-        edSet.update(edList)
-        if (formatTop(key) in top10):
-            topEdSet.update(edList)
+        revDict = dataDict[key]
+        revDict['timestamp'] = pd.to_datetime(revDict['timestamp'])
+        revDict['timestamp'] = revDict['timestamp'].dt.tz_localize(None)
+        mask = (revDict['timestamp'] >= startDate) & (revDict['timestamp'] <= endDate)
+        revDict = revDict.loc[mask]
+
+        revCount = int(revDict['revid'].count())
+        edCount = int(revDict['userid'].nunique())
+        edList = revDict['userid'].tolist()
+
+        # revCount = int(dataDict[key]['revid'].count())
+        # edCount = int(dataDict[key]['userid'].nunique())
+        # edList = dataDict[key]['userid'].tolist()
+        edSets[key] = set(edList)
         talkRev = 0
         talkEd = 0
-        # will update once pageview data collection has been done
+        # Pageview totals
         # https://stackoverflow.com/questions/10367020/compare-two-lists-in-python-and-return-indices-of-matched-values
         revIndex = [i for i, s in enumerate(revisionFiles) if key in s]
         viewIndex = [i for i, s in enumerate(viewFiles) if addUnderscore(key) in s]
@@ -108,7 +92,7 @@ for key in dataDict.keys():
             # https://stackoverflow.com/questions/29370057/select-dataframe-rows-between-two-dates
             temp = viewDict[viewFiles[viewIndex[0]][:-4]]
             temp['Date'] = pd.to_datetime(temp['Date'])
-            mask = (temp['Date'] >= dt.strptime("2009-12-10", "%Y-%m-%d")) & (temp['Date'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+            mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
             df = temp.loc[mask]
             pageviews = df['Count'].sum()
             # pageviews = viewDict[viewFiles[viewIndex[0]][:-4]]['Count'].sum()
@@ -116,18 +100,25 @@ for key in dataDict.keys():
             print(key + " Pageview file not found")
         for talk in dataDict.keys():
             if ("Talk" in talk and key.replace("Data","") in talk):
-                talkRev = int(dataDict[talk]['revid'].count())
-                talkEd = int(dataDict[talk]['userid'].nunique())
-                talkList = dataDict[talk]['userid'].tolist()
-                talkSet.update(talkList)
-                if (formatTop(talk) in top10):
-                    topTalkSet.update(talkList)
+                revDict = dataDict[key]
+                revDict['timestamp'] = pd.to_datetime(revDict['timestamp'])
+                mask = (revDict['timestamp'] >= startDate) & (revDict['timestamp'] <= endDate)
+                revDict = revDict.loc[mask]
+
+                talkRev = int(revDict['revid'].count())
+                talkEd = int(revDict['userid'].nunique())
+                talkList = revDict['userid'].tolist()
+                talkSets[key] = set(talkList)
+
+                # talkRev = int(dataDict[talk]['revid'].count())
+                # talkEd = int(dataDict[talk]['userid'].nunique())
+                # talkList = dataDict[talk]['userid'].tolist()
                 revIndex = [i for i, s in enumerate(revisionFiles) if talk in s]
                 viewIndex = [i for i, s in enumerate(viewFiles) if formatTalk(addUnderscore(talk)) in s]
                 if (len(viewIndex) != 0):
                     temp = viewDict[viewFiles[viewIndex[0]][:-4]]
                     temp['Date'] = pd.to_datetime(temp['Date'])
-                    mask = (temp['Date'] >= dt.strptime("2009-12-10", "%Y-%m-%d")) & (temp['Date'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+                    mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
                     df = temp.loc[mask]
                     talkPageviews += df['Count'].sum()
                     # talkPageviews += viewDict[viewFiles[viewIndex[0]][:-4]]['Count'].sum()
@@ -135,6 +126,8 @@ for key in dataDict.keys():
                 #     print(talk + " pageview file not found")
         table.append([page, revCount, edCount, talkRev, talkEd, pageviews])
 
+topEdSet = set()
+topTalkSet = set()
 
 total = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews"]]
 grandTotal = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews"]]
@@ -142,21 +135,27 @@ grandTotal = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Ta
 tableDf = pd.DataFrame(table[1:], columns=table[0])
 tableDf = tableDf.sort_values(by="Revisions", ascending=False)
 # top 10 rows of dataframe
-tableDf = tableDf.head(10)
+top = tableDf.head(10)
 
 revSum = tableDf['Revisions'].sum()
 talkSum = tableDf['Talk Revisions'].sum()
 pageSum = tableDf['Pageviews'].sum()
 
 # sums for all pages, edit/talk
-editorSum = len(edSet)
-talkEditSum = len(talkSet)
+for k in dataDict.keys():
+    if (prettyPrint(k) in top['Article']):
+        topEdSet.update(edSets[k])
 
-totalSet = set()
-totalSet.update(edSet)
-totalSet.update(talkSet)
+editorSum = len(topEdSet)
+talkEditSum = len(topTalkSet)
+
+# TODO: get total for top 10 pages
+# totalSet = set()
+# totalSet.update(edSet)
+# totalSet.update(talkSet)
+
 # total unique editor count for all pages including talk
-totalSum = len(totalSet)
+# totalSum = len(totalSet)
 
 topEditorSum = len(topEdSet)
 topTalkSum = len(topTalkSet)
