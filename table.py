@@ -100,15 +100,16 @@ for key in dataDict.keys():
             print(key + " Pageview file not found")
         for talk in dataDict.keys():
             if ("Talk" in talk and key.replace("Data","") in talk):
-                revDict = dataDict[key]
+                revDict = dataDict[talk]
                 revDict['timestamp'] = pd.to_datetime(revDict['timestamp'])
+                revDict['timestamp'] = revDict['timestamp'].dt.tz_localize(None)
                 mask = (revDict['timestamp'] >= startDate) & (revDict['timestamp'] <= endDate)
                 revDict = revDict.loc[mask]
 
                 talkRev = int(revDict['revid'].count())
                 talkEd = int(revDict['userid'].nunique())
                 talkList = revDict['userid'].tolist()
-                talkSets[key] = set(talkList)
+                talkSets[talk] = set(talkList)
 
                 # talkRev = int(dataDict[talk]['revid'].count())
                 # talkEd = int(dataDict[talk]['userid'].nunique())
@@ -137,19 +138,22 @@ tableDf = tableDf.sort_values(by="Revisions", ascending=False)
 # top 10 rows of dataframe
 top = tableDf.head(10)
 
-revSum = tableDf['Revisions'].sum()
-talkSum = tableDf['Talk Revisions'].sum()
-pageSum = tableDf['Pageviews'].sum()
+# Top 10 rows totals
+topRevSum = top['Revisions'].sum()
+topTalkRevSum = top['Talk Revisions'].sum()
+topPageSum = top['Pageviews'].sum()
 
 # sums for all pages, edit/talk
 for k in dataDict.keys():
     if (prettyPrint(k) in top['Article']):
         topEdSet.update(edSets[k])
+        talkKey = "Talk-" + k
+        topTalkSet.update(talkSets[talkKey])
 
-editorSum = len(topEdSet)
-talkEditSum = len(topTalkSet)
+topEditorSum = len(topEdSet)
+topTalkSum = len(topTalkSet)
 
-# TODO: get total for top 10 pages
+# TODO: get total for ALL pages
 # totalSet = set()
 # totalSet.update(edSet)
 # totalSet.update(talkSet)
@@ -157,10 +161,9 @@ talkEditSum = len(topTalkSet)
 # total unique editor count for all pages including talk
 # totalSum = len(totalSet)
 
-topEditorSum = len(topEdSet)
-topTalkSum = len(topTalkSet)
 
-total.append(["Total of Top 10 pages by Revision Count", revSum, topEditorSum, talkSum, topTalkSum, pageSum])
+
+total.append(["Total of Top 10 pages by Revision Count", topRevSum, topEditorSum, topTalkRevSum, topTalkSum, topPageSum])
 totalDf = pd.DataFrame(total[1:], columns=table[0])
 
 tableDf = tableDf.append(totalDf)

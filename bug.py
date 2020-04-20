@@ -11,7 +11,7 @@ from static_helpers import *
 
 path = "dailyPageviews"
 
-titles = ["Death_of_Luo_Changqing.csv", "Talk(colon)Death_of_Luo_Changqing.csv"]
+titles = ["List_of_March-June_2019_Hong_Kong_protests.csv"]
 
 def reformatFiles():
 
