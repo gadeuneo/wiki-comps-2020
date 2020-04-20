@@ -27,7 +27,7 @@ start = time.time()
 
 # folder of files
 path = "10 Year Revision Data"
-plotPath = "figures/Multi-Line"
+plotPath = "figures/Multi-Line/new"
 
 directories = ["figures"]
 
@@ -58,6 +58,8 @@ titles = add_revision_talk_pages(titles)
 #     if (not (os.path.isfile(os.path.join(path, "Redirects" + title)))):
 #         filename = "Redirects" + title
 #         titleArray.remove(filename)
+
+# To handle data format for '10 Year Revision Data'
 titles = [add_file_extension(title) for title in titles]
 titleArray = []
 for title in titles:
@@ -106,22 +108,39 @@ def makeMultipleLineFigure(titleArray, titles):
         key = title[:-4]
         if key[0:4]!="Talk":
             article = dataDict[key]
+            sizeOfArticle = article.shape[0]
             newDate = dt.fromtimestamp(startDate)
+            prevDate = newDate
             days = []
             counts = []
             #counts the edits
+            dayCount = 0
             edits = 0
             for day in article['timestamp']:
                 editTime = dt.strptime(day, "%Y-%m-%dT%H:%M:%SZ")
-                while(editTime > newDate):
-                    counts.append(edits)
-                    epoch = int(newDate.timestamp())
-                    days.append(dt.fromtimestamp(epoch))
-                    # newDate = newDate + timedelta(days=1)
-                    # newDate = newDate + timedelta(days=7)
-                    newDate = newDate + timedelta(days=30)
-                    edits = 0
-                edits += 1
+                if editTime >= dt.fromtimestamp(startDate):
+                    dayCount += 1
+                    while(editTime > newDate):
+                        counts.append(edits)
+                        # Changed to prevDate so that edits are paired with the
+                        # correct timedelta.
+                        epoch = int(prevDate.timestamp())
+                        days.append(dt.fromtimestamp(epoch))
+                        # newDate = newDate + timedelta(days=1)
+                        # newDate = newDate + timedelta(days=7)
+                        # prevDate keeps track of the date before newDate
+                        prevDate = newDate
+                        newDate = newDate + timedelta(days=7)
+                        edits = 0
+                    edits += 1
+                    # Edge case for last timedelta in articles
+                    if dayCount == sizeOfArticle:
+                        counts.append(edits)
+                        # Changed to prevDate so that edits are paired with the
+                        # correct timedelta.
+                        epoch = int(prevDate.timestamp())
+                        days.append(dt.fromtimestamp(epoch))
+
             plt.plot(days, counts, label= title)
             plt.gcf().set_size_inches(15,7)
 
@@ -146,7 +165,7 @@ for title in titleArray:
         dataTitleArray.append(title[:-4])
 
 #makeMultipleLineFigure(titleArray, "Edits by Day of Top 10 Most Revised Articles")
-makeMultipleLineFigure(titleArray, "Edits by Month of Top 10 Most Revised Articles")
+makeMultipleLineFigure(titleArray, "Edits by Week of Top 10 Most Revised Articles")
 
 
 end = time.time()

@@ -151,12 +151,6 @@ def bubbleSortList(dataInput):
                 dataInput[j], dataInput[j+1] = dataInput[j+1], dataInput[j]
     return dataInput
 
-def logTransform(data):
-    returnData = []
-    for item in data:
-        returnData.append(math.log(item, 10))
-    return returnData
-
 def makeMultiLineGraph():
     data = getPlotData()
     print(data)
@@ -232,23 +226,48 @@ def makePagecountVSNumOfEditors():
     if (not os.path.isfile(os.path.join(plotPath, subpath, figureTitle + ".png"))):
         plt.savefig(os.path.join(plotPath, subpath, figureTitle + ".png"), bbox_inches="tight")
     plt.close()
+def logTransform(data):
+    returnData = []
+    for item in data:
+        returnData.append(math.log(item, 10))
+    return returnData
+
+def normalize(data, date):
+    returnData = []
+    for item in data:
+        returnData.append(item/numActiveArticleDict.get(date))
+    return returnData
+
+'''For Nomalization of Data - produces a dictionary of the number of active articles each day'''
+start = "2009-01-10"
+end = "2019-12-10"
+startDate = dt.fromtimestamp(int(time.mktime(dt.strptime(start, "%Y-%m-%d").timetuple()))).date()
+endDate = dt.fromtimestamp(int(time.mktime(dt.strptime(end, "%Y-%m-%d").timetuple()))).date()
+numActiveArticleDict = dict()
+p = 0
+for title in dataTitleArray:
+    article = dataDict[title]
+    rowData = article.loc[0]
+    time = dt.strptime(rowData['timestamp'], "%Y-%m-%dT%H:%M:%SZ").date()
+    while(time <= endDate):
+        if(numActiveArticleDict.get(time)==None):
+            numActiveArticleDict[time] = 1
+        else:
+            numActiveArticleDict[time] = numActiveArticleDict.get(time)+1
+        time += timedelta(days=1)
 
 
 '''MultiLineGraph Code Below - moved here due to global variable problems'''
-start = "2009-01-10"
-end = "2018-12-10"
-startDate = dt.fromtimestamp(int(time.mktime(dt.strptime(start, "%Y-%m-%d").timetuple()))).date()
-endDate = dt.fromtimestamp(int(time.mktime(dt.strptime(end, "%Y-%m-%d").timetuple()))).date()
-for i in range (0, 12):
-    endDate += relativedelta(months=+1)
+for i in range (0, 10):
     data = getPlotData()
-    print(data)
+    xAxis = normalize(data[0], endDate)
     yAxis = logTransform(data[1])
-    plt.plot(data[0], yAxis, label= endDate)
+    plt.plot(xAxis, yAxis, label= endDate)
     plt.gcf().set_size_inches(15,7)
-figureTitle = "Log-Transformed - Pagecount VS Editors over time"
+    endDate -= relativedelta(months=+1)
+figureTitle = "Normalized Pagecount VS Editors"
 plt.title(figureTitle)
-plt.xlabel("Number of Pages Editors Edit In")
+plt.xlabel("Pages Editted/Active Pages")
 plt.ylabel("Number of Editors (in log base 10)")
 
 subpath = "Jaccard"
@@ -259,7 +278,6 @@ plt.legend(bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0.)
 if (not os.path.isfile(os.path.join(plotPath, subpath, figureTitle + ".png"))):
     plt.savefig(os.path.join(plotPath, subpath, figureTitle + ".png"), bbox_inches="tight")
 plt.close()
-'''MultiLineGraph Code ends '''
-
+'''MultiLineGraph Code ends'''
 
 sys.exit(0)
