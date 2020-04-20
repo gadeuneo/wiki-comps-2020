@@ -50,7 +50,6 @@ views = dict()
 
 startDate = dt.strptime("2019-6-10", "%Y-%m-%d")
 endDate = dt.strptime("2019-12-10", "%Y-%m-%d")
-today = dt.today()
 
 for f in os.listdir(path):
     views[f[:-4]] = pd.read_csv(os.path.join(path, f))

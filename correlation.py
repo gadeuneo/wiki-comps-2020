@@ -71,6 +71,8 @@ for f in viewFiles:
 for r in revisonFiles:
     revisionDict[r[:-4]] = pd.read_csv(os.path.join(revisionPath, r))
 
+startDate = dt.strptime("2019-6-10", "%Y-%m-%d")
+endDate = dt.strptime("2019-12-10", "%Y-%m-%d")
 
 def plotViewCorrelations(dct):
     keys = list(dct.keys())
@@ -78,7 +80,7 @@ def plotViewCorrelations(dct):
     for keyx in keys:
         temp = dct[keyx]
         temp['Date'] = pd.to_datetime(temp['Date'])
-        mask = (temp['Date'] >= dt.strptime("2019-06-10", "%Y-%m-%d")) & (temp['Date'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+        mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
         df = temp.loc[mask]
         x = df['Count']
         # x = dct[keyx]['Count']
@@ -86,7 +88,7 @@ def plotViewCorrelations(dct):
             if (keyx != keyy and "Talk" not in keyx and "Talk" not in keyy):
                 temp = dct[keyy]
                 temp['Date'] = pd.to_datetime(temp['Date'])
-                mask = (temp['Date'] >= dt.strptime("2019-06-10", "%Y-%m-%d")) & (temp['Date'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+                mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
                 df = temp.loc[mask]
                 y = df['Count']
                 # y = dct[keyy]['Count']
@@ -144,7 +146,7 @@ def plotRevisonCorrelations(dct):
         # https://stackoverflow.com/questions/46295355/pandas-cant-compare-offset-naive-and-offset-aware-datetimes
         xdf['timestamp'] = xdf['timestamp'].dt.tz_localize(None)
 
-        mask = (xdf['timestamp'] >= dt.strptime("2019-06-10", "%Y-%m-%d")) & (xdf['timestamp'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+        mask = (xdf['timestamp'] >= startDate) & (xdf['timestamp'] <= endDate)
         df = xdf.loc[mask]
         x = df['Count']
 
@@ -158,7 +160,7 @@ def plotRevisonCorrelations(dct):
                 ydf.columns = ['timestamp', 'Count']
                 ydf['timestamp'] = ydf['timestamp'].dt.tz_localize(None)
 
-                mask = (ydf['timestamp'] >= dt.strptime("2019-06-10", "%Y-%m-%d")) & (ydf['timestamp'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+                mask = (ydf['timestamp'] >= startDate) & (ydf['timestamp'] <= endDate)
                 df = ydf.loc[mask]
                 y = df['Count']
 
@@ -208,7 +210,7 @@ def plotRVCorrelations(viewDct, revDct):
     for keyx in viewKeys:
         temp = viewDct[keyx]
         temp['Date'] = pd.to_datetime(temp['Date'])
-        mask = (temp['Date'] >= dt.strptime("2019-06-10", "%Y-%m-%d")) & (temp['Date'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+        mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
         df = temp.loc[mask]
         x = df['Count']
 
@@ -222,7 +224,7 @@ def plotRVCorrelations(viewDct, revDct):
                 ydf.columns = ['timestamp', 'Count']
                 ydf['timestamp'] = ydf['timestamp'].dt.tz_localize(None)
 
-                mask = (ydf['timestamp'] >= dt.strptime("2019-06-10", "%Y-%m-%d")) & (ydf['timestamp'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+                mask = (ydf['timestamp'] >= startDate) & (ydf['timestamp'] <= endDate)
                 df = ydf.loc[mask]
                 y = df['Count']
 
