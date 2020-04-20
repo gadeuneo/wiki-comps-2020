@@ -67,7 +67,7 @@ def plotPageviews(pageDict):
 
         temp = pageDict[key]
         temp['Date'] = pd.to_datetime(temp['Date'])
-        mask = (temp['Date'] >= dt.strptime("2019-06-10", "%Y-%m-%d")) & (temp['Date'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+        mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
         df = temp.loc[mask]
         days = df['Date'].tolist()
         numViews = df['Count'].tolist()
@@ -94,7 +94,7 @@ def plotTopNPageviews(pageDict):
             numViews = []
             temp = pageDict[key]
             temp['Date'] = pd.to_datetime(temp['Date'])
-            mask = (temp['Date'] >= dt.strptime("2019-06-10", "%Y-%m-%d")) & (temp['Date'] <= dt.strptime("2019-12-10", "%Y-%m-%d"))
+            mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
             df = temp.loc[mask]
             days = df['Date'].tolist()
             numViews = df['Count'].tolist()
