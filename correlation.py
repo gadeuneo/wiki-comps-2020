@@ -73,7 +73,7 @@ for f in viewFiles:
 for r in revisonFiles:
     revisionDict[r[:-4]] = pd.read_csv(os.path.join(revisionPath, r))
 
-startDate = dt.strptime("2019-6-10", "%Y-%m-%d")
+startDate = dt.strptime("2009-12-10", "%Y-%m-%d")
 endDate = dt.strptime("2019-12-10", "%Y-%m-%d")
 
 def plotViewCorrelations(dct):
@@ -88,7 +88,7 @@ def plotViewCorrelations(dct):
         xMask = (xDct['Date'] >= startDate) & (xDct['Date'] <= endDate)
         xDf = xDct.loc[xMask]
         x = xDf['Count']
-        
+
         yKey = pair[1]
         yDct = dct[yKey]
         yDct['Date'] = pd.to_datetime(yDct['Date'])
@@ -99,41 +99,15 @@ def plotViewCorrelations(dct):
         # Pearson's correlation coefficient
         corr = x.corr(y)
         if (math.isnan(corr)):
+            print("ERROR!!!! - Pageview files below have issues!")
+            print(xKey)
+            print(yKey)
             continue
         # change for top N views corr
         if (len(heap) < 5):
             heappush(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
         else:
             heappushpop(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
-
-        
-
-
-    # for keyx in keys:
-    #     temp = dct[keyx]
-    #     temp['Date'] = pd.to_datetime(temp['Date'])
-    #     mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
-    #     df = temp.loc[mask]
-    #     x = df['Count']
-    #     # x = dct[keyx]['Count']
-    #     for keyy in keys:
-    #         if (keyx != keyy and "Talk" not in keyx and "Talk" not in keyy):
-    #             temp = dct[keyy]
-    #             temp['Date'] = pd.to_datetime(temp['Date'])
-    #             mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
-    #             df = temp.loc[mask]
-    #             y = df['Count']
-    #             # y = dct[keyy]['Count']
-
-    #             # Pearson's correlation coefficient
-    #             corr = x.corr(y)
-    #             if (math.isnan(corr)):
-    #                 continue
-    #             # change for top N views corr
-    #             if (len(heap) < 10):
-    #                 heappush(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
-    #             else:
-    #                 heappushpop(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
 
     topNViews = sorted(heap, reverse=True)
 
@@ -162,46 +136,48 @@ def plotViewCorrelations(dct):
 
 def plotRevisonCorrelations(dct):
     keys = list(dct.keys())
+    keys = [x for x in keys if "Talk" not in x]
     heap = []
-    for keyx in keys:
-        xdf = dct[keyx]
-        xdf['timestamp'] = pd.to_datetime(xdf['timestamp'])
+    revComb = list(combinations(keys, 2))
+    for pair in revComb:
+        xKey = pair[0]
+        xDct = dct[xKey]
+        xDct['timestamp'] = pd.to_datetime(xDct['timestamp'])
         # https://stackoverflow.com/questions/48961892/python-pandas-group-by-day-and-count-for-each-day
         # https://stackoverflow.com/questions/56653774/how-do-i-fill-in-missing-dates-with-zeros-for-a-pandas-groupby-list
-        xdf = xdf.set_index('timestamp').resample('D')['size'].count()
-        # https://stackoverflow.com/questions/26097916/convert-pandas-series-to-dataframe
-        xdf = xdf.to_frame().reset_index()
-        xdf.columns = ['timestamp', 'Count']
+        xDct = xDct.set_index('timestamp').resample('D')['size'].count()
+        #     # https://stackoverflow.com/questions/26097916/convert-pandas-series-to-dataframe
+        xDct = xDct.to_frame().reset_index()
+        xDct.columns = ['timestamp', 'Count']
         # https://stackoverflow.com/questions/46295355/pandas-cant-compare-offset-naive-and-offset-aware-datetimes
-        xdf['timestamp'] = xdf['timestamp'].dt.tz_localize(None)
+        xDct['timestamp'] = xDct['timestamp'].dt.tz_localize(None)
+        xMask = (xDct['timestamp'] >= startDate) & (xDct['timestamp'] <= endDate)
+        xDf = xDct.loc[xMask]
+        x = xDf['Count']
 
-        mask = (xdf['timestamp'] >= startDate) & (xdf['timestamp'] <= endDate)
-        df = xdf.loc[mask]
-        x = df['Count']
-
-        # x = xdf['Count']
-        for keyy in keys:
-            if (keyx != keyy and "Talk" not in keyx and "Talk" not in keyy):
-                ydf = dct[keyy]
-                ydf['timestamp'] = pd.to_datetime(ydf['timestamp'])
-                ydf = ydf.set_index('timestamp').resample('D')['size'].count()
-                ydf = ydf.to_frame().reset_index()
-                ydf.columns = ['timestamp', 'Count']
-                ydf['timestamp'] = ydf['timestamp'].dt.tz_localize(None)
-
-                mask = (ydf['timestamp'] >= startDate) & (ydf['timestamp'] <= endDate)
-                df = ydf.loc[mask]
-                y = df['Count']
-
-                # y = ydf['Count']
-                corr = x.corr(y)
-                if (math.isnan(corr)):
-                    continue
-                # change for top N views corr
-                if (len(heap) < 10):
-                    heappush(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
-                else:
-                    heappushpop(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
+        yKey = pair[1]
+        yDct = dct[yKey]
+        yDct['timestamp'] = pd.to_datetime(yDct['timestamp'])
+        yDct = yDct.set_index('timestamp').resample('D')['size'].count()
+        yDct = yDct.to_frame().reset_index()
+        yDct.columns = ['timestamp', 'Count']
+        yDct['timestamp'] = yDct['timestamp'].dt.tz_localize(None)
+        yMask = (yDct['timestamp'] >= startDate) & (yDct['timestamp'] <= endDate)
+        yDf = yDct.loc[yMask]
+        y = yDf['Count']
+        
+        # Pearson's correlation coefficient
+        corr = x.corr(y)
+        if (math.isnan(corr)):
+            print("ERROR!!!! - Revision files below have issues!")
+            print(xKey)
+            print(yKey)
+            continue
+        # change for top N views corr
+        if (len(heap) < 5):
+            heappush(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
+        else:
+            heappushpop(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
 
     topNViews = sorted(heap, reverse=True)
 
@@ -296,5 +272,5 @@ def plotRVCorrelations(viewDct, revDct):
     tableDf.to_csv("pageview-revisionCorr.csv", encoding="utf-8")
 
 plotViewCorrelations(viewDict)
-# plotRevisonCorrelations(revisionDict)
+plotRevisonCorrelations(revisionDict)
 # plotRVCorrelations(viewDict, revisionDict)
