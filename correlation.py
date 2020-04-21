@@ -6,6 +6,8 @@ from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 import time
 import math
+from itertools import combinations
+
 # https://realpython.com/numpy-scipy-pandas-correlation-python/
 import scipy.stats
 import matplotlib.pyplot as plt
@@ -76,35 +78,62 @@ endDate = dt.strptime("2019-12-10", "%Y-%m-%d")
 
 def plotViewCorrelations(dct):
     keys = list(dct.keys())
+    keys = [x for x in keys if "Talk" not in x]
     heap = []
-    for keyx in keys:
-        temp = dct[keyx]
-        temp['Date'] = pd.to_datetime(temp['Date'])
-        mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
-        df = temp.loc[mask]
-        x = df['Count']
-        # x = dct[keyx]['Count']
-        for keyy in keys:
-            if (keyx != keyy and "Talk" not in keyx and "Talk" not in keyy):
-                temp = dct[keyy]
-                temp['Date'] = pd.to_datetime(temp['Date'])
-                mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
-                df = temp.loc[mask]
-                y = df['Count']
-                # y = dct[keyy]['Count']
+    viewComb = list(combinations(keys, 2))
+    for pair in viewComb:
+        xKey = pair[0]
+        xDct = dct[xKey]
+        xDct['Date'] = pd.to_datetime(xDct['Date'])
+        xMask = (xDct['Date'] >= startDate) & (xDct['Date'] <= endDate)
+        xDf = xDct.loc[xMask]
+        x = xDf['Count']
+        
+        yKey = pair[1]
+        yDct = dct[yKey]
+        yDct['Date'] = pd.to_datetime(yDct['Date'])
+        yMask = (yDct['Date'] >= startDate) & (yDct['Date'] <= endDate)
+        yDf = yDct.loc[yMask]
+        y = yDf['Count']
+        
+        # Pearson's correlation coefficient
+        corr = x.corr(y)
+        if (math.isnan(corr)):
+            continue
+        # change for top N views corr
+        if (len(heap) < 5):
+            heappush(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
+        else:
+            heappushpop(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
 
-                # Pearson's correlation coefficient
-                corr = x.corr(y)
-                if (math.isnan(corr)):
-                    print(keyx)
-                    print(keyy)
-                    print("#################")
-                    continue
-                # change for top N views corr
-                if (len(heap) < 10):
-                    heappush(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
-                else:
-                    heappushpop(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
+        
+
+
+    # for keyx in keys:
+    #     temp = dct[keyx]
+    #     temp['Date'] = pd.to_datetime(temp['Date'])
+    #     mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
+    #     df = temp.loc[mask]
+    #     x = df['Count']
+    #     # x = dct[keyx]['Count']
+    #     for keyy in keys:
+    #         if (keyx != keyy and "Talk" not in keyx and "Talk" not in keyy):
+    #             temp = dct[keyy]
+    #             temp['Date'] = pd.to_datetime(temp['Date'])
+    #             mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
+    #             df = temp.loc[mask]
+    #             y = df['Count']
+    #             # y = dct[keyy]['Count']
+
+    #             # Pearson's correlation coefficient
+    #             corr = x.corr(y)
+    #             if (math.isnan(corr)):
+    #                 continue
+    #             # change for top N views corr
+    #             if (len(heap) < 10):
+    #                 heappush(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
+    #             else:
+    #                 heappushpop(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
 
     topNViews = sorted(heap, reverse=True)
 
@@ -267,5 +296,5 @@ def plotRVCorrelations(viewDct, revDct):
     tableDf.to_csv("pageview-revisionCorr.csv", encoding="utf-8")
 
 plotViewCorrelations(viewDict)
-plotRevisonCorrelations(revisionDict)
-plotRVCorrelations(viewDict, revisionDict)
+# plotRevisonCorrelations(revisionDict)
+# plotRVCorrelations(viewDict, revisionDict)
