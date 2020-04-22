@@ -135,6 +135,8 @@ grandTotal = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Ta
 
 tableDf = pd.DataFrame(table[1:], columns=table[0])
 tableDf = tableDf.sort_values(by="Revisions", ascending=False)
+
+tableDf.to_csv("table full.csv", encoding="utf-8")
 # top 10 rows of dataframe
 topDf = tableDf.head(10)
 
