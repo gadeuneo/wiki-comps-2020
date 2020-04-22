@@ -254,7 +254,7 @@ def plotRVCorrelations(viewDct, revDct):
             print(yKey + " Revision")
             print("")
         # change for top N views corr
-        if (len(heap) < 10):
+        if (len(heap) < 5):
             heappush(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
         else:
             heappushpop(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
