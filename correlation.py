@@ -77,6 +77,10 @@ for r in revisonFiles:
 startDate = dt.strptime("2009-12-10", "%Y-%m-%d")
 endDate = dt.strptime("2019-12-10", "%Y-%m-%d")
 
+pageviewTable = [["Article 1", "Article 2", "Corr."]]
+revisionTable = [["Article 1", "Article 2", "Corr."]]
+PRTable = [["Article 1", "Article 2", "Corr."]]
+
 start = time.time()
 
 def plotViewCorrelations(dct):
@@ -106,6 +110,8 @@ def plotViewCorrelations(dct):
             print(xKey)
             print(yKey)
             continue
+
+        pageviewTable.append([xKey, yKey, corr])
         # change for top N views corr
         if (len(heap) < 5):
             heappush(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
@@ -136,6 +142,9 @@ def plotViewCorrelations(dct):
     tableDf = pd.DataFrame(table[1:], columns=table[0])
     tableDf = tableDf.sort_values(by="Corr.", ascending=False)
     tableDf.to_csv("pageviewCorr.csv", encoding="utf-8")
+    pageDf = pd.DataFrame(pageviewTable[1:], columns=pageviewTable[0])
+    pageDf = pageDf.sort_values(by="Corr.", ascending=False)
+    pageDf.to_csv("allPageviewCorr.csv", encoding="utf-8")
 
 def plotRevisonCorrelations(dct):
     keys = list(dct.keys())
@@ -176,6 +185,8 @@ def plotRevisonCorrelations(dct):
             print(xKey)
             print(yKey)
             continue
+
+        revisionTable.append([xKey, yKey, corr])
         # change for top N views corr
         if (len(heap) < 5):
             heappush(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
@@ -209,6 +220,9 @@ def plotRevisonCorrelations(dct):
     tableDf = pd.DataFrame(table[1:], columns=table[0])
     tableDf = tableDf.sort_values(by="Corr.", ascending=False)
     tableDf.to_csv("revisionCorr.csv", encoding="utf-8")
+    revDf = pd.DataFrame(revisionTable[1:], columns=revisionTable[0])
+    revDf = revDf.sort_values(by="Corr.", ascending=False)
+    revDf.to_csv("allRevisionCorr.csv", encoding="utf-8")
 
 
 def plotRVCorrelations(viewDct, revDct):
