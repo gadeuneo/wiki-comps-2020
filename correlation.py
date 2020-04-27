@@ -273,37 +273,6 @@ def plotRVCorrelations(viewDct, revDct):
         else:
             heappushpop(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
 
-    # for keyx in viewKeys:
-    #     temp = viewDct[keyx]
-    #     temp['Date'] = pd.to_datetime(temp['Date'])
-    #     mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
-    #     df = temp.loc[mask]
-    #     x = df['Count']
-
-    #     # x = viewDct[keyx]['Count']
-    #     for keyy in revKeys:
-    #         if (prettyPrint(keyx) != prettyPrint(keyy) and "Talk" not in keyx and "Talk" not in keyy):
-    #             ydf = revDct[keyy]
-    #             ydf['timestamp'] = pd.to_datetime(ydf['timestamp'])
-    #             ydf = ydf.set_index('timestamp').resample('D')['size'].count()
-    #             ydf = ydf.to_frame().reset_index()
-    #             ydf.columns = ['timestamp', 'Count']
-    #             ydf['timestamp'] = ydf['timestamp'].dt.tz_localize(None)
-
-    #             mask = (ydf['timestamp'] >= startDate) & (ydf['timestamp'] <= endDate)
-    #             df = ydf.loc[mask]
-    #             y = df['Count']
-
-    #             # y = ydf['Count']
-    #             corr = x.corr(y)
-    #             if (math.isnan(corr)):
-    #                 continue
-    #             # change for top N views corr
-    #             if (len(heap) < 10):
-    #                 heappush(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
-    #             else:
-    #                 heappushpop(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
-
     topNViews = sorted(heap, reverse=True)
 
     table = [["Pageviews", "Revisions", "Corr."]]
