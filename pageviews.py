@@ -1,7 +1,7 @@
 '''
-Creates figures for pageviews.
+    Plots pageviews for top 4 most correlated pages.
 
-James Gardner
+    Written by James Gardner
 '''
 
 import pandas as pd

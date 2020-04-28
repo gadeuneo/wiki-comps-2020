@@ -1,7 +1,7 @@
 '''
-File for manipulating data.
+    Plots multiline plots for ????
 
-James Gardner
+    Written by ??? (Junyi and Kirby?)
 '''
 
 import pandas as pd

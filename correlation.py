@@ -1,13 +1,18 @@
+'''
+    Calculates Pearson's correlation coefficient for
+    pageview, revision, and pageview-revision data.
+    Excludes Talk pages for analysis.
+
+    Written by James Gardner
+'''
+
 import pandas as pd
 import os
 import sys
 from datetime import datetime as dt
-from datetime import timedelta
-from dateutil.relativedelta import relativedelta
 import time
 import math
 from itertools import combinations
-from itertools import product
 
 # https://realpython.com/numpy-scipy-pandas-correlation-python/
 import scipy.stats
