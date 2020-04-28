@@ -1,3 +1,9 @@
+'''
+    Functions that are commonly called by other functions in this repo.
+
+    Written by Jackie Chan.
+'''
+
 import os
 import sys
 
@@ -94,6 +100,21 @@ def add_talk_pages(titles):
         titles_copy.append("Talk:" + title)
 
     return titles_copy
+
+
+'''
+    Description: Returns the list of titles with talk pages.
+
+    Input: None.
+
+    Output: Returns the list of titles with talk pages.
+'''
+def get_titles_and_talk_pages():
+
+    titles = get_titles()
+    titles = add_talk_pages(titles)
+
+    return titles
 
 '''
     Description: Performs same task as add_talk_pages(). Used to handle files

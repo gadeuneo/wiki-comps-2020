@@ -1,7 +1,8 @@
 '''
-File for manipulating data.
+    Plots unique editors aggregated across corpus???
+    (What is the diff b/t this and corpus_unique_editors.py?)
 
-James Gardner
+    Written by ???
 '''
 
 import pandas as pd

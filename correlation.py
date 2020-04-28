@@ -1,13 +1,18 @@
+'''
+    Calculates Pearson's correlation coefficient for
+    pageview, revision, and pageview-revision data.
+    Excludes Talk pages for analysis.
+
+    Written by James Gardner
+'''
+
 import pandas as pd
 import os
 import sys
 from datetime import datetime as dt
-from datetime import timedelta
-from dateutil.relativedelta import relativedelta
 import time
 import math
 from itertools import combinations
-from itertools import product
 
 # https://realpython.com/numpy-scipy-pandas-correlation-python/
 import scipy.stats
@@ -77,6 +82,10 @@ for r in revisonFiles:
 startDate = dt.strptime("2009-12-10", "%Y-%m-%d")
 endDate = dt.strptime("2019-12-10", "%Y-%m-%d")
 
+pageviewTable = [["Article 1", "Article 2", "Corr."]]
+revisionTable = [["Article 1", "Article 2", "Corr."]]
+PRTable = [["Pageview", "Revision", "Corr."]]
+
 start = time.time()
 
 def plotViewCorrelations(dct):
@@ -106,6 +115,9 @@ def plotViewCorrelations(dct):
             print(xKey)
             print(yKey)
             continue
+
+        pageviewTable.append([xKey, yKey, corr])
+
         # change for top N views corr
         if (len(heap) < 5):
             heappush(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
@@ -136,6 +148,10 @@ def plotViewCorrelations(dct):
     tableDf = pd.DataFrame(table[1:], columns=table[0])
     tableDf = tableDf.sort_values(by="Corr.", ascending=False)
     tableDf.to_csv("pageviewCorr.csv", encoding="utf-8")
+
+    pageDf = pd.DataFrame(pageviewTable[1:], columns=pageviewTable[0])
+    pageDf = pageDf.sort_values(by="Corr.", ascending=False)
+    pageDf.to_csv("allPageviewCorr.csv", encoding="utf-8")
 
 def plotRevisonCorrelations(dct):
     keys = list(dct.keys())
@@ -176,6 +192,9 @@ def plotRevisonCorrelations(dct):
             print(xKey)
             print(yKey)
             continue
+
+        revisionTable.append([xKey, yKey, corr])
+
         # change for top N views corr
         if (len(heap) < 5):
             heappush(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
@@ -210,26 +229,55 @@ def plotRevisonCorrelations(dct):
     tableDf = tableDf.sort_values(by="Corr.", ascending=False)
     tableDf.to_csv("revisionCorr.csv", encoding="utf-8")
 
+    revDf = pd.DataFrame(revisionTable[1:], columns=revisionTable[0])
+    revDf = revDf.sort_values(by="Corr.", ascending=False)
+    revDf.to_csv("allRevisionCorr.csv", encoding="utf-8")
+
 
 def plotRVCorrelations(viewDct, revDct):
     viewKeys = list(viewDct.keys())
     revKeys = list(revDct.keys())
     vKeys = [x for x in viewKeys if "Talk" not in x]
     rKeys = [x for x in revKeys if "Talk" not in x]
-
-    allComb = list(product(vKeys, rKeys))
-    allComb = [x for x in allComb if prettyPrint(x[0]) != prettyPrint(x[1])]
+    # tuple pair (pageviews, revisions) for each page
+    allKeys = [(x,y) for x,y in zip(vKeys, rKeys) if prettyPrint(x) == prettyPrint(y)]
+    # combinations of different tuple pairs per page
+    allComb = list(combinations(allKeys, 2))
 
     heap = []
+    # x is (xPageviews, xRevisions) combined, same for y (yPageviews, yRevisions)
     for pair in allComb:
-        xKey = pair[0]
+        xKey = pair[0][0]
         xDct = viewDct[xKey]
         xDct['Date'] = pd.to_datetime(xDct['Date'])
         xMask = (xDct['Date'] >= startDate) & (xDct['Date'] <= endDate)
         xDf = xDct.loc[xMask]
-        x = xDf['Count']
+        # x1 is Pandas Series for pageview counts
+        x1 = xDf['Count']
 
-        yKey = pair[1]
+        xKey = pair[0][1]
+        xDct = revDct[xKey]
+        xDct['timestamp'] = pd.to_datetime(xDct['timestamp'])
+        xDct = xDct.set_index('timestamp').resample('D')['size'].count()
+        xDct = xDct.to_frame().reset_index()
+        xDct.columns = ['timestamp', 'Count']
+        xDct['timestamp'] = xDct['timestamp'].dt.tz_localize(None)
+        xMask = (xDct['timestamp'] >= startDate) & (xDct['timestamp'] <= endDate)
+        xDf = xDct.loc[xMask]
+        # x2 is Pandas Series for revision counts
+        x2 = xDf['Count']
+
+        x = x1.append(x2, ignore_index=True)
+
+        yKey = pair[1][0]
+        yDct = viewDct[yKey]
+        yDct['Date'] = pd.to_datetime(yDct['Date'])
+        yMask = (yDct['Date'] >= startDate) & (yDct['Date'] <= endDate)
+        yDf = yDct.loc[yMask]
+        # y1 is Pandas Series for pageview counts
+        y1 = yDf['Count']
+
+        yKey = pair[1][1]
         yDct = revDct[yKey]
         yDct['timestamp'] = pd.to_datetime(yDct['timestamp'])
         yDct = yDct.set_index('timestamp').resample('D')['size'].count()
@@ -238,57 +286,25 @@ def plotRVCorrelations(viewDct, revDct):
         yDct['timestamp'] = yDct['timestamp'].dt.tz_localize(None)
         yMask = (yDct['timestamp'] >= startDate) & (yDct['timestamp'] <= endDate)
         yDf = yDct.loc[yMask]
-        y = yDf['Count']
+        # y2 is Pandas Series for revision counts
+        y2 = yDf['Count']
+
+        y = y1.append(y2, ignore_index=True)
         
         # Pearson's correlation coefficient
         corr = x.corr(y)
         if (math.isnan(corr)):
-            print("ERROR!!!! - Pageview-Revision files below have issues!")
-            print(xKey + " Pageview")
-            print(yKey + " Revision")
-            print("")
+            print("ERROR")
+            print(pair)
             continue
-        else:
-            print("SUCCESS!!!! - Pageview-Revision files below were good!")
-            print(xKey + " Pageview")
-            print(yKey + " Revision")
-            print("")
+        
+        PRTable.append([xKey, yKey, corr])
+
         # change for top N views corr
         if (len(heap) < 5):
             heappush(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
         else:
             heappushpop(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
-
-    # for keyx in viewKeys:
-    #     temp = viewDct[keyx]
-    #     temp['Date'] = pd.to_datetime(temp['Date'])
-    #     mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
-    #     df = temp.loc[mask]
-    #     x = df['Count']
-
-    #     # x = viewDct[keyx]['Count']
-    #     for keyy in revKeys:
-    #         if (prettyPrint(keyx) != prettyPrint(keyy) and "Talk" not in keyx and "Talk" not in keyy):
-    #             ydf = revDct[keyy]
-    #             ydf['timestamp'] = pd.to_datetime(ydf['timestamp'])
-    #             ydf = ydf.set_index('timestamp').resample('D')['size'].count()
-    #             ydf = ydf.to_frame().reset_index()
-    #             ydf.columns = ['timestamp', 'Count']
-    #             ydf['timestamp'] = ydf['timestamp'].dt.tz_localize(None)
-
-    #             mask = (ydf['timestamp'] >= startDate) & (ydf['timestamp'] <= endDate)
-    #             df = ydf.loc[mask]
-    #             y = df['Count']
-
-    #             # y = ydf['Count']
-    #             corr = x.corr(y)
-    #             if (math.isnan(corr)):
-    #                 continue
-    #             # change for top N views corr
-    #             if (len(heap) < 10):
-    #                 heappush(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
-    #             else:
-    #                 heappushpop(heap, KeyDict(corr, [x, y, keyx, keyy, corr]))
 
     topNViews = sorted(heap, reverse=True)
 
@@ -305,7 +321,7 @@ def plotRVCorrelations(viewDct, revDct):
 
         sns_plot = sns.lmplot(x='X',y='Y',data=df,fit_reg=True)
         # https://stackoverflow.com/questions/31632637/label-axes-on-seaborn-barplot
-        sns_plot.set(xlabel = keyx + " Pageviews", ylabel=keyy + " Revisions")
+        sns_plot.set(xlabel = keyx + " Pageviews-Revisions", ylabel=keyy + " Pageviews-Revisions")
         sns_plot.savefig(os.path.join(viewRevSavePath, keyx+" " +keyy + ".png"))
         # ax = df.plot(x='X', y='Y', kind='scatter')
         # ax.set_xlabel(keyx + " Revisions")
@@ -317,6 +333,10 @@ def plotRVCorrelations(viewDct, revDct):
     tableDf = pd.DataFrame(table[1:], columns=table[0])
     tableDf = tableDf.sort_values(by="Corr.", ascending=False)
     tableDf.to_csv("pageview-revisionCorr.csv", encoding="utf-8")
+
+    prDf = pd.DataFrame(PRTable[1:], columns=PRTable[0])
+    prDf = prDf.sort_values(by="Corr.", ascending=False)
+    prDf.to_csv("allPRCorr.csv", encoding="utf-8")
 
 plotViewCorrelations(viewDict)
 pageTime = time.time()

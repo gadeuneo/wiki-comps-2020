@@ -1,8 +1,8 @@
 '''
-Gets metadata of wikipage per revision.
-Saves in csv format per revision.
+    Gets metadata of wikipage per revision.
+    Saves in csv format per revision.
 
-James Gardner
+    Written by James Gardner; refactored by Jackie Chan.
 '''
 
 import requests as rq

@@ -1,4 +1,10 @@
 
+'''
+    Plots Jaccard editor similarity normalized for pages.
+
+    Written by Junyi Min.
+'''
+
 import pandas as pd
 from pandas.plotting import register_matplotlib_converters
 import os

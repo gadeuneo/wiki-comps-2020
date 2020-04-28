@@ -1,3 +1,9 @@
+'''
+    Manually reformats downloaded pageview files from WMF Labs tool.
+
+    Written by James Gardner
+'''
+
 import pandas as pd
 import os
 import sys
