@@ -230,20 +230,45 @@ def plotRVCorrelations(viewDct, revDct):
     revKeys = list(revDct.keys())
     vKeys = [x for x in viewKeys if "Talk" not in x]
     rKeys = [x for x in revKeys if "Talk" not in x]
-
-    allComb = list(product(vKeys, rKeys))
-    allComb = [x for x in allComb if prettyPrint(x[0]) != prettyPrint(x[1])]
+    # tuple pair (pageviews, revisions) for each page
+    allKeys = [(x,y) for x,y in zip(vKeys, rKeys) if prettyPrint(x) == prettyPrint(y)]
+    # combinations of different tuple pairs per page
+    allComb = list(combinations(allKeys, 2))
 
     heap = []
+    # x is (xPageviews, xRevisions) combined, same for y (yPageviews, yRevisions)
     for pair in allComb:
-        xKey = pair[0]
+        xKey = pair[0][0]
         xDct = viewDct[xKey]
         xDct['Date'] = pd.to_datetime(xDct['Date'])
         xMask = (xDct['Date'] >= startDate) & (xDct['Date'] <= endDate)
         xDf = xDct.loc[xMask]
-        x = xDf['Count']
+        # x1 is Pandas Series for pageview counts
+        x1 = xDf['Count']
 
-        yKey = pair[1]
+        xKey = pair[0][1]
+        xDct = revDct[xKey]
+        xDct['timestamp'] = pd.to_datetime(xDct['timestamp'])
+        xDct = xDct.set_index('timestamp').resample('D')['size'].count()
+        xDct = xDct.to_frame().reset_index()
+        xDct.columns = ['timestamp', 'Count']
+        xDct['timestamp'] = xDct['timestamp'].dt.tz_localize(None)
+        xMask = (xDct['timestamp'] >= startDate) & (xDct['timestamp'] <= endDate)
+        xDf = xDct.loc[xMask]
+        # x2 is Pandas Series for revision counts
+        x2 = xDf['Count']
+
+        x = x1.append(x2, ignore_index=True)
+
+        yKey = pair[1][0]
+        yDct = viewDct[yKey]
+        yDct['Date'] = pd.to_datetime(yDct['Date'])
+        yMask = (yDct['Date'] >= startDate) & (yDct['Date'] <= endDate)
+        yDf = yDct.loc[yMask]
+        # y1 is Pandas Series for pageview counts
+        y1 = yDf['Count']
+
+        yKey = pair[1][1]
         yDct = revDct[yKey]
         yDct['timestamp'] = pd.to_datetime(yDct['timestamp'])
         yDct = yDct.set_index('timestamp').resample('D')['size'].count()
@@ -252,21 +277,17 @@ def plotRVCorrelations(viewDct, revDct):
         yDct['timestamp'] = yDct['timestamp'].dt.tz_localize(None)
         yMask = (yDct['timestamp'] >= startDate) & (yDct['timestamp'] <= endDate)
         yDf = yDct.loc[yMask]
-        y = yDf['Count']
+        # y2 is Pandas Series for revision counts
+        y2 = yDf['Count']
+
+        y = y1.append(y2, ignore_index=True)
         
         # Pearson's correlation coefficient
         corr = x.corr(y)
         if (math.isnan(corr)):
-            print("ERROR!!!! - Pageview-Revision files below have issues!")
-            print(xKey + " Pageview")
-            print(yKey + " Revision")
-            print("")
+            print("ERROR")
+            print(pair)
             continue
-        else:
-            print("SUCCESS!!!! - Pageview-Revision files below were good!")
-            print(xKey + " Pageview")
-            print(yKey + " Revision")
-            print("")
         # change for top N views corr
         if (len(heap) < 5):
             heappush(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
