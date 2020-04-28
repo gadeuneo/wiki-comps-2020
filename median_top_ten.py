@@ -4,6 +4,7 @@ from datetime import datetime as dt
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 import time
+import matplotlib.pyplot as plt
 
 def get_top_ten_dfs(top_files):
 
@@ -63,11 +64,34 @@ def main():
 
     comp_df = get_comp_top_ten_df(top_files)
 
-    print(comp_df)
-
     # Calculate median edit size per time delta.
 
+    time_period = "7"
+
+    week_df = pd.DataFrame(columns=["median"])
+    week_df["date"] = pd.date_range(start="2009-12-10", end="2019-12-10",
+        freq=time_period + "D", tz="UTC")
+
+    for index, row in week_df.iterrows():
+        start_week = row["date"]
+        end_week = start_week + timedelta(days=int(time_period))
+
+        mask = (comp_df["pythontime"] > start_week) \
+            & (comp_df["pythontime"] <= end_week)
+
+        # Gets the median from the mask and inputs into the week_df.
+        week_df.loc[index, "median"] = comp_df.loc[mask]["size"].median()
+
+
+    print(week_df)
+
+
     # Plot.
+
+    week_df.set_index("date", inplace=True, drop=True)
+
+    week_df.plot()
+    plt.show()
 
     return
 
