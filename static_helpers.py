@@ -95,6 +95,21 @@ def add_talk_pages(titles):
 
     return titles_copy
 
+
+'''
+    Description: Returns the list of titles with talk pages.
+
+    Input: None.
+
+    Output: Returns the list of titles with talk pages.
+'''
+def get_titles_and_talk_pages():
+
+    titles = get_titles()
+    titles = add_talk_pages(titles)
+
+    return titles
+
 '''
     Description: Performs same task as add_talk_pages(). Used to handle files
     that are formatted in a different way than the files found in the other
