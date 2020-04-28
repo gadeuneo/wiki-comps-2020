@@ -79,7 +79,7 @@ endDate = dt.strptime("2019-12-10", "%Y-%m-%d")
 
 pageviewTable = [["Article 1", "Article 2", "Corr."]]
 revisionTable = [["Article 1", "Article 2", "Corr."]]
-PRTable = [["Article 1", "Article 2", "Corr."]]
+PRTable = [["Pageview", "Revision", "Corr."]]
 
 start = time.time()
 
@@ -112,6 +112,7 @@ def plotViewCorrelations(dct):
             continue
 
         pageviewTable.append([xKey, yKey, corr])
+
         # change for top N views corr
         if (len(heap) < 5):
             heappush(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
@@ -142,6 +143,7 @@ def plotViewCorrelations(dct):
     tableDf = pd.DataFrame(table[1:], columns=table[0])
     tableDf = tableDf.sort_values(by="Corr.", ascending=False)
     tableDf.to_csv("pageviewCorr.csv", encoding="utf-8")
+
     pageDf = pd.DataFrame(pageviewTable[1:], columns=pageviewTable[0])
     pageDf = pageDf.sort_values(by="Corr.", ascending=False)
     pageDf.to_csv("allPageviewCorr.csv", encoding="utf-8")
@@ -187,6 +189,7 @@ def plotRevisonCorrelations(dct):
             continue
 
         revisionTable.append([xKey, yKey, corr])
+
         # change for top N views corr
         if (len(heap) < 5):
             heappush(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
@@ -220,6 +223,7 @@ def plotRevisonCorrelations(dct):
     tableDf = pd.DataFrame(table[1:], columns=table[0])
     tableDf = tableDf.sort_values(by="Corr.", ascending=False)
     tableDf.to_csv("revisionCorr.csv", encoding="utf-8")
+
     revDf = pd.DataFrame(revisionTable[1:], columns=revisionTable[0])
     revDf = revDf.sort_values(by="Corr.", ascending=False)
     revDf.to_csv("allRevisionCorr.csv", encoding="utf-8")
@@ -288,6 +292,9 @@ def plotRVCorrelations(viewDct, revDct):
             print("ERROR")
             print(pair)
             continue
+        
+        PRTable.append([xKey, yKey, corr])
+
         # change for top N views corr
         if (len(heap) < 5):
             heappush(heap, KeyDict(corr, [x, y, xKey, yKey, corr]))
@@ -321,6 +328,10 @@ def plotRVCorrelations(viewDct, revDct):
     tableDf = pd.DataFrame(table[1:], columns=table[0])
     tableDf = tableDf.sort_values(by="Corr.", ascending=False)
     tableDf.to_csv("pageview-revisionCorr.csv", encoding="utf-8")
+
+    prDf = pd.DataFrame(PRTable[1:], columns=PRTable[0])
+    prDf = prDf.sort_values(by="Corr.", ascending=False)
+    prDf.to_csv("allPRCorr.csv", encoding="utf-8")
 
 plotViewCorrelations(viewDict)
 pageTime = time.time()
