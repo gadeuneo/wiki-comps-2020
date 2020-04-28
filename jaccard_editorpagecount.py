@@ -9,14 +9,13 @@ from dateutil.relativedelta import relativedelta
 import time
 import matplotlib.pyplot as plt
 import numpy as np
-#uhuh
 import matplotlib.dates as mdates
 import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
-#uhuh
 import copy
 from static_helpers import *
 import math
+
 
 register_matplotlib_converters()
 start = time.time()
@@ -265,9 +264,8 @@ startDate = dt.fromtimestamp(int(time.mktime(dt.strptime(start, "%Y-%m-%d").time
 endDate = dt.fromtimestamp(int(time.mktime(dt.strptime(end, "%Y-%m-%d").timetuple()))).date()
 for i in range (0, 10):
     data = getPlotData()
-    xAxis = logTransform(data[0])
     yAxis = logTransform(data[1])
-    plt.plot(xAxis, yAxis, label= endDate)
+    plt.plot(xAxis, yAxis, '#008000',label= endDate)
     plt.gcf().set_size_inches(15,7)
     endDate -= relativedelta(months=+1)
 figureTitle = "Log Transformed - Page Count vs Number Editors"
