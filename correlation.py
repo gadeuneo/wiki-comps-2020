@@ -316,7 +316,7 @@ def plotRVCorrelations(viewDct, revDct):
 
         sns_plot = sns.lmplot(x='X',y='Y',data=df,fit_reg=True)
         # https://stackoverflow.com/questions/31632637/label-axes-on-seaborn-barplot
-        sns_plot.set(xlabel = keyx + " Pageviews", ylabel=keyy + " Revisions")
+        sns_plot.set(xlabel = keyx + " Pageviews-Revisions", ylabel=keyy + " Pageviews-Revisions")
         sns_plot.savefig(os.path.join(viewRevSavePath, keyx+" " +keyy + ".png"))
         # ax = df.plot(x='X', y='Y', kind='scatter')
         # ax.set_xlabel(keyx + " Revisions")
