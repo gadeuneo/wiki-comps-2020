@@ -45,5 +45,11 @@ Helper code that automates the downloading and reformatting of pageview data fro
 ### `reformat_pageview_files.py`
 Helper code for manual downloading of pageview files from the WMF labs tool. Mainly used to add pages outside of the automatic tool.
 
+### `median_top_ten.py`
+Plots the median edit size from top ten articles per time interval (in days) using the data from `10 Year Revision Data`.
+
+### `pages_editted.py`
+Plots the number of pages editted per time interval (in days) using the data from the `10 Year Updated.csv`.
+
 ### Bot Login
 Allows authenciated requests to the MediaWiki API for less restricted access. Follows guidelines here: https://www.mediawiki.org/wiki/API:Login
