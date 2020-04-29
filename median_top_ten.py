@@ -1,7 +1,7 @@
 '''
     Plots median edit size across top 10 pages.
 
-    Written by Jackie Chan.
+    Written by Jackie Chan and Kirby Mitchell.
 '''
 
 import pandas as pd
