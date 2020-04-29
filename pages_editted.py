@@ -2,7 +2,7 @@
     Plots the number of pages editted in the article corpus per interval of 
     time.
 
-    Written by Jackie Chan.
+    Written by Jackie Chan and Kirby Mitchell.
 '''
 
 import pandas as pd
