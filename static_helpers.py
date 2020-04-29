@@ -112,7 +112,7 @@ def add_talk_pages(titles):
 def get_titles_and_talk_pages():
 
     titles = get_titles()
-    titles = add_talk_pages(titles)
+    titles = add_revision_talk_pages(titles)
 
     return titles
 
