@@ -64,8 +64,6 @@ def main():
 
     assert(len(top_articles) == 10)
 
-    top_df = []
-
     top_files = [article + ".csv" for article in top_articles]
 
     comp_df = get_comp_top_ten_df(top_files)
