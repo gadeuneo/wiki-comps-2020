@@ -27,7 +27,21 @@ def make_table(file):
     return full_table_df
 
 def main():
-    table_df = make_table("allPageViewCorr.csv")
-    #print(table_df)
+    df = make_table("allPageViewCorr.csv")
+
+    print(df)
+
+    graph = nx.from_pandas_adjacency(df)
+    graph.name = "Whatever"
+
+    print(nx.info(graph))
+
+    print(type(graph))
+
+    nx.draw(graph)
+    plt.show()
+
+    return
+
 if __name__ == "__main__":
     main()
