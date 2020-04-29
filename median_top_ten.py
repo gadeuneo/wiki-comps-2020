@@ -26,12 +26,12 @@ def get_top_ten_dfs(top_files):
 
             top_article_dfs[file]['pythontime'] = \
                 pd.to_datetime(top_article_dfs[file]['timestamp'])
-            
+
             top_article_dfs[file].sort_values(by='pythontime', inplace=True)
         else:
             print("Could not find this file: {0}".format(file))
 
-    
+
     return top_article_dfs
 
 def get_comp_top_ten_df(top_files):
@@ -92,7 +92,7 @@ def main():
     week_df.set_index("date", inplace=True, drop=True)
 
     week_df.plot()
-    plt.show()
+    plt.savefig("figures/Median Top Ten Edits Per Week Diagram")
 
     return
 
