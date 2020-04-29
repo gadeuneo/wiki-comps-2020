@@ -28,12 +28,13 @@ def main():
     # Find the number of pages editted per time interval in days.
     for index, row in time_df.iterrows():
         
-        start_week = row["date"]
-        end_week = start_week + timedelta(days=int(days))
+        start_time = row["date"]
+        end_time = start_week + timedelta(days=int(days))
 
-        mask = (comp_df["pythontime"] > start_week) \
-            & (comp_df["pythontime"] <= end_week)
+        mask = (comp_df["pythontime"] > start_time) \
+            & (comp_df["pythontime"] <= end_time)
 
+        # Counts the number of unique page IDs in the mask.
         time_df.loc[index, "pages_editted"] = \
             comp_df.loc[mask]["page_id"].nunique()
 
