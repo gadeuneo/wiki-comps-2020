@@ -1,4 +1,10 @@
 
+'''
+    Plots Jaccard editor similarity normalized for pages.
+
+    Written by Junyi Min.
+'''
+
 import pandas as pd
 from pandas.plotting import register_matplotlib_converters
 import os
@@ -9,14 +15,13 @@ from dateutil.relativedelta import relativedelta
 import time
 import matplotlib.pyplot as plt
 import numpy as np
-#uhuh
 import matplotlib.dates as mdates
 import matplotlib.cbook as cbook
 import matplotlib.ticker as ticker
-#uhuh
 import copy
 from static_helpers import *
 import math
+
 
 register_matplotlib_converters()
 start = time.time()
@@ -238,7 +243,7 @@ def normalize(data, date):
         returnData.append(item/numActiveArticleDict.get(date))
     return returnData
 
-'''
+
 #For Nomalization of Data - produces a dictionary of the number of active articles each day
 start = "2009-01-10"
 end = "2019-12-10"
@@ -256,23 +261,26 @@ for title in dataTitleArray:
         else:
             numActiveArticleDict[time] = numActiveArticleDict.get(time)+1
         time += timedelta(days=1)
-'''
+
 
 #MultiLineGraph Code Below - moved here due to global variable problems
+graphColor = ['#000000','#003300','#005900','#198c19','#7fbf7f','#e5f2e5',    #green
+              '#330033', '#590059', '#800080', '#a64ca6', '#cc99cc', '#f2e5f2'] #purple
+'''
 start = "2009-01-10"
 end = "2019-12-10"
 startDate = dt.fromtimestamp(int(time.mktime(dt.strptime(start, "%Y-%m-%d").timetuple()))).date()
-endDate = dt.fromtimestamp(int(time.mktime(dt.strptime(end, "%Y-%m-%d").timetuple()))).date()
-for i in range (0, 10):
+endDate = dt.fromtimestamp(int(time.mktime(dt.strptime(end, "%Y-%m-%d").timetuple()))).date()'''
+for i in range (0, 12):
     data = getPlotData()
-    xAxis = logTransform(data[0])
+    xAxis = normalize(data[0], endDate)
     yAxis = logTransform(data[1])
-    plt.plot(xAxis, yAxis, label= endDate)
+    plt.plot(xAxis, yAxis,graphColor[i],label= endDate)
     plt.gcf().set_size_inches(15,7)
     endDate -= relativedelta(months=+1)
-figureTitle = "Log Transformed - Page Count vs Number Editors"
+figureTitle = "Normalized - Page Count vs Number Editors"
 plt.title(figureTitle)
-plt.xlabel("Pages Editted (in log base 10)")
+plt.xlabel("Pages Editted/Active Pages")
 plt.ylabel("Number of Editors (in log base 10)")
 
 subpath = "Jaccard"

@@ -1,8 +1,8 @@
 '''
-Gets pageview data of wikipage per date via REST API.
-Saves in csv format per page.
+    Gets pageview data of wikipage per date via REST API.
+    Saves in csv format per page.
 
-James Gardner
+    Written by James Gardner
 '''
 
 

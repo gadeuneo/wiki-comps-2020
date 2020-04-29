@@ -1,3 +1,9 @@
+'''
+    Plots median edit size across top 10 pages.
+
+    Written by Jackie Chan.
+'''
+
 import pandas as pd
 from static_helpers import *
 from datetime import datetime as dt

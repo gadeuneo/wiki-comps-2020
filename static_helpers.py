@@ -1,3 +1,9 @@
+'''
+    Functions that are commonly called by other functions in this repo.
+
+    Written by Jackie Chan.
+'''
+
 import os
 import sys
 

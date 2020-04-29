@@ -1,7 +1,7 @@
 '''
-File for manipulating data.
+    Plots revision data aggregated for entire corpus.
 
-James Gardner
+    Written by James Gardner, Kirby Mitchell, and Junyi Min.
 '''
 
 import pandas as pd

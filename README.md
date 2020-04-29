@@ -31,7 +31,19 @@ Contains the code that generates the `day_difference_figure.png` file. It genera
 Contains the code that generates both `desc_all.csv` and `desc_page.csv`. This notebook requires the revision data contained in the `10 Year Revision Data` directory.
 
 ### `stats.py`
-Contains code for calculating various metrics such as Jaccard Similarity or correlations between pages and creating plots.
+Contains code for calculating the top ten articles and for making plots of number of revisions over time.
+
+### `corrleation.py`
+Contains code that generates `pageviewCorr.csv`, `revisionCorr.csv`, and `pageview-revisionCorr.csv` (top 5). Also `allPageviewCorr.csv`, `allRevisionCorr.csv`, and `allPRCorr.csv` that contain all the correlation data for hierarchical clustering. Uses the data from `pull_data.py` and `wmlflabs.py` to do the analysis; returns Pearson's coefficient using the built-in Pandas analysis.
+
+### `table.py`
+Generates the pre-analysis table that review the top 10 articles by revision count and the totals for the top 10 and the entire corpus.
+
+### `wmflabs.py`
+Helper code that automates the downloading and reformatting of pageview data from the WikiMediaFoundation Labs tool (WMF). Uses `titles.txt` for reference. Utiles the Selenium library with a Linux Firefox geckodriver for web rendering.
+
+### `reformat_pageview_files.py`
+Helper code for manual downloading of pageview files from the WMF labs tool. Mainly used to add pages outside of the automatic tool.
 
 ### Bot Login
 Allows authenciated requests to the MediaWiki API for less restricted access. Follows guidelines here: https://www.mediawiki.org/wiki/API:Login
