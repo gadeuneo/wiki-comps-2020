@@ -82,12 +82,9 @@ def main():
         # Gets the median from the mask and inputs into the week_df.
         week_df.loc[index, "median"] = comp_df.loc[mask]["size"].median()
 
-
-    print(week_df)
-
-
     # Plot.
 
+    # https://stackoverflow.com/questions/52266076/plotting-using-pandas-and-datetime-format/52266133
     week_df.set_index("date", inplace=True, drop=True)
 
     week_df.plot()
