@@ -1,5 +1,5 @@
 '''
-    Plots the number of pages editted in the article corpus per interval of 
+    Plots the number of pages editted in the article corpus per interval of
     time.
 
     Written by Jackie Chan and Kirby Mitchell.
@@ -27,9 +27,9 @@ def main():
 
     # Find the number of pages editted per time interval in days.
     for index, row in time_df.iterrows():
-        
+
         start_time = row["date"]
-        end_time = start_week + timedelta(days=int(days))
+        end_time = start_time + timedelta(days=int(days))
 
         mask = (comp_df["pythontime"] > start_time) \
             & (comp_df["pythontime"] <= end_time)
@@ -45,7 +45,7 @@ def main():
     time_df.set_index("date", inplace=True, drop=True)
 
     time_df.plot()
-    plt.show()
+    plt.savefig("figures/Edited Pages Per Week Diagram")
 
     return
 
