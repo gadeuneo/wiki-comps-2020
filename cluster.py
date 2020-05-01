@@ -29,17 +29,39 @@ def make_table(file):
 def main():
     df = make_table("allPageViewCorr.csv")
 
-    print(df)
+    # Creates a series that has the articles paired with their highest
+    # correlation values.
+    max_series = df.max()
 
-    graph = nx.from_pandas_adjacency(df)
-    graph.name = "Whatever"
+    # Finds the first article name that has the max correlation value out of
+    # the series of max correlation values.
+    first_max_article = max_series.idxmax()
 
-    print(nx.info(graph))
+    # Gets the series associated with the label found earlier to find the article
+    # that makes the max correlation value.
+    article_series = df.loc[first_max_article]
 
-    print(type(graph))
+    # This is the second article that pairs with the one found earlier to make
+    # the max correlation value.
+    second_max_article = article_series.idxmax()
 
-    nx.draw(graph)
-    plt.show()
+    # Variable for holding the max correlation value out of the data frame.
+    max_correlation_value = df.loc[first_max_article, second_max_article]
+    print("Highest Correlation: ", df.loc[first_max_article, second_max_article]
+    , "\n Articles: ", first_max_article," ", second_max_article)
+    # while df.shape[0] != 1:
+    #     df.max()
+    # print(df)
+
+    # graph = nx.from_pandas_adjacency(df)
+    # graph.name = "Whatever"
+    #
+    # print(nx.info(graph))
+    #
+    # print(type(graph))
+    #
+    # nx.draw(graph)
+    # plt.show()
 
     return
 
