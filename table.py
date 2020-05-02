@@ -3,6 +3,8 @@
     Includes totals for the top 10 pages by revision count
     (not including Talk pages).
     Also has grand totals (including Talk pages).
+
+    Written by James Gardner.
 '''
 
 import pandas as pd

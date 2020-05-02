@@ -36,14 +36,15 @@ if (not os.path.exists(savepath)):
     os.mkdir(savepath)
 
 topNCorr = [
-    "List_of_December_2019_Hong_Kong_Protests",
+    "List_of_December_2019_Hong_Kong_protests",
     "Murder_of_Poon_Hiu-wing",
     "12_June_2019_Hong_Kong_protest",
     "Death_of_Chow_Tsz-lok",
-    "List_of_protests_in_Hong_Kong",
-    "Hong_Kong–Mainland_China_conflict",
-    "Police_misconduct_allegations_during_the_2019–20_Hong_Kong_protests",
-    "Reactions_to_the_2019–20_Hong_Kong_protests"
+    "2019–20_Hong_Kong_protests"
+    # "List_of_protests_in_Hong_Kong",
+    # "Hong_Kong–Mainland_China_conflict",
+    # "Police_misconduct_allegations_during_the_2019–20_Hong_Kong_protests",
+    # "Reactions_to_the_2019–20_Hong_Kong_protests"
 ]
 
 views = dict()
@@ -111,6 +112,7 @@ def plotTopNPageviews(pageDict):
     plt.title("Top N Pageviews Corr")
     plt.xlabel("Days")
     plt.ylabel("Pageview Count")
+    plt.yscale("log")
     plt.legend()
     plt.savefig(os.path.join("figures","TopNPageviewCorrSince2019.png"), dpi=300)
     plt.close()
