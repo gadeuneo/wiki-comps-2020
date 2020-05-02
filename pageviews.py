@@ -109,9 +109,9 @@ def plotTopNPageviews(pageDict):
             allNumViews.append(numViews)
     for i in range(len(allDays)):
         plt.plot(allDays[i], allNumViews[i], label=keyNames[i])
-    plt.title("Top N Pageviews Corr")
-    plt.xlabel("Days")
-    plt.ylabel("Pageview Count")
+    plt.title("Top Four Articles by Correlation and Focus Article Daily Views")
+    # plt.xlabel("Days")
+    plt.ylabel("Pageviews")
     plt.yscale("log")
     plt.legend()
     plt.savefig(os.path.join("figures","TopNPageviewCorrSince2019.png"), dpi=300)
