@@ -5,6 +5,7 @@
 '''
 
 import pandas as pd
+import numpy as np
 from static_helpers import *
 import matplotlib.pyplot as plt
 import networkx as nx
@@ -31,27 +32,40 @@ def main():
 
     # Creates a series that has the articles paired with their highest
     # correlation values.
-    max_series = df.max()
+    count = 0
+    while count != 39:
+        max_series = df.max()
 
-    # Finds the first article name that has the max correlation value out of
-    # the series of max correlation values.
-    first_max_article = max_series.idxmax()
+        # Finds the first article name that has the max correlation value out of
+        # the series of max correlation values.
+        first_max_article = max_series.idxmax()
 
-    # Gets the series associated with the label found earlier to find the article
-    # that makes the max correlation value.
-    article_series = df.loc[first_max_article]
+        # Gets the series associated with the label found earlier to find the article
+        # that makes the max correlation value.
+        article_series = df.loc[first_max_article]
 
-    # This is the second article that pairs with the one found earlier to make
-    # the max correlation value.
-    second_max_article = article_series.idxmax()
+        # This is the second article that pairs with the one found earlier to make
+        # the max correlation value.
+        second_max_article = article_series.idxmax()
 
-    # Variable for holding the max correlation value out of the data frame.
-    max_correlation_value = df.loc[first_max_article, second_max_article]
-    print("Highest Correlation: ", df.loc[first_max_article, second_max_article]
-    , "\n Articles: ", first_max_article," ", second_max_article)
-    # while df.shape[0] != 1:
-    #     df.max()
-    # print(df)
+        # Variable for holding the max correlation value out of the data frame.
+        max_correlation_value = df.loc[first_max_article, second_max_article]
+        # print("Highest Correlation: ", df.loc[first_max_article, second_max_article]
+        # , "\n Articles: ", first_max_article," ", second_max_article)
+        compress_df = pd.concat([df.loc[first_max_article], df.loc[second_max_article]], axis = 1)
+        shrink_df = compress_df.max(axis=1)
+        df = df.replace(df.loc[first_max_article], shrink_df)
+        df = df.replace(max_correlation_value, np.NaN)
+        df = df.drop(columns=second_max_article)
+        df = df.drop(second_max_article)
+        df = df.rename(index={first_max_article : first_max_article + " " + second_max_article})
+        df = df.rename(columns={first_max_article : first_max_article + " " + second_max_article})
+        count += 1
+        print(first_max_article + "\n")
+        print("SECOND: " + second_max_article + "\n")
+    df.to_csv("output.csv")
+    #df = df.assign(first_max_article=shrink_df[])
+    #shrink_df = shrink_df.replace(max_correlation_value, np.NaN)
 
     # graph = nx.from_pandas_adjacency(df)
     # graph.name = "Whatever"
