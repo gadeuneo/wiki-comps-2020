@@ -98,7 +98,7 @@ def plotTopNPageviews(pageDict):
             df = temp.loc[mask]
             days = df['Date'].tolist()
             numViews = df['Count'].tolist()
-            keyNames.append(key)
+            keyNames.append(prettyPrint(key))
             # for index, row in pageDict[key].iterrows():
             #     viewDate = dt.strptime(row['Date'], "%Y-%m-%d")
             #     if (viewDate >= dt.strptime("2019-06-01", "%Y-%m-%d") and viewDate <= dt.strptime("2019-12-10", "%Y-%m-%d")):

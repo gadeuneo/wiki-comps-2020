@@ -13,6 +13,7 @@ from datetime import datetime as dt
 import time
 import math
 from itertools import combinations
+from static_helpers import *
 
 # https://realpython.com/numpy-scipy-pandas-correlation-python/
 import scipy.stats
@@ -46,10 +47,7 @@ class KeyDict(object):
 from static_helpers import *
 
 
-def prettyPrint(dictKey):
-    newTitle = str(dictKey)
-    newTitle = newTitle.replace("Data", "").replace("_", " ").replace("(dot)",".").replace("(colon)","-")
-    return newTitle
+
 
 revisionPath = "10 Year Revision Data"
 pageviewPath = "dailyPageviews"
