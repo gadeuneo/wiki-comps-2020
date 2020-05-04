@@ -33,7 +33,7 @@ def main():
     # Creates a series that has the articles paired with their highest
     # correlation values.
     count = 0
-    while count != 39:
+    while count != 33:
         max_series = df.max()
 
         # Finds the first article name that has the max correlation value out of
@@ -53,16 +53,18 @@ def main():
         # print("Highest Correlation: ", df.loc[first_max_article, second_max_article]
         # , "\n Articles: ", first_max_article," ", second_max_article)
         compress_df = pd.concat([df.loc[first_max_article], df.loc[second_max_article]], axis = 1)
-        shrink_df = compress_df.max(axis=1)
+        #shrink_df = compress_df.max(axis=1)
+        shrink_df = compress_df.mean(axis=1)
         df = df.replace(df.loc[first_max_article], shrink_df)
         df = df.replace(max_correlation_value, np.NaN)
         df = df.drop(columns=second_max_article)
         df = df.drop(second_max_article)
         df = df.rename(index={first_max_article : first_max_article + " " + second_max_article})
         df = df.rename(columns={first_max_article : first_max_article + " " + second_max_article})
+        if not pd.isnull(df.loc[first_max_article + " " + second_max_article, first_max_article + " " + second_max_article]):
+            df = df.replace(df.loc[first_max_article + " " + second_max_article, first_max_article + " " + second_max_article], np.NaN)
         count += 1
-        print(first_max_article + "\n")
-        print("SECOND: " + second_max_article + "\n")
+
     df.to_csv("output.csv")
     #df = df.assign(first_max_article=shrink_df[])
     #shrink_df = shrink_df.replace(max_correlation_value, np.NaN)
