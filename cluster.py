@@ -74,7 +74,7 @@ def main():
     # df.to_csv("output.csv")
     df = df.replace(np.NaN, 0)
 
-    Z = hierarchy.linkage(df, 'single')
+    Z = hierarchy.linkage(df, 'ward')
     hierarchy.dendrogram(Z, leaf_rotation=90, leaf_font_size=8, labels=df.index)
     plt.gcf().subplots_adjust(bottom=0.65)
     #plt.tight_layout()
