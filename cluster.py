@@ -9,6 +9,7 @@ import numpy as np
 from static_helpers import *
 import matplotlib.pyplot as plt
 import networkx as nx
+from scipy.cluster import hierarchy
 
 def mirror_table(df):
     mirror_df = pd.DataFrame(columns = ['Article 1', 'Article 2', 'Corr.'])
@@ -23,49 +24,64 @@ def make_table(file):
     # Convert dataframe to n x n table where articles are the rows/columns and
     # correlation values are values.
     # Source: https://stackoverflow.com/questions/47683642/how-to-create-a-square-dataframe-matrix-given-3-columns-python
+    # COMMENTED THIS LINE WHEN TESTING DENDROGRAM
     full_table_df = full_table_df.pivot(index= 'Article 1', columns= 'Article 2', values= 'Corr.')
     # Correlation between same article is NaN.
     return full_table_df
 
 def main():
-    df = make_table("allPageViewCorr.csv")
+    pageViewsCorrelations = "allRevisionCorr.csv"
+    pageRevisionsCorrelations = "allPageViewCorr.csv"
+    df = make_table(pageViewsCorrelations)
+
 
     # Creates a series that has the articles paired with their highest
     # correlation values.
-    count = 0
-    while count != 33:
-        max_series = df.max()
+    # count = 0
+    # while count != 33:
+    #     max_series = df.max()
+    #
+    #     # Finds the first article name that has the max correlation value out of
+    #     # the series of max correlation values.
+    #     first_max_article = max_series.idxmax()
+    #
+    #     # Gets the series associated with the label found earlier to find the article
+    #     # that makes the max correlation value.
+    #     article_series = df.loc[first_max_article]
+    #
+    #     # This is the second article that pairs with the one found earlier to make
+    #     # the max correlation value.
+    #     second_max_article = article_series.idxmax()
+    #
+    #     # Variable for holding the max correlation value out of the data frame.
+    #     max_correlation_value = df.loc[first_max_article, second_max_article]
+    #     # print("Highest Correlation: ", df.loc[first_max_article, second_max_article]
+    #     # , "\n Articles: ", first_max_article," ", second_max_article)
+    #     compress_df = pd.concat([df.loc[first_max_article], df.loc[second_max_article]], axis = 1)
+    #     #shrink_df = compress_df.max(axis=1)
+    #     shrink_df = compress_df.mean(axis=1)
+    #     df = df.replace(df.loc[first_max_article], shrink_df)
+    #     df = df.replace(max_correlation_value, np.NaN)
+    #     df = df.drop(columns=second_max_article)
+    #     df = df.drop(second_max_article)
+    #     df = df.rename(index={first_max_article : first_max_article + " " + second_max_article})
+    #     df = df.rename(columns={first_max_article : first_max_article + " " + second_max_article})
+    #     if not pd.isnull(df.loc[first_max_article + " " + second_max_article, first_max_article + " " + second_max_article]):
+    #         df = df.replace(df.loc[first_max_article + " " + second_max_article, first_max_article + " " + second_max_article], np.NaN)
+    #     count += 1
+    #     print(first_max_article, count, "\n")
 
-        # Finds the first article name that has the max correlation value out of
-        # the series of max correlation values.
-        first_max_article = max_series.idxmax()
+    # df.to_csv("output.csv")
+    df = df.replace(np.NaN, 0)
 
-        # Gets the series associated with the label found earlier to find the article
-        # that makes the max correlation value.
-        article_series = df.loc[first_max_article]
+    Z = hierarchy.linkage(df, 'single')
+    hierarchy.dendrogram(Z, leaf_rotation=90, leaf_font_size=8, labels=df.index)
+    plt.gcf().subplots_adjust(bottom=0.65)
+    #plt.tight_layout()
+    plt.title("Page View Correlations")
+    #plt.savefig("figures/Page Revision Correlation Dendrogram using Ward")
+    plt.show()
 
-        # This is the second article that pairs with the one found earlier to make
-        # the max correlation value.
-        second_max_article = article_series.idxmax()
-
-        # Variable for holding the max correlation value out of the data frame.
-        max_correlation_value = df.loc[first_max_article, second_max_article]
-        # print("Highest Correlation: ", df.loc[first_max_article, second_max_article]
-        # , "\n Articles: ", first_max_article," ", second_max_article)
-        compress_df = pd.concat([df.loc[first_max_article], df.loc[second_max_article]], axis = 1)
-        #shrink_df = compress_df.max(axis=1)
-        shrink_df = compress_df.mean(axis=1)
-        df = df.replace(df.loc[first_max_article], shrink_df)
-        df = df.replace(max_correlation_value, np.NaN)
-        df = df.drop(columns=second_max_article)
-        df = df.drop(second_max_article)
-        df = df.rename(index={first_max_article : first_max_article + " " + second_max_article})
-        df = df.rename(columns={first_max_article : first_max_article + " " + second_max_article})
-        if not pd.isnull(df.loc[first_max_article + " " + second_max_article, first_max_article + " " + second_max_article]):
-            df = df.replace(df.loc[first_max_article + " " + second_max_article, first_max_article + " " + second_max_article], np.NaN)
-        count += 1
-
-    df.to_csv("output.csv")
     #df = df.assign(first_max_article=shrink_df[])
     #shrink_df = shrink_df.replace(max_correlation_value, np.NaN)
 
