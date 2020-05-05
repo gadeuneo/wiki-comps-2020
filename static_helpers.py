@@ -333,3 +333,8 @@ def get_page_id(session, url, headers, title):
         sys.exit(1)
     page_id = list(data['query']['pages'].keys())[0]
     return page_id
+
+def prettyPrint(dictKey):
+    newTitle = str(dictKey)
+    newTitle = newTitle.replace("Data", "").replace("_", " ").replace("(dot)",".").replace("(colon)","-")
+    return newTitle

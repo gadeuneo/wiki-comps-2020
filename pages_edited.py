@@ -19,10 +19,10 @@ def main():
     comp_df["pythontime"] = pd.to_datetime(comp_df["pythontime"])
 
     # Create the dataframe.
-    days = "7"
+    days = "1"
 
     time_df = pd.DataFrame(columns=["pages_editted"])
-    time_df["date"] = pd.date_range(start="2009-12-10", end="2019-12-10",
+    time_df["date"] = pd.date_range(start="2018-12-10", end="2019-12-10",
         freq=days + "D", tz="UTC")
 
     # Find the number of pages editted per time interval in days.
@@ -45,7 +45,16 @@ def main():
     time_df.set_index("date", inplace=True, drop=True)
 
     time_df.plot()
+
+    plt.xlabel("Months")
+    plt.ylabel("Number of Articles Edited")
+    plt.title("Number of Articles from Our Article Corpus Edited per Day in "
+        "the Last Year of Our Analysis Period")
+    plt.legend().remove()
+
     plt.savefig("figures/Edited Pages Per Week Diagram")
+
+    plt.show()
 
     return
 

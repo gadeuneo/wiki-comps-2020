@@ -19,7 +19,7 @@ def main():
 
     days = "1"
 
-    time_df = pd.DataFrame(columns=["Number of Revisions"])
+    time_df = pd.DataFrame(columns=["Revisions", "Editors", "Pages"])
     time_df["date"] = pd.date_range(start="2018-12-10", end="2019-12-10",
         freq=days + "D", tz="UTC")
 
@@ -33,8 +33,17 @@ def main():
             & (comp_df["pythontime"] <= end_time)
 
         # Counts the number of unique page IDs in the mask.
-        time_df.loc[index, "Number of Revisions"] = \
+        time_df.loc[index, "Revisions"] = \
             comp_df.loc[mask].shape[0]
+        
+        # Counts anonymous users as individuals if they come from different 
+        # IP addresses.
+        time_df.loc[index, "Editors"] = \
+            comp_df.loc[mask]["user"].nunique()
+
+        time_df.loc[index, "Pages"] = \
+            comp_df.loc[mask]["page_id"].nunique()
+
 
 
     # Plot the editted pages.
@@ -44,9 +53,14 @@ def main():
 
     time_df.plot()
 
-    plt.xlabel("Month")
-    plt.ylabel("Frequency")
-    plt.title("Number of Revisions on Our Article Corpus")
+    plt.xlabel("Months")
+    plt.ylabel("Revisions/Editors/Pages Edited Count")
+    plt.yscale("log")
+    # plt.title("Number of Revisions per Week "
+    #     "of Analysis Period for Articles in Article Corpus")
+
+    plt.tick_params(bottom=False)
+    plt.legend(loc="upper left")
 
     # plt.savefig("figures/Aggregated Edits Per Week")
 

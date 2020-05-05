@@ -70,7 +70,7 @@ def main():
 
     # Calculate median edit size per time delta.
 
-    time_period = "7"
+    time_period = "14"
 
     week_df = pd.DataFrame(columns=["median"])
     week_df["date"] = pd.date_range(start="2009-12-10", end="2019-12-10",
@@ -84,7 +84,7 @@ def main():
             & (comp_df["pythontime"] <= end_week)
 
         # Gets the median from the mask and inputs into the week_df.
-        week_df.loc[index, "median"] = comp_df.loc[mask]["size"].median()
+        week_df.loc[index, "median"] = comp_df.loc[mask]["size"].mean()
 
     # Plot.
 
@@ -92,7 +92,13 @@ def main():
     week_df.set_index("date", inplace=True, drop=True)
 
     week_df.plot()
+
+    plt.xlabel("Years")
+    plt.ylabel("Median Edit Size (bytes)")
+    plt.legend().remove()
+
     plt.savefig("figures/Median Top Ten Edits Per Week Diagram")
+    plt.show()
 
     return
 
