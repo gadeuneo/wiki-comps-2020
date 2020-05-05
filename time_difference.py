@@ -111,14 +111,14 @@ def main():
     for i, j in zip(x, y):
         
         # Toggle to remove articles above a certain threshold.
-        # if (i > 250):
-        #     continue
+        if (i > 250):
+            continue
         
         plt.scatter(i, j, c=colors[j])
 
     plt.xlabel("Time Difference (days)")
     plt.ylabel("Article Titles")
-    plt.title("Days Between Event Start Date and Page Creation Date")
+    # plt.title("Days Between Event Start Date and Page Creation Date")
 
     # Constructing legend.
     red_dot = mlines.Line2D([], [], color="r", marker="o", linestyle="None",
