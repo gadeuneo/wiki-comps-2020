@@ -1,174 +1,80 @@
-'''
-    Plots multiline plots for ????
-
-    Written by ??? (Junyi and Kirby?)
-'''
-
 import pandas as pd
-from pandas.plotting import register_matplotlib_converters
-import os
-import sys
 from datetime import datetime as dt
 from datetime import timedelta
 from dateutil.relativedelta import relativedelta
-import time
 import matplotlib.pyplot as plt
 import numpy as np
-#uhuh
-import matplotlib.dates as mdates
-import matplotlib.cbook as cbook
-import matplotlib.ticker as ticker
-#uhuh
-import copy
 from static_helpers import *
 
-register_matplotlib_converters()
-start = time.time()
+def get_dfs(top_articles):
 
-# folder of files
-path = "10 Year Revision Data"
-plotPath = "figures/Multi-Line/new"
+    path = "10 Year Revision Data"
 
-directories = ["figures"]
+    top_articles_dfs = dict()
 
-create_directories(directories)
+    for article in top_articles:
+        complete_path = os.path.join(path, article)
 
-# working list of Wiki pages
-titles = get_titles()
+        if file_exists(complete_path):
+            top_articles_dfs[article] = pd.read_csv(complete_path)
 
-# adds talk pages
-#titles = add_talk_pages(titles)
+            top_articles_dfs[article]['pythontime'] = \
+                pd.to_datetime(top_articles_dfs[article]['timestamp'])
 
+            top_articles_dfs[article].sort_values(by='pythontime', inplace=True)
+        else:
+            print("Could not find this file: {0}".format(article))
 
-titles = add_revision_talk_pages(titles)
+    return top_articles_dfs
 
-# converts titles to filename format
-# titles = [format_file_names(title) for title in titles]
-# titleArray = []
-# for title in titles:
-#     titleArray.append("Data" + title)
-#     titleArray.append("Redirects" + title)
-#
-# # check if file exists, if not, remove from list of titles
-# for title in titles:
-#     if (not os.path.isfile(os.path.join(path, "Data" + title))):
-#         filename = "Data" + title
-#         titleArray.remove(filename)
-#
-#     if (not (os.path.isfile(os.path.join(path, "Redirects" + title)))):
-#         filename = "Redirects" + title
-#         titleArray.remove(filename)
+def main():
+    top_articles = [
+        "2019–20 Hong Kong protests",
+        "Hong Kong",
+        "Carrie Lam",
+        "2019 Hong Kong extradition bill",
+        "2019 Hong Kong local elections",
+        "Reactions to the 2019–20 Hong Kong protests",
+        "2019 Yuen Long attack",
+        "Tactics and methods surrounding the 2019–20 Hong Kong protests",
+        "One country, two systems",
+        "Umbrella Movement"
+    ]
 
-# To handle data format for '10 Year Revision Data'
-titles = [add_file_extension(title) for title in titles]
-titleArray = []
-for title in titles:
-    titleArray.append(title)
-##### TODO: merge files? -- Which ones? How?
-##### TODO: save merged files?
+    top_articles = [article + ".csv" for article in top_articles]
 
+    dfs = get_dfs(top_articles)
+    time_period = "1"
 
-dataDict = dict()
+    time_df = pd.DataFrame(columns=["NumRevisions", "Article"])
+    time_df["date"] = pd.date_range(start="2009-12-10", end="2019-12-10",
+        freq=time_period + "D", tz="UTC")
 
+    articles_dfs = pd.DataFrame(columns=["NumRevisions","Article","date"])
+    for article in top_articles:
+        for index, row in time_df.iterrows():
+            start = row["date"]
+            end = start + timedelta(days=int(time_period))
 
-for f in titleArray:
-    dataDict[f[:-4]] = pd.read_csv(os.path.join(path, f))
-#print(dataDict.keys())
+            mask = (dfs[article]["pythontime"] > start) \
+                & (dfs[article]["pythontime"] <= end)
 
-allData = []
-allRed = []
-for key in dataDict.keys():
-    if ("Data" in key):
-        allData.append(dataDict[key])
-    else:
-        allRed.append(dataDict[key])
+            time_df.loc[index, "NumRevisions"] = len(dfs[article].loc[mask].index)
+            time_df.loc[index, "Article"] = article[:-4]
+        articles_dfs = pd.concat([articles_dfs, time_df], ignore_index=True, sort=False)
 
-# revisionData = pd.concat(allData, ignore_index=True, sort=False)
-# revisionData['timestamp'] = pd.to_datetime(revisionData['timestamp'])
-# revisionData.sort_values(by='timestamp', inplace = True)
-# revisionData['timestamp'] = revisionData['timestamp'].astype(str)
-# revisionData['timestamp'] = revisionData['timestamp'].str.replace(" ", "T").str[:-6] + "Z"
-#print(revisionData.to_string())
-
-# Convert date to Unix Timestamp
-startDate = int(time.mktime(dt.strptime("2009-12-10", "%Y-%m-%d").timetuple()))
-endDate = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
-today = int(time.mktime(dt.today().timetuple()))
-# Assertions for proper date args
-assert(startDate <= endDate)
-assert(endDate <= today)
-
-# TODO: loop over timestamps and get count for each (day/week/month?)
-
-# test get next day epoch time
-
-
-def makeMultipleLineFigure(titleArray, titles):
-    for title in titleArray[:10]:
-        key = title[:-4]
-        if key[0:4]!="Talk":
-            article = dataDict[key]
-            sizeOfArticle = article.shape[0]
-            newDate = dt.fromtimestamp(startDate)
-            prevDate = newDate
-            days = []
-            counts = []
-            #counts the edits
-            dayCount = 0
-            edits = 0
-            for day in article['timestamp']:
-                editTime = dt.strptime(day, "%Y-%m-%dT%H:%M:%SZ")
-                if editTime >= dt.fromtimestamp(startDate):
-                    dayCount += 1
-                    while(editTime > newDate):
-                        counts.append(edits)
-                        # Changed to prevDate so that edits are paired with the
-                        # correct timedelta.
-                        epoch = int(prevDate.timestamp())
-                        days.append(dt.fromtimestamp(epoch))
-                        # newDate = newDate + timedelta(days=1)
-                        # newDate = newDate + timedelta(days=7)
-                        # prevDate keeps track of the date before newDate
-                        prevDate = newDate
-                        newDate = newDate + timedelta(days=7)
-                        edits = 0
-                    edits += 1
-                    # Edge case for last timedelta in articles
-                    if dayCount == sizeOfArticle:
-                        counts.append(edits)
-                        # Changed to prevDate so that edits are paired with the
-                        # correct timedelta.
-                        epoch = int(prevDate.timestamp())
-                        days.append(dt.fromtimestamp(epoch))
-
-            plt.plot(days, counts, label= title)
-            plt.gcf().set_size_inches(15,7)
-
-    plt.title(titles)
-    #plt.suptitle("10 year aggregate data. Shows number of edits per week in 6 month intervals.")
-    plt.xlabel("Time")
-    plt.ylabel("Number Edits")
-
+    articles_dfs = articles_dfs.pivot(index="date", columns="Article", values="NumRevisions")
+    articles_dfs.plot()
+    plt.xlabel("Years")
+    plt.ylabel("Revisions")
+    plt.gcf().set_size_inches(15,7)
     ax = plt.subplot(111)
     box = ax.get_position()
     ax.set_position([box.x0, box.y0, box.width * 0.5, box.height])
     plt.legend(bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0.)
-    # Need to add subpath so that its easier to change which directory being used
-    if (not os.path.isfile(os.path.join(plotPath, titles+".png"))):
-        plt.savefig(os.path.join(plotPath, titles+".png"), bbox_inches="tight")
-    plt.close()
+    plt.savefig("Multi-Line/10 Year Daily Edits")
 
-#separate out "DATA-" articles from "REVISION-", without the .csv
-dataTitleArray = []
-for title in titleArray:
-    if title[0:4] == "Data":
-        dataTitleArray.append(title[:-4])
+    return
 
-#makeMultipleLineFigure(titleArray, "Edits by Day of Top 10 Most Revised Articles")
-makeMultipleLineFigure(titleArray, "Edits by Week of Top 10 Most Revised Articles")
-
-
-end = time.time()
-print("Time Elapsed: " + str(end-start))
-
-sys.exit(0)
+if __name__ == '__main__':
+    main()
