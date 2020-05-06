@@ -250,7 +250,6 @@ end = "2019-12-10"
 startDate = dt.fromtimestamp(int(time.mktime(dt.strptime(start, "%Y-%m-%d").timetuple()))).date()
 endDate = dt.fromtimestamp(int(time.mktime(dt.strptime(end, "%Y-%m-%d").timetuple()))).date()
 numActiveArticleDict = dict()
-p = 0
 for title in dataTitleArray:
     article = dataDict[title]
     rowData = article.loc[0]
@@ -271,8 +270,11 @@ start = "2009-01-10"
 end = "2019-12-10"
 startDate = dt.fromtimestamp(int(time.mktime(dt.strptime(start, "%Y-%m-%d").timetuple()))).date()
 endDate = dt.fromtimestamp(int(time.mktime(dt.strptime(end, "%Y-%m-%d").timetuple()))).date()'''
+
 for i in range (0, 12):
     data = getPlotData()
+    print(data[0])
+    print(data[1])
     xAxis = normalize(data[0], endDate)
     yAxis = logTransform(data[1])
     plt.plot(xAxis, yAxis,graphColor[i],label= endDate)

@@ -89,11 +89,69 @@ for title in titleArray:
     if title[0:4] == "Data":
         dataTitleArray.append(title[:-4])
 
+def makeTop10Figures():
+    for i in range (0, 10): #top ten articles is first 10 in the list
+        title = dataTitleArray[i]
+        data = top10Helper(title)
+        plt.plot(data[0], data[1],label= title)
+        plt.gcf().set_size_inches(15,7)
+    plt.ylim([0, 5])
+
+    figureTitle = "Top 10 Jaccard Scores"
+    plt.title(figureTitle)
+    plt.xlabel("Days")
+    plt.ylabel("Jaccard Score (%)")
+
+    subpath = "Jaccard"
+    ax = plt.subplot(111)
+    box = ax.get_position()
+    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=1))
+    ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m-%d'))
+    #ax.xaxis.set_minor_locator(mdates.DayLocator())
+    ax.format_xdata = mdates.DateFormatter('%Y-%m')
+    '''
+    startNum = int(time.mktime(dt.strptime("2019-06-10", "%Y-%m-%d").timetuple()))
+    endNum = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
+    ax.set_xlim([startNum, endNum])
+    '''
+    ax.set_position([box.x0, box.y0, box.width * 0.5, box.height])
+    plt.legend(bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0.)
+    if (not os.path.isfile(os.path.join(plotPath, subpath, figureTitle + ".png"))):
+        plt.savefig(os.path.join(plotPath, subpath, figureTitle + ".png"), bbox_inches="tight")
+    plt.close()
+
+def top10Helper(title):
+    article = dataDict[title]
+    firstDay = dt.fromtimestamp(int(time.mktime(dt.strptime("2019-05-01", "%Y-%m-%d").timetuple()))).date()
+    lastDay = dt.fromtimestamp(endDate).date()
+    days = []
+    jaccard = [] #jaccard score of each day
+    edits = 0
+    articleIndex = 0
+    dailyEditorSet = set()
+    sizeOfArticle = article.shape[0]
+
+    #Setup
+    currDate = firstDay
+    while(currDate<=lastDay):
+        days.append(currDate)
+        currDate+=timedelta(days=1)
+    #Fills up targetDict
+    targetDict = returnTargetDict(article, firstDay, lastDay)
+
+    #Fills up allOtherDict
+    allOtherDict = returnAllOtherDict(title, firstDay, lastDay)
+    #Calculate Jaccard, but also
+    jaccard = calculateAndPrintJaccard(days, targetDict, allOtherDict, firstDay, lastDay)
+
+    answer = [days, jaccard]
+
+    return answer
 
 # test get next day epoch time
 def makeDayXJaccardFigure(title):
     article = dataDict[title]
-    firstDay = dt.fromtimestamp(int(time.mktime(dt.strptime("2019-06-01", "%Y-%m-%d").timetuple()))).date()
+    firstDay = dt.fromtimestamp(int(time.mktime(dt.strptime("2018-12-10", "%Y-%m-%d").timetuple()))).date()
     lastDay = dt.fromtimestamp(endDate).date()
     days = []
     jaccard = [] #jaccard score of each day
@@ -236,7 +294,7 @@ def calculateAndPrintJaccard(days, targetDict, allOtherDict, firstDay, lastDay):
         jaccardAndEditor.append(currItem)
         currItem = []
         setA = set()
-    printPeaks(jaccardAndEditor, 10) #Finds top 10 peaks
+    #printPeaks(jaccardAndEditor, 10) #Finds top 10 peaks
     return jaccard
 
 
@@ -251,9 +309,6 @@ def printPeaks(dataInput, num):
 
 
 '''Testing below'''
-for title in dataTitleArray:
-    makeDayXJaccardFigure(title)
-    print(title)
-
+makeTop10Figures()
 
 sys.exit(0)
