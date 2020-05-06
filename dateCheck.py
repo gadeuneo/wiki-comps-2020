@@ -95,6 +95,7 @@ def date_sanity_check(redirectDict,S, url, headers):
                 dates.append(d)
             except:
                 print("Page Creation Date not found for {0}".format(pageid))
+                print(prettyPrint(key))
                 print("")
                 continue
 
@@ -104,7 +105,7 @@ def date_sanity_check(redirectDict,S, url, headers):
             if not equal:
                 print("WARNING: DIFFERENT PAGE CREATION DATES!")
                 print("For this page: {0}".format(prettyPrint(key)))
-                print(dates)
+                print("Earliest page creation date is {0}".format(min(dates)))
                 print("")
             else:
                 print("This page's creation dates are good! {0}".format(prettyPrint(key)))
