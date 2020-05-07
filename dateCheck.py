@@ -14,13 +14,7 @@ import pandas as pd
 
 from static_helpers import *
 
-path = "10 Year Redirect Data"
 
-redirectFiles = os.listdir(path)
-
-redirectDict = dict()
-for f in redirectFiles:
-    redirectDict[f[:-4]] = pd.read_csv(os.path.join(path, f))
 
 start = time.time()
 
@@ -83,7 +77,13 @@ def get_creation_date(S, url, headers, pageid):
 
 
 
-def date_sanity_check(redirectDict,S, url, headers):
+def date_sanity_check(S, url, headers):
+    path = "10 Year Redirect Data"
+    redirectFiles = os.listdir(path)
+    redirectDict = dict()
+    for f in redirectFiles:
+        redirectDict[f[:-4]] = pd.read_csv(os.path.join(path, f))
+
     keys = list(redirectDict.keys())
     for key in keys:
         df = redirectDict[key]
@@ -135,7 +135,7 @@ login(S, url, headers)
 endLogin = time.time()
 print("Login took {0} seconds.".format(str(endLogin - start)))
 
-date_sanity_check(redirectDict, S, url, headers)
+date_sanity_check(S, url, headers)
 
 endCheck = time.time()
 print("Sanity check took {0} seconds.".format(str(endCheck - endLogin)))
