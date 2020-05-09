@@ -79,12 +79,17 @@ def get_creation_date(S, url, headers, pageid):
 
 def date_sanity_check(S, url, headers):
     path = "10 Year Redirect Data"
+    creation = "creation"
+    creation_file = "creation_dates.csv"
+    creationDf = pd.read_csv(os.path.join(creation, creation_file))
     redirectFiles = os.listdir(path)
     redirectDict = dict()
     for f in redirectFiles:
         redirectDict[f[:-4]] = pd.read_csv(os.path.join(path, f))
 
     keys = list(redirectDict.keys())
+    titleList = creationDf['Titles'].tolist()
+
     for key in keys:
         df = redirectDict[key]
         pageids = df['pageid']
@@ -94,6 +99,7 @@ def date_sanity_check(S, url, headers):
                 d = get_creation_date(S, url, headers, pageid)
                 dates.append(d)
             except:
+                # Note, this shouldn't happen unless page deleted?
                 print("Page Creation Date not found for {0}".format(pageid))
                 print(prettyPrint(key))
                 print("")
@@ -106,13 +112,21 @@ def date_sanity_check(S, url, headers):
                 print("WARNING: DIFFERENT PAGE CREATION DATES!")
                 print("For this page: {0}".format(prettyPrint(key)))
                 print("Earliest page creation date is {0}".format(min(dates)))
+                print("Changing 'creation_dates.csv' to match earliest date!")
                 print("")
+                if (prettyPrint(key) in titleList):
+                    # https://stackoverflow.com/questions/21800169/python-pandas-get-index-of-rows-which-column-matches-certain-value
+                    ix = creationDf.index[creationDf['Titles'] == prettyPrint(key)]
+                    # Solves https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+                    creationDf.loc[ix, 'Page Creation Date'] = min(dates)
+
             else:
                 print("This page's creation dates are good! {0}".format(prettyPrint(key)))
                 print("")
         else:
             print("ERROR! Could not find creation dates for this page! {0}".format(prettyPrint(key)))
             print("")
+    creationDf.to_csv(os.path.join(creation, creation_file), encoding="utf-8")
 
 
 
