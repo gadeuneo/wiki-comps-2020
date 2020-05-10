@@ -37,6 +37,22 @@ def create_df_dictionary(titles, directory):
 
     return df_dict
 
+def print_editor_details(comp_df):
+
+    comp_df = pd.read_csv("10 Year Updated.csv")
+
+    num_anon_edits = comp_df[comp_df["anon"] == True]["revid"].nunique()
+    num_reg_edits = comp_df[comp_df["anon"] != True]["revid"].nunique()
+    num_edits = comp_df['revid'].nunique()
+
+    assert(num_anon_edits + num_reg_edits == num_edits)
+
+    print("The number of registered edits is: {0}".format(num_reg_edits))
+    print("The number of anonymous edits is: {0}".format(num_anon_edits))
+    print("The number of edits is: {0}".format(num_edits))
+    print("Percentages reg/anon: {0}/{1}".format(num_reg_edits/num_edits, num_anon_edits/num_edits))
+
+    return
 
 def main():
 
@@ -62,6 +78,10 @@ def main():
 
     if not file_exists(comp_df_file_name):
         comp_df.to_csv(comp_df_file_name)
+
+    comp_df = pd.read_csv("10 Year Updated.csv")
+
+    print_editor_details(comp_df)
 
     return
 
