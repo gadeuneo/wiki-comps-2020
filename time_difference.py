@@ -11,6 +11,7 @@ import pandas as pd
 import os
 import sys
 import time
+import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
 import numpy as np
@@ -70,8 +71,6 @@ def main():
 
 
     dates_df = get_creation_dates(complete_path)
-    # dates_df["Time Difference"] = dt.timedelta(seconds=0)
-    # dates_df["Days Difference"] = dt.timedelta(seconds=0)
 
     format_date_columns(dates_df)
 
@@ -107,18 +106,19 @@ def main():
         'Civil Human Rights Front':'g'
     }
 
+    fig, ax = plt.subplots()
+
 
     for i, j in zip(x, y):
         
         # Toggle to remove articles above a certain threshold.
-        if (i > 250):
-            continue
+        # if (i > 250):
+        #     continue
         
         plt.scatter(i, j, c=colors[j])
 
     plt.xlabel("Time Difference (days)")
-    plt.ylabel("Article Titles")
-    # plt.title("Days Between Event Start Date and Page Creation Date")
+    # plt.ylabel("Article Titles")
 
     # Constructing legend.
     red_dot = mlines.Line2D([], [], color="r", marker="o", linestyle="None",
@@ -131,12 +131,15 @@ def main():
         markersize=5, label="Policies/Legislation")
     green_dot = mlines.Line2D([], [], color="g", marker="o", linestyle="None",
         markersize=5, label="Actors/Organizations")
-
-    # plt.legend(("Green"), ("Actors/Organizations"))
     plt.legend(handles=[red_dot, orange_dot, cyan_dot, magenta_dot, green_dot],
         loc="lower right")
 
-    fig = plt.gcf()
+    # https://stackoverflow.com/questions/14530113/set-ticks-with-logarithmic-scale
+    ax.set_xscale("log")
+    ax.set_xticks([1, 7, 30, 60, 100, 365, 1000])
+    ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
+
+    # fig = plt.gcf()
     fig.set_size_inches(10, 5, forward=True)
 
     plt.grid(True)
