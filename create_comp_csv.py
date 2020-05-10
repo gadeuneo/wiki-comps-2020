@@ -37,7 +37,7 @@ def create_df_dictionary(titles, directory):
 
     return df_dict
 
-def print_editor_details(comp_df):
+def print_edit_details(comp_df):
 
     comp_df = pd.read_csv("10 Year Updated.csv")
 
@@ -81,7 +81,7 @@ def main():
 
     comp_df = pd.read_csv("10 Year Updated.csv")
 
-    print_editor_details(comp_df)
+    print_edits_details(comp_df)
 
     return
 
