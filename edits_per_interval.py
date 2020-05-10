@@ -17,7 +17,7 @@ def main():
     comp_df = pd.read_csv("10 Year Updated.csv")
     comp_df["pythontime"] = pd.to_datetime(comp_df["pythontime"])
 
-    days = "1"
+    days = "7"
 
     time_df = pd.DataFrame(columns=["Revisions", "Editors", "Pages"])
     time_df["date"] = pd.date_range(start="2018-12-10", end="2019-12-10",
@@ -39,7 +39,7 @@ def main():
         # Counts anonymous users as individuals if they come from different 
         # IP addresses.
         time_df.loc[index, "Editors"] = \
-            comp_df.loc[mask]["user"].nunique()
+            comp_df.loc[mask]["userid"].nunique()
 
         time_df.loc[index, "Pages"] = \
             comp_df.loc[mask]["page_id"].nunique()
@@ -56,8 +56,6 @@ def main():
     plt.xlabel("Months")
     plt.ylabel("Revisions/Editors/Pages Edited Count")
     plt.yscale("log")
-    # plt.title("Number of Revisions per Week "
-    #     "of Analysis Period for Articles in Article Corpus")
 
     plt.tick_params(bottom=False)
     plt.legend(loc="upper left")
