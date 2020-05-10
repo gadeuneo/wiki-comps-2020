@@ -16,8 +16,6 @@ from static_helpers import *
 
 
 
-start = time.time()
-
 '''
     Begin Bot Login Code.
 '''
@@ -131,29 +129,34 @@ def date_sanity_check(S, url, headers):
 
 
 
+def main():
 
+    start = time.time()
 
-S = rq.Session()
+    S = rq.Session()
 
-url = "https://en.wikipedia.org/w/api.php?"
+    url = "https://en.wikipedia.org/w/api.php?"
 
-headers = {
-    "User-Agent": "BotCarletonComps2020/0.8 \
-        (http://www.cs.carleton.edu/cs_comps/1920/wikipedia/index.php) \
-        Python/3.6.9 Requests/2.18.14",
-    "connection": "keep-alive"
-    # "Connection": "close"
-}
+    headers = {
+        "User-Agent": "BotCarletonComps2020/0.8 \
+            (http://www.cs.carleton.edu/cs_comps/1920/wikipedia/index.php) \
+            Python/3.6.9 Requests/2.18.14",
+        "connection": "keep-alive"
+        # "Connection": "close"
+    }
 
-login(S, url, headers)
+    login(S, url, headers)
 
-endLogin = time.time()
-print("Login took {0} seconds.".format(str(endLogin - start)))
+    endLogin = time.time()
+    print("Login took {0} seconds.".format(str(endLogin - start)))
 
-date_sanity_check(S, url, headers)
+    date_sanity_check(S, url, headers)
 
-endCheck = time.time()
-print("Sanity check took {0} seconds.".format(str(endCheck - endLogin)))
+    endCheck = time.time()
+    print("Sanity check took {0} seconds.".format(str(endCheck - endLogin)))
 
-endTime = time.time()
-print("Total time elapsed: {0} seconds.".format(str(endTime - start)))
+    endTime = time.time()
+    print("Total time elapsed: {0} seconds.".format(str(endTime - start)))
+
+if __name__ == "__main__":
+    main()
