@@ -20,7 +20,7 @@ they can change.
 Hong Kong, List of {early 2019, July 2019, August 2019, September 2019,
 October 2019, November 2019, December 2019, January 2020} Hong Kong protests, Carrie Lam, Tactics and methods surrounding the 2019-20 Hong Kong protests, Causes of  the 2019-20 Hong Kong protests, Art of the 2019-20 Hong Kong protests, List of protests in Hong Kong, 2019 Hong Kong local elections, Hong Kong-Mainland China conflict, "One Country, two systems", Government of Hong Kong, Reactions to the 2019–20 Hong Kong protests, Police misconduct allegations during the 2019–20 Hong Kong protests
 
-# Start Date Citations (Contains 21 Pages)
+# Start Date Citations (Contains 20 Pages)
 ## __2019-20 Hong Kong protests: 2019-03-15__
 
 Based off of a sit in conducted by Demosistō on this date to bring attention to the Extradition Bill.
@@ -152,9 +152,3 @@ https://www.scmp.com/news/hong-kong/article/1618852/website-works-display-protes
 Based off of the article from *Reuters* below.
 
 https://www.reuters.com/article/us-hongkong-protests-apple/apple-pulls-police-tracking-app-used-in-hong-kong-protests-after-consulting-authorities-idUSKBN1WP09U?
-
-## __Killing of Luo Changqing: 2019-11-14__
-
-Based off of the article from the *South China Morning Post* below stating, "Government-contracted cleaner Luo Changqing died in hospital on November 14 after sustaining injuries during the clash in Sheung Shui the day before."
-
-https://www.scmp.com/news/hong-kong/politics/article/3038928/hong-kong-protests-call-peace-son-luo-changqing-killed
