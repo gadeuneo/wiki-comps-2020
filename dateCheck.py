@@ -81,7 +81,7 @@ def date_sanity_check(S, url, headers):
     path = "10 Year Redirect Data"
     creation = "creation"
     creation_file = "creation_dates.csv"
-    creationDf = pd.read_csv(os.path.join(creation, creation_file))
+    creationDf = pd.read_csv(os.path.join(creation, creation_file), index_col=0)
     redirectFiles = os.listdir(path)
     redirectDict = dict()
     for f in redirectFiles:
@@ -126,6 +126,7 @@ def date_sanity_check(S, url, headers):
         else:
             print("ERROR! Could not find creation dates for this page! {0}".format(prettyPrint(key)))
             print("")
+
     creationDf.to_csv(os.path.join(creation, creation_file), encoding="utf-8")
 
 
