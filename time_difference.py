@@ -47,7 +47,9 @@ def calculate_time_difference(dates_df):
 
         if (start_date < page_date):
             dates_df.at[i, "Time Difference"] = page_date - start_date
+
             dates_df.at[i, "Days Difference"] = dates_df.at[i, "Time Difference"].days
+
         else:
             print("ERROR: {0} created before start date.".format(row["Titles"]))
 
@@ -85,7 +87,6 @@ def main():
 
     colors = {
         'Siege of the Hong Kong Polytechnic University':'r',
-        'Death of Luo Changqing':'orange', 
         'Chinese University of Hong Kong conflict':'r', 
         'Death of Chow Tsz-lok':'orange', 
         'HKmap.live':'c', 
@@ -111,14 +112,13 @@ def main():
 
     for i, j in zip(x, y):
         
-        # Toggle to remove articles above a certain threshold.
-        # if (i > 250):
-        #     continue
-        
-        plt.scatter(i, j, c=colors[j])
+        # Fixes rounding issue with the days.
+        if (i >= 1.0):
+            plt.scatter(i, j, c=colors[j])
+        else:
+            plt.scatter(1.0, j, c=colors[j])
 
     plt.xlabel("Time Difference (days)")
-    # plt.ylabel("Article Titles")
 
     # Constructing legend.
     red_dot = mlines.Line2D([], [], color="r", marker="o", linestyle="None",
@@ -139,7 +139,6 @@ def main():
     ax.set_xticks([1, 7, 30, 60, 100, 365, 1000])
     ax.get_xaxis().set_major_formatter(matplotlib.ticker.ScalarFormatter())
 
-    # fig = plt.gcf()
     fig.set_size_inches(10, 5, forward=True)
 
     plt.grid(True)
