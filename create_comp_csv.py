@@ -37,28 +37,6 @@ def create_df_dictionary(titles, directory):
 
     return df_dict
 
-def print_editor_details(comp_df):
-
-    anon_df = comp_df[comp_df["anon"] == True]
-    reg_df = comp_df[comp_df["anon"] != True]
-
-    unique_anon_editors = anon_df["user"].nunique()
-    unique_reg_editors = reg_df["user"].nunique()
-
-    print("Registered Editors: {0}".format(unique_reg_editors))
-    print("Anon Editors: {0}".format(unique_anon_editors))
-
-    return
-
-def print_edit_size_details(comp_df):
-
-    mean_edit_size = comp_df["size"].mean()
-    median_edit_size = comp_df["size"].median()
-
-    print("Mean Edit Size: {0} bytes".format(mean_edit_size))
-    print("Median Edit Size: {0} bytes".format(median_edit_size))
-
-    return
 
 def main():
 
@@ -84,9 +62,6 @@ def main():
 
     if not file_exists(comp_df_file_name):
         comp_df.to_csv(comp_df_file_name)
-
-    print_editor_details(comp_df)
-    print_edit_size_details(comp_df)
 
     return
 
