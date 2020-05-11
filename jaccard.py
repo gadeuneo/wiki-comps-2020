@@ -95,7 +95,7 @@ def makeTop10Figures():
         data = top10Helper(title)
         plt.plot(data[0], data[1],label= title)
         plt.gcf().set_size_inches(15,7)
-    plt.ylim([0, 5])
+    plt.ylim([0, 3])
 
     figureTitle = "Top 10 Jaccard Scores"
     plt.title(figureTitle)
