@@ -1,7 +1,7 @@
 '''
     Creates pre-analysis table of data.
     Includes totals for the top 10 pages by revision count
-    (not including Talk pages).
+    (not including Talk pages; they are separate).
     Also has grand totals (including Talk pages).
 
     Written by James Gardner.
@@ -22,11 +22,6 @@ def prettyPrint(dictKey):
     newTitle = newTitle.replace("Data", "").replace("_", " ").replace("(dot)",".").replace("(colon)","-")
     return newTitle
 
-def formatTop(title):
-    new = str(title)
-    new = new.replace("Data", "")
-    return new
-
 def addUnderscore(key):
     s = str(key)
     s = s.replace(" ", "_")
@@ -37,28 +32,24 @@ def formatTalk(key):
     s = s.replace("Talk-", "Talk(colon)")
     return s
 
-
+# data folders
 path = "10 Year Revision Data"
 viewPath = "dailyPageviews"
-
+# list of files
 revisionFiles = os.listdir(path)
 viewFiles = os.listdir(viewPath)
-
+# Revision dictionary; key = filename, value = pandas DataFrame reading csv
 dataDict = dict()
 for f in revisionFiles:
     dataDict[f[:-4]] = pd.read_csv(os.path.join(path, f))
-
+# Pageview dictionary; key = filename, value = pandas DataFrame reading csv
 viewDict = dict()
 for f in viewFiles:
     viewDict[f[:-4]] = pd.read_csv(os.path.join(viewPath, f))
 
-# for f in viewFiles:
-#     print(prettyPrint(f))
-#     print(prettyPrint(f) in revisionFiles)
-
-
+# List template to convert to csv
 table = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews"]]
-
+# dictionary for unique editors in corpus; key = filename, value = set of userids
 edSets = dict()
 talkSets = dict()
 
