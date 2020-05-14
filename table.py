@@ -48,13 +48,11 @@ for f in viewFiles:
     viewDict[f[:-4]] = pd.read_csv(os.path.join(viewPath, f))
 
 # List template to convert to csv
-table = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews"]]
+table = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews", "Talk Pageviews"]]
 # dictionary for unique editors in corpus; key = filename, value = set of userids
 edSets = dict()
 talkSets = dict()
-
-talkPageviews = 0
-
+# date filter parameters
 startDate = dt.strptime("2009-12-10", "%Y-%m-%d")
 endDate = dt.strptime("2019-12-10", "%Y-%m-%d")
 
@@ -71,9 +69,6 @@ for key in dataDict.keys():
         edCount = int(revDict['userid'].nunique())
         edList = revDict['userid'].tolist()
 
-        # revCount = int(dataDict[key]['revid'].count())
-        # edCount = int(dataDict[key]['userid'].nunique())
-        # edList = dataDict[key]['userid'].tolist()
         edSets[key] = set(edList)
         talkRev = 0
         talkEd = 0
@@ -89,8 +84,8 @@ for key in dataDict.keys():
             df = temp.loc[mask]
             pageviews = df['Count'].sum()
             # pageviews = viewDict[viewFiles[viewIndex[0]][:-4]]['Count'].sum()
-        else:
-            print(key + " Pageview file not found")
+        # else:
+        #     print(key + " Pageview file not found")
         for talk in dataDict.keys():
             if ("Talk" in talk and key.replace("Data","") in talk):
                 revDict = dataDict[talk]
@@ -114,17 +109,18 @@ for key in dataDict.keys():
                     temp['Date'] = pd.to_datetime(temp['Date'])
                     mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
                     df = temp.loc[mask]
-                    talkPageviews += df['Count'].sum()
+                    talkPageviews = df['Count'].sum()
                     # talkPageviews += viewDict[viewFiles[viewIndex[0]][:-4]]['Count'].sum()
                 # else:
                 #     print(talk + " pageview file not found")
-        table.append([page, revCount, edCount, talkRev, talkEd, pageviews])
+        table.append([page, revCount, edCount, talkRev, talkEd, pageviews, talkPageviews])
 
 topEdSet = set()
 topTalkSet = set()
 
-total = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews"]]
-grandTotal = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews"]]
+total = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews", "Talk Pageviews"]]
+grandTotal = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews", "Talk Pageviews"]]
+lastTotals = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews", "Talk Pageviews"]]
 
 tableDf = pd.DataFrame(table[1:], columns=table[0])
 tableDf = tableDf.sort_values(by="Revisions", ascending=False)
@@ -137,6 +133,7 @@ topDf = tableDf.head(10)
 topRevSum = topDf['Revisions'].sum()
 topTalkRevSum = topDf['Talk Revisions'].sum()
 topPageSum = topDf['Pageviews'].sum()
+topTalkPageSum = topDf['Talk Pageviews'].sum()
 
 # sums for all pages, edit/talk
 for k in dataDict.keys():
@@ -153,6 +150,7 @@ topTalkSum = len(topTalkSet)
 totalRev = tableDf['Revisions'].sum()
 totalTalkRev = tableDf['Talk Revisions'].sum()
 totalPageviews = tableDf['Pageviews'].sum()
+totalTalkPageviews = tableDf['Talk Pageviews'].sum()
 
 totalEd = set()
 totalTalkEd = set()
@@ -172,16 +170,23 @@ totalUniqueEds.update(totalEd)
 totalUniqueEds.update(totalTalkEd)
 totalUniqueEdCount = len(totalUniqueEds)
 
-total.append(["Total of Top 10 pages by Revision Count", topRevSum, topEditorSum, topTalkRevSum, topTalkSum, topPageSum])
+# total pageviews
+allPageviews = totalPageviews + totalTalkPageviews
+
+lastTotals.append(["Total unique editor count", totalUniqueEdCount, "Total pageview count", allPageviews,"","",""])
+lastDf = pd.DataFrame(lastTotals[1:], columns=lastTotals[0])
+
+total.append(["Total of Top 10 pages by Revision Count", topRevSum, topEditorSum, topTalkRevSum, topTalkSum, topPageSum, topTalkPageSum])
 totalDf = pd.DataFrame(total[1:], columns=table[0])
 
-grandTotal.append(["Grand Totals for all pages", totalRev, totalEdCount, totalTalkRev, totalTalkEdCount, totalPageviews])
+grandTotal.append(["Grand Totals for all pages", totalRev, totalEdCount, totalTalkRev, totalTalkEdCount, totalPageviews, totalTalkPageviews])
 grandDf = pd.DataFrame(grandTotal[1:], columns=grandTotal[0])
 
 finalDf = topDf.append(totalDf)
 finalDf = finalDf.append(grandDf)
+finalDf = finalDf.append(lastDf)
 
 finalDf.to_csv("Table.csv", encoding="utf-8")
 
-print("The total number of unique editors is: {0}".format(totalUniqueEdCount))
+# print("The total number of unique editors is: {0}".format(totalUniqueEdCount))
 
