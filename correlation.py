@@ -46,9 +46,7 @@ class KeyDict(object):
 
 from static_helpers import *
 
-
-
-
+# file paths initiation
 revisionPath = "10 Year Revision Data"
 pageviewPath = "dailyPageviews"
 
@@ -68,6 +66,7 @@ if (not os.path.exists(viewRevSavePath)):
 viewFiles = os.listdir(pageviewPath)
 revisonFiles = os.listdir(revisionPath)
 
+# data loading init
 viewDict = dict()
 revisionDict = dict()
 
@@ -80,18 +79,21 @@ for r in revisonFiles:
 startDate = dt.strptime("2009-12-10", "%Y-%m-%d")
 endDate = dt.strptime("2019-12-10", "%Y-%m-%d")
 
+# Table init
 pageviewTable = [["Article 1", "Article 2", "Corr."]]
 revisionTable = [["Article 1", "Article 2", "Corr."]]
 PRTable = [["Pageview", "Revision", "Corr."]]
 
 start = time.time()
 
+# plots and save pageview correlations for all combination pairs
 def plotViewCorrelations(dct):
     keys = list(dct.keys())
     keys = [x for x in keys if "Talk" not in x]
     heap = []
     viewComb = list(combinations(keys, 2))
     for pair in viewComb:
+        # get all pageview data for page
         xKey = pair[0]
         xDct = dct[xKey]
         xDct['Date'] = pd.to_datetime(xDct['Date'])
@@ -152,12 +154,14 @@ def plotViewCorrelations(dct):
     pageDf = pageDf.sort_values(by="Corr.", ascending=False)
     pageDf.to_csv("allPageviewCorr.csv", encoding="utf-8")
 
+# plots and saves all revision correlation combination pairs
 def plotRevisonCorrelations(dct):
     keys = list(dct.keys())
     keys = [x for x in keys if "Talk" not in x]
     heap = []
     revComb = list(combinations(keys, 2))
     for pair in revComb:
+        # get all revision data for page
         xKey = pair[0]
         xDct = dct[xKey]
         xDct['timestamp'] = pd.to_datetime(xDct['timestamp'])
@@ -217,11 +221,6 @@ def plotRevisonCorrelations(dct):
         # https://stackoverflow.com/questions/31632637/label-axes-on-seaborn-barplot
         sns_plot.set(xlabel = keyx + " Revisons", ylabel=keyy + " Revisions")
         sns_plot.savefig(os.path.join(revisionSavePath, keyx+" " +keyy + ".png"))
-        # ax = df.plot(x='X', y='Y', kind='scatter')
-        # ax.set_xlabel(keyx + " Revisions")
-        # ax.set_ylabel(keyy + " Revisions")
-        # fig = ax.get_figure()
-        # fig.savefig(os.path.join(revisionSavePath, keyx+" " +keyy + ".png"), dpi=300)
         table.append([keyx, keyy, item.key])
 
     tableDf = pd.DataFrame(table[1:], columns=table[0])
@@ -232,7 +231,7 @@ def plotRevisonCorrelations(dct):
     revDf = revDf.sort_values(by="Corr.", ascending=False)
     revDf.to_csv("allRevisionCorr.csv", encoding="utf-8")
 
-
+# plots and saves all revision-pageview correleation combination pairs
 def plotRVCorrelations(viewDct, revDct):
     viewKeys = list(viewDct.keys())
     revKeys = list(revDct.keys())
@@ -266,6 +265,7 @@ def plotRVCorrelations(viewDct, revDct):
         # x2 is Pandas Series for revision counts
         x2 = xDf['Count']
 
+        # x is combined pageview and revision counts
         x = x1.append(x2, ignore_index=True)
 
         yKey = pair[1][0]
@@ -288,6 +288,7 @@ def plotRVCorrelations(viewDct, revDct):
         # y2 is Pandas Series for revision counts
         y2 = yDf['Count']
 
+        # y is combined pageview and revision counts
         y = y1.append(y2, ignore_index=True)
         
         # Pearson's correlation coefficient
@@ -322,11 +323,6 @@ def plotRVCorrelations(viewDct, revDct):
         # https://stackoverflow.com/questions/31632637/label-axes-on-seaborn-barplot
         sns_plot.set(xlabel = keyx + " Pageviews-Revisions", ylabel=keyy + " Pageviews-Revisions")
         sns_plot.savefig(os.path.join(viewRevSavePath, keyx+" " +keyy + ".png"))
-        # ax = df.plot(x='X', y='Y', kind='scatter')
-        # ax.set_xlabel(keyx + " Revisions")
-        # ax.set_ylabel(keyy + " Revisions")
-        # fig = ax.get_figure()
-        # fig.savefig(os.path.join(revisionSavePath, keyx+" " +keyy + ".png"), dpi=300)
         table.append([keyx, keyy, item.lst[4]])
 
     tableDf = pd.DataFrame(table[1:], columns=table[0])
