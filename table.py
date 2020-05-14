@@ -56,10 +56,13 @@ talkSets = dict()
 startDate = dt.strptime("2009-12-10", "%Y-%m-%d")
 endDate = dt.strptime("2019-12-10", "%Y-%m-%d")
 
+# loop through all files and collect totals
 for key in dataDict.keys():
+    # totals for non-Talk pages
     if ("Talk" not in key):
         page = prettyPrint(key)
         revDict = dataDict[key]
+        # convert to Datetime object for date filter/comparison
         revDict['timestamp'] = pd.to_datetime(revDict['timestamp'])
         revDict['timestamp'] = revDict['timestamp'].dt.tz_localize(None)
         mask = (revDict['timestamp'] >= startDate) & (revDict['timestamp'] <= endDate)
@@ -72,7 +75,7 @@ for key in dataDict.keys():
         edSets[key] = set(edList)
         talkRev = 0
         talkEd = 0
-        # Pageview totals
+        # Pageview totals; check where data file name matches pageview file name
         # https://stackoverflow.com/questions/10367020/compare-two-lists-in-python-and-return-indices-of-matched-values
         revIndex = [i for i, s in enumerate(revisionFiles) if key in s]
         viewIndex = [i for i, s in enumerate(viewFiles) if addUnderscore(key) in s]
@@ -83,12 +86,13 @@ for key in dataDict.keys():
             mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
             df = temp.loc[mask]
             pageviews = df['Count'].sum()
-            # pageviews = viewDict[viewFiles[viewIndex[0]][:-4]]['Count'].sum()
         # else:
         #     print(key + " Pageview file not found")
+        # Talk page totals
         for talk in dataDict.keys():
             if ("Talk" in talk and key.replace("Data","") in talk):
                 revDict = dataDict[talk]
+                # Datetime conversion
                 revDict['timestamp'] = pd.to_datetime(revDict['timestamp'])
                 revDict['timestamp'] = revDict['timestamp'].dt.tz_localize(None)
                 mask = (revDict['timestamp'] >= startDate) & (revDict['timestamp'] <= endDate)
@@ -99,9 +103,7 @@ for key in dataDict.keys():
                 talkList = revDict['userid'].tolist()
                 talkSets[talk] = set(talkList)
 
-                # talkRev = int(dataDict[talk]['revid'].count())
-                # talkEd = int(dataDict[talk]['userid'].nunique())
-                # talkList = dataDict[talk]['userid'].tolist()
+                # Pageview totals; check where data file name matches pageview file name
                 revIndex = [i for i, s in enumerate(revisionFiles) if talk in s]
                 viewIndex = [i for i, s in enumerate(viewFiles) if formatTalk(addUnderscore(talk)) in s]
                 if (len(viewIndex) != 0):
@@ -115,9 +117,11 @@ for key in dataDict.keys():
                 #     print(talk + " pageview file not found")
         table.append([page, revCount, edCount, talkRev, talkEd, pageviews, talkPageviews])
 
+# sets for editor totals for top 10 pages by revision count
 topEdSet = set()
 topTalkSet = set()
 
+# prep additional totals for table
 total = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews", "Talk Pageviews"]]
 grandTotal = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews", "Talk Pageviews"]]
 lastTotals = [["Article", "Revisions", "Editors (unique)", "Talk Revisions", "Talk Editors", "Pageviews", "Talk Pageviews"]]
@@ -142,7 +146,7 @@ for k in dataDict.keys():
         talkKey = "Talk-" + k
         topTalkSet.update(talkSets[talkKey])
 
-
+# top 10 editor totals
 topEditorSum = len(topEdSet)
 topTalkSum = len(topTalkSet)
 

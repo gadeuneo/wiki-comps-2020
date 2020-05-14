@@ -8,43 +8,33 @@
 import pandas as pd
 import os
 import sys
-import requests as rq
 from datetime import datetime as dt
-from datetime import timedelta
-from dateutil.relativedelta import relativedelta
 import time
-# functions that are frequently accessed by other files
-from static_helpers import *
+# allows Python webdriver functionality for automation
 from selenium import webdriver
 import shutil
+from static_helpers import *
 
-
+# file paths to save data
 path = "WikiData-pageviews"
 newpath = "dailyPageviews"
 
 if (not os.path.exists(newpath)):
     os.mkdir(newpath)
 
-# Convert date to Unix Timestamp
-startDate = dt.strptime("2009-12-10", "%Y-%m-%d")
-endDate = dt.strptime("2019-12-10", "%Y-%m-%d")
-today = dt.today()
-
-# Assertions for proper date args
-assert(startDate <= endDate)
-assert(endDate <= today)
-
+# pages to collect pageview data from
 titles = get_titles()
 titles = add_talk_pages(titles)
 
 '''
 Begin WFMLABS pageview collection
 '''
-
+# base url to collect pageview data
 url = '''https://tools.wmflabs.org/redirectviews/?project=en.wikipedia.org
         &platform=all-access&agent=user&range=all-time&sort=views
         &direction=1&view=list&page='''
 
+# https://stackoverflow.com/questions/38458811/control-firefox-download-prompt-using-selenium-and-python
 mime_types = [
     'text/plain', 
     'application/vnd.ms-excel', 
@@ -65,6 +55,8 @@ downloadPath = "/home/james/GitHub/wiki-comps-2020/WikiData-pageviews/"
     Auto download file from wmflabs.org tool for redirects pageviews
 '''
 def getFile(title):
+    # https://stackoverflow.com/questions/44175006/windows-popup-interaction-for-downloading-using-selenium-webdriver-in-python
+    # webdriver preferences for file saving - finicky, didn't work sometimes
     profile = webdriver.FirefoxProfile()
     profile.set_preference("browser.download.folderList", 2)
     profile.set_preference("browser.download.manager.showWhenStarting", False)
@@ -74,6 +66,7 @@ def getFile(title):
     profile.set_preference("browser.helperApps.neverAsk.saveToDisk", ",".join(mime_types))
     driver = webdriver.Firefox(firefox_profile=profile)
     driver.get(url + title)
+
     # hardcode wait for button element to appear
     # TODO: check if element exists instead?
     time.sleep(10)
@@ -100,10 +93,13 @@ def movePageviews():
     downloadPath = "/home/james/Downloads/"
     for i in range(len(titles)):
         getFile(titles[i])
+        # https://stackoverflow.com/questions/5899497/how-can-i-check-the-extension-of-a-file
         f = [x for x in os.listdir(downloadPath) if x.endswith('.csv')]
         # find the most recently modified csv file
+        # https://stackoverflow.com/questions/39327032/how-to-get-the-latest-file-in-a-folder-using-python
         paths = [os.path.join(downloadPath, name) for name in f]
         newest = max(paths, key=os.path.getctime)
+        # https://docs.python.org/3.8/library/shutil.html#shutil.move
         shutil.move(newest, os.path.join(newpath, files[i]))
 
 
@@ -116,21 +112,14 @@ if (len(os.listdir(path)) != len(titles)):
 def reformatFiles():
     for i in range(len(titles)):
         pageDf = pd.read_csv(os.path.join(path, files[i]))
-        # prints daily sums
-        # print(pageDf.sum(axis=0, skipna=True))
-        # prints page title sums
-        # print(pageDf.sum(axis=1, skipna=True))
         pageviews = [["Date", "Count"]]
 
         for col in pageDf.columns[1:]:
-            if (dt.strptime(col, "%Y-%m-%d") > endDate):
-                break
-            else:
-                pageviews.append([col, pageDf[col].sum()])
+            pageviews.append([col, pageDf[col].sum()])
 
         if (not (os.path.isfile(os.path.join(newpath, files[i])))):
-                        dfData = pd.DataFrame(pageviews[1:], columns=pageviews[0])
-                        dfData.to_csv(os.path.join(newpath, files[i]), encoding="utf-8")
+            dfData = pd.DataFrame(pageviews[1:], columns=pageviews[0])
+            dfData.to_csv(os.path.join(newpath, files[i]), encoding="utf-8")
 
 if (len(os.listdir(newpath)) != len(titles)):
     reformatFiles()
