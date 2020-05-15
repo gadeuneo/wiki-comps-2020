@@ -1,22 +1,27 @@
 '''
-    Creates Hierarchical Clustering graphs of article correlations. Or something?
+    Creates dendrograms of article correlations.
 
     Written by Jackie Chan and Kirby Mitchell.
 '''
-
 import pandas as pd
 import numpy as np
 from static_helpers import *
 import matplotlib.pyplot as plt
 import networkx as nx
+import scipy.spatial.distance as ssd
 from scipy.cluster import hierarchy
 
+# Function that duplicates the values from the passed in DataFrame, but switches
+# the associated values in the Article columns. Used in case the correlation
+# from Article A to Article B is in the DataFrame but not Article B to Article A
 def mirror_table(df):
     mirror_df = pd.DataFrame(columns = ['Article 1', 'Article 2', 'Corr.'])
     for index, row in df.iterrows():
         mirror_df = mirror_df.append(pd.DataFrame([[row["Article 2"], row["Article 1"], row["Corr."]]], columns=["Article 1", "Article 2", "Corr."]))
     return mirror_df
 
+# Function that creates an n x n matrix from the provided csv file that contains
+# article correlations. Returns the matrix.
 def make_table(file):
     table_df = pd.read_csv(file)
     mirror_df = mirror_table(table_df)
@@ -24,77 +29,33 @@ def make_table(file):
     # Convert dataframe to n x n table where articles are the rows/columns and
     # correlation values are values.
     # Source: https://stackoverflow.com/questions/47683642/how-to-create-a-square-dataframe-matrix-given-3-columns-python
-    # COMMENTED THIS LINE WHEN TESTING DENDROGRAM
     full_table_df = full_table_df.pivot(index= 'Article 1', columns= 'Article 2', values= 'Corr.')
     # Correlation between same article is NaN.
     return full_table_df
 
+# Main method that creates dendrograms for page view correlations and page
+# revision correlations.
 def main():
+    # Names of the files that contain the relevant correlation values.
     pageViewsCorrelations = "allRevisionCorr.csv"
     pageRevisionsCorrelations = "allPageViewCorr.csv"
-    df = make_table(pageViewsCorrelations)
-
-
-    # Creates a series that has the articles paired with their highest
-    # correlation values.
-    # count = 0
-    # while count != 33:
-    #     max_series = df.max()
-    #
-    #     # Finds the first article name that has the max correlation value out of
-    #     # the series of max correlation values.
-    #     first_max_article = max_series.idxmax()
-    #
-    #     # Gets the series associated with the label found earlier to find the article
-    #     # that makes the max correlation value.
-    #     article_series = df.loc[first_max_article]
-    #
-    #     # This is the second article that pairs with the one found earlier to make
-    #     # the max correlation value.
-    #     second_max_article = article_series.idxmax()
-    #
-    #     # Variable for holding the max correlation value out of the data frame.
-    #     max_correlation_value = df.loc[first_max_article, second_max_article]
-    #     # print("Highest Correlation: ", df.loc[first_max_article, second_max_article]
-    #     # , "\n Articles: ", first_max_article," ", second_max_article)
-    #     compress_df = pd.concat([df.loc[first_max_article], df.loc[second_max_article]], axis = 1)
-    #     #shrink_df = compress_df.max(axis=1)
-    #     shrink_df = compress_df.mean(axis=1)
-    #     df = df.replace(df.loc[first_max_article], shrink_df)
-    #     df = df.replace(max_correlation_value, np.NaN)
-    #     df = df.drop(columns=second_max_article)
-    #     df = df.drop(second_max_article)
-    #     df = df.rename(index={first_max_article : first_max_article + " " + second_max_article})
-    #     df = df.rename(columns={first_max_article : first_max_article + " " + second_max_article})
-    #     if not pd.isnull(df.loc[first_max_article + " " + second_max_article, first_max_article + " " + second_max_article]):
-    #         df = df.replace(df.loc[first_max_article + " " + second_max_article, first_max_article + " " + second_max_article], np.NaN)
-    #     count += 1
-    #     print(first_max_article, count, "\n")
-
-    # df.to_csv("output.csv")
+    # Creates n x n matrix of article correlation values.
+    df = make_table(pageRevisionsCorrelations)
+    # Negate the values in the correlation, then add 1 so that the highest
+    # correlation values will be considered the ones with minimum distance
+    # between them by the single-linkage algorithm.
+    df = df.mul(-1)
+    df = df.add(1)
     df = df.replace(np.NaN, 0)
-
-    Z = hierarchy.linkage(df, 'ward')
+    # Format n x n matrix into condensed distance matrix.
+    distArray = ssd.squareform(df)
+    # Create dendrogram using the single-linkage algorithm implemented by SciPy.
+    # Source for Dendrogram code: https://python-graph-gallery.com/401-customised-dendrogram/
+    Z = hierarchy.linkage(distArray, 'single')
     hierarchy.dendrogram(Z, leaf_rotation=90, leaf_font_size=8, labels=df.index)
     plt.gcf().subplots_adjust(bottom=0.65)
-    #plt.tight_layout()
-    plt.title("Page View Correlations")
-    #plt.savefig("figures/Page Revision Correlation Dendrogram using Ward")
+    plt.savefig("figures/Page Revision Correlation Dendrogram")
     plt.show()
-
-    #df = df.assign(first_max_article=shrink_df[])
-    #shrink_df = shrink_df.replace(max_correlation_value, np.NaN)
-
-    # graph = nx.from_pandas_adjacency(df)
-    # graph.name = "Whatever"
-    #
-    # print(nx.info(graph))
-    #
-    # print(type(graph))
-    #
-    # nx.draw(graph)
-    # plt.show()
-
     return
 
 if __name__ == "__main__":
