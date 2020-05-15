@@ -56,6 +56,8 @@ talkSets = dict()
 startDate = dt.strptime("2009-12-10", "%Y-%m-%d")
 endDate = dt.strptime("2019-12-10", "%Y-%m-%d")
 
+start = time.time()
+
 # loop through all files and collect totals
 for key in dataDict.keys():
     # totals for non-Talk pages
@@ -77,8 +79,8 @@ for key in dataDict.keys():
         talkEd = 0
         # Pageview totals; check where data file name matches pageview file name
         # https://stackoverflow.com/questions/10367020/compare-two-lists-in-python-and-return-indices-of-matched-values
-        revIndex = [i for i, s in enumerate(revisionFiles) if key in s]
-        viewIndex = [i for i, s in enumerate(viewFiles) if addUnderscore(key) in s]
+        revIndex = [i for i, s in enumerate(revisionFiles) if key == s[:-4]]
+        viewIndex = [i for i, s in enumerate(viewFiles) if addUnderscore(key) == s[:-4]]
         if (len(viewIndex) != 0):
             # https://stackoverflow.com/questions/29370057/select-dataframe-rows-between-two-dates
             temp = viewDict[viewFiles[viewIndex[0]][:-4]]
@@ -104,8 +106,8 @@ for key in dataDict.keys():
                 talkSets[talk] = set(talkList)
 
                 # Pageview totals; check where data file name matches pageview file name
-                revIndex = [i for i, s in enumerate(revisionFiles) if talk in s]
-                viewIndex = [i for i, s in enumerate(viewFiles) if formatTalk(addUnderscore(talk)) in s]
+                revIndex = [i for i, s in enumerate(revisionFiles) if talk == s[:-4]]
+                viewIndex = [i for i, s in enumerate(viewFiles) if formatTalk(addUnderscore(talk)) == s[:-4]]
                 if (len(viewIndex) != 0):
                     temp = viewDict[viewFiles[viewIndex[0]][:-4]]
                     temp['Date'] = pd.to_datetime(temp['Date'])
@@ -194,3 +196,6 @@ finalDf.to_csv("Table.csv", encoding="utf-8")
 
 # print("The total number of unique editors is: {0}".format(totalUniqueEdCount))
 
+end = time.time()
+
+print("Total time elapsed: {0} seconds".format(str(end - start)))
