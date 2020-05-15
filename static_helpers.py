@@ -126,7 +126,6 @@ def get_titles_and_talk_pages():
     Output: A copy of the list with the additional titles with "Talk-" appended
     to the front.
 '''
-
 def add_revision_talk_pages(titles):
 
     titles_copy = titles.copy()

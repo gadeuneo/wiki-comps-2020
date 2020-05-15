@@ -19,6 +19,14 @@ import datetime as dt
 
 from static_helpers import *
 
+'''
+    Function: get_creation_dates
+
+    Input: The path to the creation dates CSV file.
+
+    Output: Prints whether the file was successfully loaded and returns either
+    the dataframe containing the contains of the file or None.
+'''
 def get_creation_dates(path):
 
     if file_exists(path):
@@ -29,6 +37,15 @@ def get_creation_dates(path):
 
     return df
 
+'''
+    Function: format_date_columns
+
+    Input: Takes the dataframe containing the creation dates and formats the
+    dates/timestamps to a datatime object for later comparisons.
+
+    Output: The same dataframe but the strings containing date/timestamp data
+    is converted to datatime objects.
+'''
 def format_date_columns(dates_df):
 
     dates_df["Start Date"] = \
@@ -38,6 +55,17 @@ def format_date_columns(dates_df):
 
     return
 
+'''
+    Function: calculate_time_difference
+
+    Input: Takes the dataframe containing all the creation dates and event start
+    dates.
+
+    Output: Generates two columns called Time Difference and Days Difference
+    which are occupied by the time difference between creation dates and event
+    start date. If creation date is before the event start date, then an error
+    will print and the cell will remain as NaN for later removal.
+'''
 def calculate_time_difference(dates_df):
 
     for i, row in dates_df.iterrows():
@@ -57,10 +85,19 @@ def calculate_time_difference(dates_df):
 
     return
 
+'''
+    Function: remove_errors
+
+    Input: Takes the dataframe containing all the creation dates and event start
+    dates.
+
+    Output: Returns the same dataframe without the rows containing NaN because
+    they were not calculated properly. Look at calculate_time_difference for the
+    errors.
+'''
 def remove_errors(dates_df):
 
     dates_df = dates_df.dropna()
-
 
     return dates_df
 
@@ -72,6 +109,7 @@ def main():
     complete_path = os.path.join(directory, file_name)
 
 
+    # Generates the dataframe.
     dates_df = get_creation_dates(complete_path)
 
     format_date_columns(dates_df)
@@ -81,10 +119,12 @@ def main():
     dates_df = remove_errors(dates_df)
 
     dates_df = dates_df.sort_values(by=["Start Date"], ascending=False)
+    # Finishes generating the dataframe.
 
     x = dates_df["Days Difference"].tolist()
     y = dates_df["Titles"].tolist()
 
+    # Dictionary containing the color information for the diagram.
     colors = {
         'Siege of the Hong Kong Polytechnic University':'r',
         'Chinese University of Hong Kong conflict':'r', 
@@ -109,13 +149,14 @@ def main():
 
     fig, ax = plt.subplots()
 
-
+    # Plots the points individually.
     for i, j in zip(x, y):
         
         # Fixes rounding issue with the days.
         if (i >= 1.0):
             plt.scatter(i, j, c=colors[j])
         else:
+            # Rounds up the day if it is below twenty-four hours.
             plt.scatter(1.0, j, c=colors[j])
 
     plt.xlabel("Time Difference (days)")
@@ -150,7 +191,6 @@ def main():
     plt.show()
 
     return
-
 
 if __name__ == "__main__":
     main()

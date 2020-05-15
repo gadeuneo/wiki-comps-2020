@@ -1,5 +1,5 @@
 '''
-    Plots the number of edits per time interval.
+    Plots the number of edits, editors, and pages editted per time interval.
 
     Written by Jackie Chan and Kirby Mitchell.
 '''
@@ -17,13 +17,17 @@ def main():
     comp_df = pd.read_csv("10 Year Updated.csv")
     comp_df["pythontime"] = pd.to_datetime(comp_df["pythontime"])
 
+    # Denotes the number of days for the time interval.
     days = "7"
 
     time_df = pd.DataFrame(columns=["Revisions", "Editors", "Pages"])
+
+    # Specify the analysis period here for the diagram.
     time_df["date"] = pd.date_range(start="2018-12-10", end="2019-12-10",
         freq=days + "D", tz="UTC")
 
-    # Find the number of pages editted per time interval in days.
+    # Find the number of edits, editors, and pages editted per time interval in
+    # days.
     for index, row in time_df.iterrows():
 
         start_time = row["date"]
@@ -45,7 +49,6 @@ def main():
             comp_df.loc[mask]["page_id"].nunique()
 
 
-
     # Plot the editted pages.
 
     # https://stackoverflow.com/questions/52266076/plotting-using-pandas-and-datetime-format/52266133
@@ -60,6 +63,7 @@ def main():
     plt.tick_params(bottom=False)
     plt.legend(loc="upper left")
 
+    # Toggle to save figure.
     # plt.savefig("figures/Aggregated Edits Per Week")
 
     plt.show()

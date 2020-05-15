@@ -12,6 +12,14 @@ from dateutil.relativedelta import relativedelta
 import time
 import matplotlib.pyplot as plt
 
+'''
+    Function: get_top_ten_dfs
+
+    Input: List of titles for the top ten articles.
+
+    Output: A dictionary containng dataframes generated from the CSVs of the 
+    revision history. It is a helper function
+'''
 def get_top_ten_dfs(top_files):
 
     path = "10 Year Revision Data"
@@ -34,6 +42,15 @@ def get_top_ten_dfs(top_files):
 
     return top_article_dfs
 
+'''
+    Function: get_comp_top_ten_df
+
+    Input: List of titles for the top ten articles.
+
+    Output: A dataframe containing all the revision histories from the top ten
+    articles given. The function uses get_top_ten_dfs to produce this
+    comprehensive dataframe.
+'''
 def get_comp_top_ten_df(top_files):
 
     top_article_dfs = get_top_ten_dfs(top_files)

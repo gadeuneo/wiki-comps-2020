@@ -14,6 +14,15 @@ import numpy
 
 from static_helpers import *
 
+'''
+    Function: create_df_dictionary
+
+    Input: List of titles and the directory of all the CSV files containing the 
+    revision history of the titles.
+
+    Output: Returns a dictionary of all the CSV files in Pandas dataframes
+    where the title of the file is the key in the dictionary.
+'''
 def create_df_dictionary(titles, directory):
 
     df_dict = {}
@@ -37,6 +46,14 @@ def create_df_dictionary(titles, directory):
 
     return df_dict
 
+'''
+    Function: print_edit_details
+
+    Input: The dataframe that concatenates all the dataframes from the 
+    dictionary.
+
+    Output: Returns nothing, just prints attributes about the edits to terminal.
+'''
 def print_edit_details(comp_df):
 
     comp_df = pd.read_csv("10 Year Updated.csv")
@@ -73,7 +90,6 @@ def main():
 
     comp_df = pd.concat(df_list, ignore_index=True, sort=False)
     comp_df.sort_values(by="pythontime", inplace=True)
-
 
 
     if not file_exists(comp_df_file_name):
