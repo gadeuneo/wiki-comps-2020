@@ -14,9 +14,8 @@ import time
 import matplotlib.pyplot as plt
 # TODO: format x-axis date labels
 # https://matplotlib.org/3.1.1/gallery/text_labels_and_annotations/date.html
-# import matplotlib.dates as mdates
+import matplotlib.dates as mdates
 # import matplotlib.cbook as cbook
-# import matplotlib.ticker as ticker
 
 
 # functions that are frequently accessed by other files
@@ -113,9 +112,16 @@ def plotTopNPageviews(pageDict):
         plt.plot(allDays[i], allNumViews[i], label=keyNames[i])
     # plt.title("Top Four Articles by Correlation and Focus Article Daily Views")
     # plt.xlabel("Days")
+    months = mdates.MonthLocator()  # every month
+    fmt = mdates.DateFormatter('%B')
     plt.ylabel("Pageviews")
     plt.yscale("log")
+    plt.xlabel("2019")
     plt.legend()
+    # https://stackoverflow.com/questions/46555819/months-as-axis-ticks
+    X = plt.gca().xaxis
+    X.set_major_locator(months)
+    X.set_major_formatter(fmt)
     plt.savefig(os.path.join("figures","TopNPageviewCorrSince2019.png"), dpi=300)
     plt.close()
 
