@@ -16,8 +16,12 @@ import shutil
 from static_helpers import *
 
 # file paths to save data
-path = "WikiData-pageviews"
 newpath = "dailyPageviews"
+
+path = "WikiData-pageviews"
+
+if (not os.path.exists(path)):
+    os.mkdir(path)
 
 if (not os.path.exists(newpath)):
     os.mkdir(newpath)
