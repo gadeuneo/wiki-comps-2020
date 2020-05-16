@@ -61,6 +61,13 @@ def login(S, url, headers):
     Begin Data Collection Functions
 '''
 
+'''
+    Collects revision data from MediaWiki API
+    Inputs: Requests Session, url, headers, pageid, startDate, endDate
+    Outputs: list of lists of revision data: 
+        timestamp of data, username of editor, editor id, revision id,
+        and edit size
+'''
 def get_revisions(S, url, headers, pageid, start=None, end=None):
     if (start == None or end == None):
         print("ERROR, need start and end date!")
@@ -105,6 +112,12 @@ def get_revisions(S, url, headers, pageid, start=None, end=None):
 
         return allRevs
 
+'''
+    Collects all redirect page ids from past pages due to
+    page moves/redirects/renames.
+    Inputs: Requests Session, url, headers, pageid
+    Output: list of lists of page id, old page title
+'''
 def get_redirects(S, url, headers, pageid):
     redirects = {
         "action": "query",
@@ -133,6 +146,9 @@ def get_redirects(S, url, headers, pageid):
 
     return allReds
 
+'''
+    Get the creation date of a specified page from pageid input.
+'''
 def get_creation_date(S, url, headers, pageid):
     creation = {
         "action": "query",
@@ -153,6 +169,9 @@ def get_creation_date(S, url, headers, pageid):
     timestamp = create['query']['pages'][0]['revisions'][0]['timestamp']
     return timestamp
 
+'''
+    Initial collection of all creation dates from list of page titles.
+'''
 def create_creation_dates_data(session, url, headers, titles, debug_mode=False):
 
     start_time = time.time()
@@ -206,6 +225,11 @@ def create_creation_dates_data(session, url, headers, titles, debug_mode=False):
     
     return
 
+'''
+    Secondary function to correct page creation dates as redirected pages
+    do not properly store the original page creation date. Returns the oldest
+    page creation date found.
+'''
 def date_sanity_check(S, url, headers):
     path = "10 Year Redirect Data"
     creation = "creation"
@@ -257,6 +281,9 @@ def date_sanity_check(S, url, headers):
             print("")
     creationDf.to_csv(os.path.join(creation, creation_file), encoding="utf-8")
 
+'''
+    Collects revision data of list of titles.
+'''
 def create_revision_data(session, url, headers, titles, start_date, end_date,
     debug_mode=False):
 
@@ -299,6 +326,9 @@ def create_revision_data(session, url, headers, titles, start_date, end_date,
 
     return
 
+'''
+    Collects redirect data from list of titles.
+'''
 def create_redirect_data(session, url, headers, titles, start_date, end_date,
     debug_mode=False):
 
@@ -377,16 +407,9 @@ def main():
 
     # create_creation_dates_data(S, url, headers, titles, debug_mode=False)
 
-    '''
-        BUG: "Death/Killing of Luo Changqing" and its talk page were not found.
-    '''
     create_revision_data(S, url, headers, titles_plus_talk,
         start_date, end_date, debug_mode=False)
 
-    '''
-        BUG: Pages: "Civil Human Rights Front", "Hong Kong Way",  and "List of
-        December 2019 Hong Kong protests" were not found.
-    '''
     # create_redirect_data(S, url, headers, titles,
     #     start_date, end_date, debug_mode=False)
 
