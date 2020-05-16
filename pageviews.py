@@ -53,14 +53,20 @@ views = dict()
 for f in os.listdir(path):
     views[f[:-4]] = pd.read_csv(os.path.join(path, f))
 
+
 # datetime converter for a matplotlib plotting method
 register_matplotlib_converters()
 
 '''
-    Plots daily pageviews per page
+    Plots daily pageviews per page.
+    Also aggregate for all pages.
 '''
 
 def plotPageviews(pageDict):
+    allDays = []
+    allNumViews = []
+    keyNames = []
+    focal = []
     for key in pageDict.keys():
         days = []
         numViews = []
@@ -73,12 +79,60 @@ def plotPageviews(pageDict):
         days = df['Date'].tolist()
         numViews = df['Count'].tolist()
 
+        if (key == "2019–20_Hong_Kong_protests"):
+            focal = [prettyPrint(key), days, numViews]
+        elif ("Talk" not in key):
+            keyNames.append(prettyPrint(key))
+            allDays.append(days)
+            allNumViews.append(numViews)
+
         plt.plot(days, numViews)
         plt.title(prettyPrint(key))
         plt.xlabel("Days")
         plt.ylabel("Pageview Count")
         plt.savefig(os.path.join(savepath, key + ".png"), dpi=300)
         plt.close()
+        
+    # aggregate plots
+    section = 1
+    while (len(allDays) != 0):
+        even = False
+        for i in range(len(allDays)):
+            if (((i +1) % 5) != 0):
+                even = False
+                plt.plot(allDays.pop(), allNumViews.pop(), label=keyNames.pop())
+            else:
+                even = True
+                plt.plot(focal[1], focal[2], label=focal[0])
+                months = mdates.MonthLocator()  # every month
+                fmt = mdates.DateFormatter('%B')
+                plt.ylabel("Pageviews")
+                plt.yscale("log")
+                plt.xlabel("2019")
+                plt.legend()
+                # https://stackoverflow.com/questions/46555819/months-as-axis-ticks
+                X = plt.gca().xaxis
+                X.set_major_locator(months)
+                X.set_major_formatter(fmt)
+                plt.savefig(os.path.join("figures","Aggregate{0}Section2019.png".format(str(section))), dpi=300)
+                plt.close()
+                section += 1
+    if (not even):
+        plt.plot(focal[1], focal[2], label=focal[0])
+        months = mdates.MonthLocator()  # every month
+        fmt = mdates.DateFormatter('%B')
+        plt.ylabel("Pageviews")
+        plt.yscale("log")
+        plt.xlabel("2019")
+        plt.legend()
+        # https://stackoverflow.com/questions/46555819/months-as-axis-ticks
+        X = plt.gca().xaxis
+        X.set_major_locator(months)
+        X.set_major_formatter(fmt)
+        plt.savefig(os.path.join("figures","Aggregate{0}Section2019.png".format(str(section))), dpi=300)
+        plt.close()
+
+
 
 plotPageviews(views)
 
