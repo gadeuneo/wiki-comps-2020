@@ -7,7 +7,6 @@ import pandas as pd
 import numpy as np
 from static_helpers import *
 import matplotlib.pyplot as plt
-import networkx as nx
 import scipy.spatial.distance as ssd
 from scipy.cluster import hierarchy
 
