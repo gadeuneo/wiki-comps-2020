@@ -12,10 +12,9 @@ import requests as rq
 from datetime import datetime as dt
 import time
 import matplotlib.pyplot as plt
-# TODO: format x-axis date labels
+# format x-axis date labels
 # https://matplotlib.org/3.1.1/gallery/text_labels_and_annotations/date.html
 import matplotlib.dates as mdates
-# import matplotlib.cbook as cbook
 
 
 # functions that are frequently accessed by other files
