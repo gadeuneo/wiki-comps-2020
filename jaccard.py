@@ -27,7 +27,7 @@ register_matplotlib_converters()
 start = time.time()
 
 # folder of files
-path = "10years"
+path = "10_Year_Revision_Data"
 plotPath = "figures"
 directories = ["figures"]
 create_directories(directories)
@@ -93,11 +93,11 @@ def makeTop10Figures():
     for i in range (0, 10): #top ten articles is first 10 in the list
         title = dataTitleArray[i]
         data = top10Helper(title)
-        plt.plot(data[0], data[1],label= title)
+        plt.plot(data[0], data[1],label= prettyPrint(title))
         plt.gcf().set_size_inches(15,7)
     plt.ylim([0, 3])
 
-    figureTitle = "Top 10 Jaccard Scores"
+    figureTitle = "Top 10 Article's Jaccard Scores"
     plt.title(figureTitle)
     plt.xlabel("Days")
     plt.ylabel("Jaccard Score (%)")
