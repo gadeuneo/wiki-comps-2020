@@ -168,7 +168,7 @@ def plotRevisonCorrelations(dct):
         # https://stackoverflow.com/questions/48961892/python-pandas-group-by-day-and-count-for-each-day
         # https://stackoverflow.com/questions/56653774/how-do-i-fill-in-missing-dates-with-zeros-for-a-pandas-groupby-list
         xDct = xDct.set_index('timestamp').resample('D')['size'].count()
-        #     # https://stackoverflow.com/questions/26097916/convert-pandas-series-to-dataframe
+        # https://stackoverflow.com/questions/26097916/convert-pandas-series-to-dataframe
         xDct = xDct.to_frame().reset_index()
         xDct.columns = ['timestamp', 'Count']
         # https://stackoverflow.com/questions/46295355/pandas-cant-compare-offset-naive-and-offset-aware-datetimes
