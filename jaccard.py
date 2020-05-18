@@ -2,7 +2,7 @@
 '''
     Plots Jaccard similarity multiline graph for Top 10 Articles.
     Plots Jaccard similarity graph for a target article
-    Written by Junyi Min. Updated by James Gardner.
+    Written by Junyi Min.  Updated by James Gardner to work with new data folders.
 '''
 
 import pandas as pd

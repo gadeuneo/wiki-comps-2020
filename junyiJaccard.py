@@ -34,57 +34,6 @@ revisionDict = dict()
 for r in revisonFiles:
     revisionDict[r[:-4]] = pd.read_csv(os.path.join(path, r))
 
-'''
-# folder of files
-path = "10years"
-plotPath = "figures"
-directories = ["figures"]
-create_directories(directories)
-
-# working list of Wiki pages
-titles = get_titles()
-
-# adds talk pages
-titles = add_talk_pages(titles)
-
-# converts titles to filename format
-titles = [format_file_names(title) for title in titles]
-titleArray = []
-for title in titles:
-    titleArray.append("Data" + title)
-    titleArray.append("Redirects" + title)
-
-# check if file exists, if not, remove from list of titles
-for title in titles:
-    if (not os.path.isfile(os.path.join(path, "Data" + title))):
-        filename = "Data" + title
-        titleArray.remove(filename)
-
-    if (not (os.path.isfile(os.path.join(path, "Redirects" + title)))):
-        filename = "Redirects" + title
-        titleArray.remove(filename)
-
-dataDict = dict()
-
-for f in titleArray:
-    dataDict[f[:-4]] = pd.read_csv(os.path.join(path, f))
-allData = []
-allRed = []
-for key in dataDict.keys():
-    if ("Data" in key):
-        allData.append(dataDict[key])
-    else:
-        allRed.append(dataDict[key])
-
-revisionData = pd.concat(allData, ignore_index=True, sort=False)
-revisionData['timestamp'] = pd.to_datetime(revisionData['timestamp'])
-# TODO: double check inplace param
-revisionData.sort_values(by='timestamp', inplace = True)
-revisionData['timestamp'] = revisionData['timestamp'].astype(str)
-revisionData['timestamp'] = revisionData['timestamp'].str.replace(" ", "T").str[:-6] + "Z"
-#print(revisionData.to_string())
-'''
-
 # Convert date to Unix Timestamp
 startDate = int(time.mktime(dt.strptime("2009-12-10", "%Y-%m-%d").timetuple()))
 endDate = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
@@ -92,14 +41,6 @@ today = int(time.mktime(dt.today().timetuple()))
 # Assertions for proper date args
 assert(startDate <= endDate)
 assert(endDate <= today)
-
-'''
-#separate out "DATA-" articles from "REVISION-", without the .csv
-dataTitleArray = []
-for title in titleArray:
-    if title[0:4] == "Data":
-        dataTitleArray.append(title[:-4])
-'''
 
 #Returns two items: a dictionary with Editor Names as keys and a Set of Pages they edit in as values.
 # and a set of all unique editors
