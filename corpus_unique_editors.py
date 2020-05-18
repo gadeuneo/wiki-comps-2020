@@ -12,16 +12,9 @@ import os
 import sys
 from datetime import datetime as dt
 from datetime import timedelta
-from dateutil.relativedelta import relativedelta
 import time
 import matplotlib.pyplot as plt
-import numpy as np
-#uhuh
 import matplotlib.dates as mdates
-import matplotlib.cbook as cbook
-import matplotlib.ticker as ticker
-#uhuh
-import copy
 from static_helpers import *
 
 register_matplotlib_converters()
