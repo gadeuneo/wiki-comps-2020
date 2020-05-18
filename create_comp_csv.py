@@ -8,10 +8,6 @@
 import pandas as pd
 import os
 import sys
-import time
-import matplotlib.pyplot as pyplot
-import numpy
-
 from static_helpers import *
 
 '''

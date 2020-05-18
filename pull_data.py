@@ -12,7 +12,6 @@ import sys
 from datetime import datetime as dt
 import time
 import pandas as pd
-
 from static_helpers import *
 
 start = time.time()

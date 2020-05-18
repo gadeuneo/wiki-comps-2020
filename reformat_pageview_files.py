@@ -7,7 +7,6 @@
 import pandas as pd
 import os
 import sys
-import requests as rq
 from datetime import datetime as dt
 import time
 from static_helpers import *

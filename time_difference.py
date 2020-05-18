@@ -10,11 +10,9 @@
 import pandas as pd
 import os
 import sys
-import time
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.lines as mlines
-import numpy as np
 import datetime as dt
 
 from static_helpers import *

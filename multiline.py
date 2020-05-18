@@ -7,9 +7,7 @@
 import pandas as pd
 from datetime import datetime as dt
 from datetime import timedelta
-from dateutil.relativedelta import relativedelta
 import matplotlib.pyplot as plt
-import numpy as np
 from static_helpers import *
 
 # Function that creates the DataFrames from the csv files for the ten most
