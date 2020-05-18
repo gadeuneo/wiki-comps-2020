@@ -44,6 +44,15 @@ topNCorr = [
     # "Reactions_to_the_2019–20_Hong_Kong_protests"
 ]
 
+# taken from aggregate plots
+agg = [
+    "2019–20_Hong_Kong_protests",
+    "Umbrella_Movement",
+    "One_country,_two_systems",
+    "Hong_Kong",
+    "Causes_of_the_2019–20_Hong_Kong_protests",
+    "Reactions_to_the_2019–20_Hong_Kong_protests"
+]
 
 startDate = dt.strptime("2019-6-10", "%Y-%m-%d")
 endDate = dt.strptime("2019-12-10", "%Y-%m-%d")
@@ -181,3 +190,47 @@ def plotTopNPageviews(pageDict):
 plotTopNPageviews(views)
 endTop = time.time()
 print("Plotting top pageviews took {0} seconds".format(str(endTop - endPage)))
+
+'''
+    Plots focus article and related pages with similar pageview trends.
+'''
+def plotAggregate(pageDict):
+    allDays = []
+    allNumViews = []
+    keyNames = []
+    for key in pageDict.keys():
+        if (key in agg):
+            days = []
+            numViews = []
+            temp = pageDict[key]
+            temp['Date'] = pd.to_datetime(temp['Date'])
+            mask = (temp['Date'] >= startDate) & (temp['Date'] <= endDate)
+            df = temp.loc[mask]
+            days = df['Date'].tolist()
+            numViews = df['Count'].tolist()
+            keyNames.append(prettyPrint(key))
+
+            allDays.append(days)
+            allNumViews.append(numViews)
+    # multi-line plot per page
+    for i in range(len(allDays)):
+        plt.plot(allDays[i], allNumViews[i], label=keyNames[i])
+    # plt.title("Top Four Articles by Correlation and Focus Article Daily Views")
+    # plt.xlabel("Days")
+    months = mdates.MonthLocator()  # every month
+    fmt = mdates.DateFormatter('%B')
+    plt.ylabel("Pageviews")
+    plt.yscale("log")
+    plt.xlabel("2019")
+    # https://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.legend
+    plt.legend(loc=3,prop={'size': 6})
+    # https://stackoverflow.com/questions/46555819/months-as-axis-ticks
+    X = plt.gca().xaxis
+    X.set_major_locator(months)
+    X.set_major_formatter(fmt)
+    plt.savefig(os.path.join("figures","AggregatePageviews.png"), dpi=300)
+    plt.close()
+
+plotAggregate(views)
+endAgg = time.time()
+print("Plotting top pageviews took {0} seconds".format(str(endAgg - endTop)))
