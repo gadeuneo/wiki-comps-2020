@@ -223,7 +223,7 @@ def plotAggregate(pageDict):
     plt.yscale("log")
     plt.xlabel("2019")
     # https://matplotlib.org/api/pyplot_api.html#matplotlib.pyplot.legend
-    plt.legend(loc=3,prop={'size': 6})
+    plt.legend(loc=3,prop={'size': 8})
     # https://stackoverflow.com/questions/46555819/months-as-axis-ticks
     X = plt.gca().xaxis
     X.set_major_locator(months)
