@@ -2,7 +2,7 @@
 '''
     Plots Jaccard similarity multiline graph for Top 10 Articles.
     Plots Jaccard similarity graph for a target article
-    Written by Junyi Min.
+    Written by Junyi Min. Updated by James Gardner.
 '''
 
 import pandas as pd
@@ -11,69 +11,42 @@ import os
 import sys
 from datetime import datetime as dt
 from datetime import timedelta
-from dateutil.relativedelta import relativedelta
 import time
 import matplotlib.pyplot as plt
-import numpy as np
-#uhuh
 import matplotlib.dates as mdates
-import matplotlib.cbook as cbook
-import matplotlib.ticker as ticker
-#uhuh
-import copy
 from static_helpers import *
 
 register_matplotlib_converters()
 start = time.time()
 
 # folder of files
-path = "10_Year_Revision_Data"
+path = "10 Year Revision Data"
 plotPath = "figures"
 directories = ["figures"]
 create_directories(directories)
 
-# working list of Wiki pages
-titles = get_titles()
+revisonFiles = os.listdir(path)
+revisionDict = dict()
+for r in revisonFiles:
+    revisionDict[r[:-4]] = pd.read_csv(os.path.join(path, r))
 
-# adds talk pages
-titles = add_talk_pages(titles)
+# taken from table.csv
+top = [
+    "2019–20 Hong Kong protests",
+    "Hong Kong",
+    "Carrie Lam",
+    "2019 Hong Kong extradition bill",
+    "2019 Hong Kong local elections",
+    "Reactions to the 2019–20 Hong Kong protests",
+    "2019 Yuen Long attack",
+    "Tactics and methods surrounding the 2019–20 Hong Kong protests",
+    "One country, two systems",
+    "Umbrella Movement"
+]
+topData = dict()
+for f in top:
+    topData[f] = pd.read_csv(os.path.join(path, f+".csv"))
 
-# converts titles to filename format
-titles = [format_file_names(title) for title in titles]
-titleArray = []
-for title in titles:
-    titleArray.append("Data" + title)
-    titleArray.append("Redirects" + title)
-
-# check if file exists, if not, remove from list of titles
-for title in titles:
-    if (not os.path.isfile(os.path.join(path, "Data" + title))):
-        filename = "Data" + title
-        titleArray.remove(filename)
-
-    if (not (os.path.isfile(os.path.join(path, "Redirects" + title)))):
-        filename = "Redirects" + title
-        titleArray.remove(filename)
-
-dataDict = dict()
-
-for f in titleArray:
-    dataDict[f[:-4]] = pd.read_csv(os.path.join(path, f))
-allData = []
-allRed = []
-for key in dataDict.keys():
-    if ("Data" in key):
-        allData.append(dataDict[key])
-    else:
-        allRed.append(dataDict[key])
-
-revisionData = pd.concat(allData, ignore_index=True, sort=False)
-revisionData['timestamp'] = pd.to_datetime(revisionData['timestamp'])
-# TODO: double check inplace param
-revisionData.sort_values(by='timestamp', inplace = True)
-revisionData['timestamp'] = revisionData['timestamp'].astype(str)
-revisionData['timestamp'] = revisionData['timestamp'].str.replace(" ", "T").str[:-6] + "Z"
-#print(revisionData.to_string())
 
 # Convert date to Unix Timestamp
 startDate = int(time.mktime(dt.strptime("2009-12-10", "%Y-%m-%d").timetuple()))
@@ -83,16 +56,11 @@ today = int(time.mktime(dt.today().timetuple()))
 assert(startDate <= endDate)
 assert(endDate <= today)
 
-#separate out "DATA-" articles from "REVISION-", without the .csv
-dataTitleArray = []
-for title in titleArray:
-    if title[0:4] == "Data":
-        dataTitleArray.append(title[:-4])
 
 #Makes multiline plot for jaccard similarity for Top 10 Articles
 def makeTop10Figures():
     for i in range (0, 10): #top ten articles is first 10 in the list
-        title = dataTitleArray[i]
+        title = list(topData.keys())[i]
         data = top10Helper(title)
         plt.plot(data[0], data[1],label= prettyPrint(title))
         plt.gcf().set_size_inches(15,7)
@@ -123,7 +91,7 @@ def makeTop10Figures():
 
 #Takes in an article title and returns a list of dates and its corresponding Jaccard score for the specific article
 def top10Helper(title):
-    article = dataDict[title]
+    article = topData[title]
     firstDay = dt.fromtimestamp(int(time.mktime(dt.strptime("2019-05-01", "%Y-%m-%d").timetuple()))).date()
     lastDay = dt.fromtimestamp(endDate).date()
     days = []
@@ -152,7 +120,7 @@ def top10Helper(title):
 
 # Makes jaccard score for a target article
 def makeDayXJaccardFigure(title):
-    article = dataDict[title]
+    article = revisionDict[title]
     firstDay = dt.fromtimestamp(int(time.mktime(dt.strptime("2018-12-10", "%Y-%m-%d").timetuple()))).date()
     lastDay = dt.fromtimestamp(endDate).date()
     days = []
@@ -212,10 +180,10 @@ def returnAllOtherDict(targetTitle, firstDay, lastDay):
         currDate+=timedelta(days=1)
     currDate = firstDay
 
-    for otherTitle in dataTitleArray:
+    for otherTitle in revisionDict:
         dailyEditorSet = set()
         currDate = firstDay
-        article = dataDict[otherTitle]
+        article = revisionDict[otherTitle]
         sizeOfArticle = article.shape[0]
         for index, rowData in article.iterrows():
             editDay = dt.strptime(rowData['timestamp'], "%Y-%m-%dT%H:%M:%SZ").date()
