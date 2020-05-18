@@ -1,7 +1,7 @@
 
 '''
-    Plots Jaccard similarity of editors.
-
+    Plots Jaccard similarity multiline graph for Top 10 Articles.
+    Plots Jaccard similarity graph for a target article
     Written by Junyi Min.
 '''
 
@@ -89,6 +89,7 @@ for title in titleArray:
     if title[0:4] == "Data":
         dataTitleArray.append(title[:-4])
 
+#Makes multiline plot for jaccard similarity for Top 10 Articles
 def makeTop10Figures():
     for i in range (0, 10): #top ten articles is first 10 in the list
         title = dataTitleArray[i]
@@ -120,6 +121,7 @@ def makeTop10Figures():
         plt.savefig(os.path.join(plotPath, subpath, figureTitle + ".png"), bbox_inches="tight")
     plt.close()
 
+#Takes in an article title and returns a list of dates and its corresponding Jaccard score for the specific article
 def top10Helper(title):
     article = dataDict[title]
     firstDay = dt.fromtimestamp(int(time.mktime(dt.strptime("2019-05-01", "%Y-%m-%d").timetuple()))).date()
@@ -148,7 +150,7 @@ def top10Helper(title):
 
     return answer
 
-# test get next day epoch time
+# Makes jaccard score for a target article
 def makeDayXJaccardFigure(title):
     article = dataDict[title]
     firstDay = dt.fromtimestamp(int(time.mktime(dt.strptime("2018-12-10", "%Y-%m-%d").timetuple()))).date()
@@ -197,6 +199,10 @@ def makeDayXJaccardFigure(title):
         plt.savefig(os.path.join(plotPath, subpath, title + ".png"), bbox_inches="tight")
     plt.close()
 
+#Receives targetTitle, the target article's title, and returns a dictionary
+#Where the key is a date, and the value is the set of editors that edits in all
+#non-target articles on that date
+#Firstday and lastday represents the start and end of analysis for sanity check
 def returnAllOtherDict(targetTitle, firstDay, lastDay):
     allOtherDict = dict()
     #Setup
@@ -238,6 +244,11 @@ def returnAllOtherDict(targetTitle, firstDay, lastDay):
                     dailyEditorSet = set()
     return allOtherDict
 
+
+#Receives targetTitle, the target article's title, and returns a dictionary
+#Where the key is a date, and the value is the set of editors that edits in
+#the target article on that date.
+#Firstday and lastday represents the start and end of analysis for sanity check
 def returnTargetDict(article, firstDay, lastDay):
     dailyEditorSet = set()
     sizeOfArticle = article.shape[0]
@@ -274,6 +285,9 @@ def returnTargetDict(article, firstDay, lastDay):
             dailyEditorSet = set()
     return targetDict
 
+#Using the parameters, calculates the Jaccard score for the target articles
+#And returns a list of Jaccard score corresponding to the order of the dates in
+#input "days"
 def calculateAndPrintJaccard(days, targetDict, allOtherDict, firstDay, lastDay):
     jaccard = []
     jaccardAndEditor = [] #compiles a list of [date/jaccardScore/NumUniqueEditorsOfTargetArticle/NumUniqueEditorsOfOtherArticles] items
@@ -294,19 +308,7 @@ def calculateAndPrintJaccard(days, targetDict, allOtherDict, firstDay, lastDay):
         jaccardAndEditor.append(currItem)
         currItem = []
         setA = set()
-    #printPeaks(jaccardAndEditor, 10) #Finds top 10 peaks
     return jaccard
-
-
-def printPeaks(dataInput, num):
-    length = len(dataInput)
-    for i in range (length):
-        for j in range (0, length-i-1):
-            if dataInput[j][1]<dataInput[j+1][1]:
-                dataInput[j], dataInput[j+1] = dataInput[j+1], dataInput[j]
-    for i in range (0, 10):
-        print(dataInput[i])
-
 
 '''Testing below'''
 makeTop10Figures()

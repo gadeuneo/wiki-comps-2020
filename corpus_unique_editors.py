@@ -1,9 +1,9 @@
 '''
-    Plots unique editors aggregated across corpus???
-    (What is the diff b/t this and all_unique_editors.py?)
+    Plots unique editors aggregated across corpus
+    Plots monthly unique editors across corpus
 
 
-    Written by ???
+    Written by Junyi
 '''
 
 import pandas as pd
@@ -101,6 +101,7 @@ for title in titleArray:
     if title[0:4] == "Data":
         dataTitleArray.append(title[:-4])
 
+#Plots monthly unique editors over time
 def plotMonthly():
     data = returnData()
     monthlyDict = dict()
@@ -143,10 +144,7 @@ def plotMonthly():
         plt.savefig(os.path.join(plotPath, subpath, figureTitle + ".png"), bbox_inches="tight")
     plt.close()
 
-
-
-
-
+#Plots unique editors over time
 def plotAbsoluteOverTimeGraph():
     data = returnData()
     xAxisElements = []
@@ -220,9 +218,6 @@ startDate = dt.fromtimestamp(int(time.mktime(dt.strptime(start, "%Y-%m-%d").time
 endDate = dt.fromtimestamp(int(time.mktime(dt.strptime(end, "%Y-%m-%d").timetuple()))).date()
 
 plotMonthly()
-'''testing/making statistics below'''
-'''for title in dataTitleArray:
-    makeTimeXNumEditorsFigure(title)'''
 
 
 sys.exit(0)

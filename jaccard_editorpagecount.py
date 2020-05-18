@@ -1,6 +1,7 @@
 
 '''
-    Plots Jaccard editor similarity normalized for pages.
+    Plots Pagecount vs Number of Editors graph, with pagecount normalized (pagecount/active pages)
+    And Number of Editors log-transformed
 
     Written by Junyi Min.
 '''
@@ -133,21 +134,7 @@ def getEditorPagecount():
         item[1] = len(item[1])
     return resultList
 
-def printAveragePages():
-    sum = 0
-    resultList = getEditorPagecount()
-    size = len(resultList)
-    for item in resultList:
-        sum += item[1]
-    print(sum/size)
-
-def printMedianPages():
-    resultList = getEditorPagecount()
-    size = len(resultList)
-    size = int(size/2)
-    print(resultList[size])
-
-
+#Bubble sorts a list of dictionary pairs
 def bubbleSortList(dataInput):
     length = len(dataInput)
     for i in range (length):
@@ -156,6 +143,7 @@ def bubbleSortList(dataInput):
                 dataInput[j], dataInput[j+1] = dataInput[j+1], dataInput[j]
     return dataInput
 
+#Makes a multiline pagecount vs editors over time graph that is logtransformed
 def makeMultiLineGraph():
     data = getPlotData()
     print(data)
@@ -177,6 +165,9 @@ def makeMultiLineGraph():
         plt.savefig(os.path.join(plotPath, subpath, figureTitle + ".png"), bbox_inches="tight")
     plt.close()
 
+#Gets the data to plot in Editor/Pagecount graph
+#Returns xAxisElements: a list of pagecounts
+#And also yAxisElements: a list of number of editors that edit with that specific pagecount
 def getPlotData():
     list = getEditorPagecount()
     myDict = dict()
@@ -194,6 +185,7 @@ def getPlotData():
     returnVal = [xAxisElements, yAxisElements]
     return returnVal
 
+#Plots the number of editors that edit a certain amount of pages
 def makePagecountVSNumOfEditors():
     list = getEditorPagecount()
     myDict = dict()
@@ -231,12 +223,15 @@ def makePagecountVSNumOfEditors():
     if (not os.path.isfile(os.path.join(plotPath, subpath, figureTitle + ".png"))):
         plt.savefig(os.path.join(plotPath, subpath, figureTitle + ".png"), bbox_inches="tight")
     plt.close()
+
+#Log transforms a set of data
 def logTransform(data):
     returnData = []
     for item in data:
         returnData.append(math.log(item, 10))
     return returnData
 
+#Normalizes pagecount data by returning a list of data with pagecount divided by number of active articles
 def normalize(data, date):
     returnData = []
     for item in data:
@@ -273,8 +268,6 @@ endDate = dt.fromtimestamp(int(time.mktime(dt.strptime(end, "%Y-%m-%d").timetupl
 
 for i in range (0, 12):
     data = getPlotData()
-    print(data[0])
-    print(data[1])
     xAxis = normalize(data[0], endDate)
     yAxis = logTransform(data[1])
     plt.plot(xAxis, yAxis,graphColor[i],label= endDate)
