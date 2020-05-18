@@ -176,7 +176,7 @@ def top10Helper(title):
 
 # Makes jaccard score for a target article
 def makeDayXJaccardFigure(title):
-    article = dataDict[title]
+    article = revisionDict[title]
     firstDay = dt.fromtimestamp(int(time.mktime(dt.strptime("2018-12-10", "%Y-%m-%d").timetuple()))).date()
     lastDay = dt.fromtimestamp(endDate).date()
     days = []
