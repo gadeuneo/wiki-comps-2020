@@ -1,8 +1,9 @@
 
 '''
-    Plots Jaccard similarity multiline graph for Top 10 Articles.
-    Plots Jaccard similarity graph for a target article
-    Written by Junyi Min. Refactored by James Gardner.
+    Plots Pagecount vs Number of Editors graph, with pagecount normalized (pagecount/active pages)
+    And Number of Editors log-transformed
+
+    Written by Junyi Min.
 '''
 
 import pandas as pd
@@ -11,10 +12,13 @@ import os
 import sys
 from datetime import datetime as dt
 from datetime import timedelta
+from dateutil.relativedelta import relativedelta
 import time
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 from static_helpers import *
+import math
+
 
 register_matplotlib_converters()
 start = time.time()
@@ -25,7 +29,18 @@ plotPath = "figures"
 directories = ["figures"]
 create_directories(directories)
 
+revisonFiles = os.listdir(path)
+revisionDict = dict()
+for r in revisonFiles:
+    revisionDict[r[:-4]] = pd.read_csv(os.path.join(path, r))
+
 '''
+# folder of files
+path = "10years"
+plotPath = "figures"
+directories = ["figures"]
+create_directories(directories)
+
 # working list of Wiki pages
 titles = get_titles()
 
@@ -48,31 +63,7 @@ for title in titles:
     if (not (os.path.isfile(os.path.join(path, "Redirects" + title)))):
         filename = "Redirects" + title
         titleArray.remove(filename)
-'''
 
-revisonFiles = os.listdir(path)
-revisionDict = dict()
-for r in revisonFiles:
-    revisionDict[r[:-4]] = pd.read_csv(os.path.join(path, r))
-
-# taken from table.csv
-top = [
-    "2019–20 Hong Kong protests",
-    "Hong Kong",
-    "Carrie Lam",
-    "2019 Hong Kong extradition bill",
-    "2019 Hong Kong local elections",
-    "Reactions to the 2019–20 Hong Kong protests",
-    "2019 Yuen Long attack",
-    "Tactics and methods surrounding the 2019–20 Hong Kong protests",
-    "One country, two systems",
-    "Umbrella Movement"
-]
-topData = dict()
-for f in top:
-    topData[f] = pd.read_csv(os.path.join(path, f+".csv"))
-
-'''
 dataDict = dict()
 
 for f in titleArray:
@@ -84,10 +75,7 @@ for key in dataDict.keys():
         allData.append(dataDict[key])
     else:
         allRed.append(dataDict[key])
-'''
 
-# NOTE: pretty sure this isn't needed
-'''
 revisionData = pd.concat(allData, ignore_index=True, sort=False)
 revisionData['timestamp'] = pd.to_datetime(revisionData['timestamp'])
 # TODO: double check inplace param
@@ -113,228 +101,202 @@ for title in titleArray:
         dataTitleArray.append(title[:-4])
 '''
 
-#Makes multiline plot for jaccard similarity for Top 10 Articles
-def makeTop10Figures():
-    for i in range (0, 10): #top ten articles is first 10 in the list
-        title = list(topData.keys())[i]
-        data = top10Helper(title)
-        plt.plot(data[0], data[1],label= prettyPrint(title))
-        plt.gcf().set_size_inches(15,7)
-    plt.ylim([0, 3])
+#Returns two items: a dictionary with Editor Names as keys and a Set of Pages they edit in as values.
+# and a set of all unique editors
+def getEditorPageDict():
+    editorPageDict = dict()
+    editorSet = set()
+    currPgSet = set()
+    for title in revisionDict.keys():
+        article = revisionDict[title]
+        for index, rowData in article.iterrows():
+            currDate = dt.strptime(rowData['timestamp'], "%Y-%m-%dT%H:%M:%SZ").date()
+            if(currDate >= startDate and currDate <= endDate):
+                if(rowData['userid'] != 0): #not anon
+                    user = rowData['user']
+                    if(editorPageDict.get(user) == None):
+                        editorSet.add(user)
+                        currPgSet = set()
+                        currPgSet.add(title)
+                        editorPageDict[user] = currPgSet
+                        currPgSet = set()
+                    else:
+                        currPgSet = editorPageDict.get(user)
+                        currPgSet.add(title)
+                        editorPageDict[user] = currPgSet
+                        currPgSet = set()
+    return [editorPageDict, editorSet]
 
-    figureTitle = "Top 10 Article's Jaccard Scores"
+#Converts the dictionary into a list, sorts it by length
+def getEditorPageList():
+    resultList = getEditorPageDict()
+    dictionary = resultList[0]
+    editorSet = resultList[1]
+    returnList = []
+    for editor in editorSet:
+        pages = dictionary.get(editor)
+        returnList.append([editor, pages])
+    return (bubbleSortList(returnList))
+
+# get editor - page COUNT in a list
+def getEditorPagecount():
+    resultList = getEditorPageList()
+    for item in resultList:
+        item[1] = len(item[1])
+    return resultList
+
+#Bubble sorts a list of dictionary pairs
+def bubbleSortList(dataInput):
+    length = len(dataInput)
+    for i in range (length):
+        for j in range (0, length-i-1):
+            if len(dataInput[j][1])>len(dataInput[j+1][1]):
+                dataInput[j], dataInput[j+1] = dataInput[j+1], dataInput[j]
+    return dataInput
+
+#Makes a multiline pagecount vs editors over time graph that is logtransformed
+def makeMultiLineGraph():
+    data = getPlotData()
+    print(data)
+    yAxis = logTransform(data[1])
+    plt.plot(data[0], yAxis, label= endDate)
+    plt.gcf().set_size_inches(15,7)
+    figureTitle = "Log-Transformed - Pagecount VS Editors over time ending" + str(endDate)
     plt.title(figureTitle)
-    plt.xlabel("Days")
-    plt.ylabel("Jaccard Score (%)")
+    plt.xlabel("Number of Pages Editors Edit In")
+    plt.ylabel("Number of Editors")
 
     subpath = "Jaccard"
     ax = plt.subplot(111)
     box = ax.get_position()
-    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=1))
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m-%d'))
-    #ax.xaxis.set_minor_locator(mdates.DayLocator())
-    ax.format_xdata = mdates.DateFormatter('%Y-%m')
-    '''
-    startNum = int(time.mktime(dt.strptime("2019-06-10", "%Y-%m-%d").timetuple()))
-    endNum = int(time.mktime(dt.strptime("2019-12-10", "%Y-%m-%d").timetuple()))
-    ax.set_xlim([startNum, endNum])
-    '''
     ax.set_position([box.x0, box.y0, box.width * 0.5, box.height])
     plt.legend(bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0.)
+    # Need to add subpath so that its easier to change which directory being used
     if (not os.path.isfile(os.path.join(plotPath, subpath, figureTitle + ".png"))):
         plt.savefig(os.path.join(plotPath, subpath, figureTitle + ".png"), bbox_inches="tight")
     plt.close()
 
-#Takes in an article title and returns a list of dates and its corresponding Jaccard score for the specific article
-def top10Helper(title):
-    article = topData[title]
-    firstDay = dt.fromtimestamp(int(time.mktime(dt.strptime("2019-05-01", "%Y-%m-%d").timetuple()))).date()
-    lastDay = dt.fromtimestamp(endDate).date()
-    days = []
-    jaccard = [] #jaccard score of each day
-    edits = 0
-    articleIndex = 0
-    dailyEditorSet = set()
-    sizeOfArticle = article.shape[0]
+#Gets the data to plot in Editor/Pagecount graph
+#Returns xAxisElements: a list of pagecounts
+#And also yAxisElements: a list of number of editors that edit with that specific pagecount
+def getPlotData():
+    list = getEditorPagecount()
+    myDict = dict()
+    for item in list:
+        if(myDict.get(item[1])==None):
+            myDict[item[1]] = 1
+        else:
+            myDict[item[1]] += 1
 
-    #Setup
-    currDate = firstDay
-    while(currDate<=lastDay):
-        days.append(currDate)
-        currDate+=timedelta(days=1)
-    #Fills up targetDict
-    targetDict = returnTargetDict(article, firstDay, lastDay)
+    xAxisElements = []
+    yAxisElements = []
+    for key, value in myDict.items():
+        xAxisElements.append(key)
+        yAxisElements.append(value)
+    returnVal = [xAxisElements, yAxisElements]
+    return returnVal
 
-    #Fills up allOtherDict
-    allOtherDict = returnAllOtherDict(title, firstDay, lastDay)
-    #Calculate Jaccard, but also
-    jaccard = calculateAndPrintJaccard(days, targetDict, allOtherDict, firstDay, lastDay)
+#Plots the number of editors that edit a certain amount of pages
+def makePagecountVSNumOfEditors():
+    list = getEditorPagecount()
+    myDict = dict()
+    for item in list:
+        if(myDict.get(item[1])==None):
+            myDict[item[1]] = 1
+        else:
+            myDict[item[1]] += 1
 
-    answer = [days, jaccard]
-
-    return answer
-
-# Makes jaccard score for a target article
-def makeDayXJaccardFigure(title):
-    article = revisionDict[title]
-    firstDay = dt.fromtimestamp(int(time.mktime(dt.strptime("2018-12-10", "%Y-%m-%d").timetuple()))).date()
-    lastDay = dt.fromtimestamp(endDate).date()
-    days = []
-    jaccard = [] #jaccard score of each day
-    edits = 0
-    articleIndex = 0
-    dailyEditorSet = set()
-    sizeOfArticle = article.shape[0]
-
-    #Setup
-    currDate = firstDay
-    while(currDate<=lastDay):
-        days.append(currDate)
-        currDate+=timedelta(days=1)
-    #Fills up targetDict
-    targetDict = returnTargetDict(article, firstDay, lastDay)
-
-    #Fills up allOtherDict
-    allOtherDict = returnAllOtherDict(title, firstDay, lastDay)
-    #Calculate Jaccard, but also
-    jaccard = calculateAndPrintJaccard(days, targetDict, allOtherDict, firstDay, lastDay)
-
-    fig, ax = plt.subplots(figsize=(20,4))
-    ax.plot(days, jaccard)
+    xAxisElements = []
+    yAxisElements = []
+    for key, value in myDict.items():
+        xAxisElements.append(key)
+        yAxisElements.append(value)
+    fig, ax = plt.subplots(figsize=(15,4))
+    ax.plot(xAxisElements, yAxisElements)
 
     #ax.xaxis.set_major_locator(mdates.MonthLocator())
-    ax.xaxis.set_major_locator(mdates.MonthLocator(interval=1))
-    ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m-%d'))
+    #ax.xaxis.set_major_locator(mdates.MonthLocator(interval=1))
+    #ax.xaxis.set_major_formatter(mdates.DateFormatter('%y-%m-%d'))
     #ax.xaxis.set_minor_locator(mdates.DayLocator())
-    ax.format_xdata = mdates.DateFormatter('%Y-%m')
-
+    #ax.format_xdata = mdates.DateFormatter('%Y-%m')
+    figureTitle = "Pagecount VS Editors ending " + str(endDate)
     fig.autofmt_xdate()
-    plt.title(title)
+    plt.title(figureTitle)
     #plt.suptitle("10 year aggregate data. Shows number of edits per week in 6 month intervals.")
-    plt.xlabel("Time")
-    plt.ylabel("Jaccard Score")
+    plt.xlabel("Number of Pages Editors Edit In")
+    plt.ylabel("Number of Editors (10^x)")
 
     subpath = "Jaccard"
     #
     #os.mkdir(os.path.join(plotPath, subpath))
     #newpath = os.path.join(plotPath, subpath)
     #
-    if (not os.path.isfile(os.path.join(plotPath, subpath, title + ".png"))):
-        plt.savefig(os.path.join(plotPath, subpath, title + ".png"), bbox_inches="tight")
+    if (not os.path.isfile(os.path.join(plotPath, subpath, figureTitle + ".png"))):
+        plt.savefig(os.path.join(plotPath, subpath, figureTitle + ".png"), bbox_inches="tight")
     plt.close()
 
-#Receives targetTitle, the target article's title, and returns a dictionary
-#Where the key is a date, and the value is the set of editors that edits in all
-#non-target articles on that date
-#Firstday and lastday represents the start and end of analysis for sanity check
-def returnAllOtherDict(targetTitle, firstDay, lastDay):
-    allOtherDict = dict()
-    #Setup
-    currDate=firstDay
-    while(currDate<=lastDay):
-        allOtherDict[currDate] = set()
-        currDate+=timedelta(days=1)
-    currDate = firstDay
+#Log transforms a set of data
+def logTransform(data):
+    returnData = []
+    for item in data:
+        returnData.append(math.log(item, 10))
+    return returnData
 
-    for otherTitle in revisionDict:
-        dailyEditorSet = set()
-        currDate = firstDay
-        article = revisionDict[otherTitle]
-        sizeOfArticle = article.shape[0]
-        for index, rowData in article.iterrows():
-            editDay = dt.strptime(rowData['timestamp'], "%Y-%m-%dT%H:%M:%SZ").date()
-            if(currDate == editDay):
-                if(rowData['userid'] == 0): #anon
-                    p=0
-                    #dailyEditorSet.add("ANON " + rowData['user'])
-                else: #registered user
-                    dailyEditorSet.add(rowData['userid'])
-            else:
-                while(currDate<firstDay):
-                    currDate += timedelta(days=1)
-                while(currDate<editDay):
-                    tempSet = allOtherDict.get(currDate)
-                    allOtherDict[currDate] = dailyEditorSet.union(tempSet)
-                    dailyEditorSet = set()
-                    currDate += timedelta(days=1)
-                if(rowData['userid'] == 0): #anon
-                    p=0
-                    #dailyEditorSet.add("ANON " + rowData['user'])
-                else: #registered user
-                    dailyEditorSet.add(rowData['userid'])
-            if(index == (sizeOfArticle-1)):
-                    tempSet = allOtherDict.get(currDate)
-                    allOtherDict[currDate] = dailyEditorSet.union(tempSet)
-                    dailyEditorSet = set()
-    return allOtherDict
+#Normalizes pagecount data by returning a list of data with pagecount divided by number of active articles
+def normalize(data, date):
+    returnData = []
+    for item in data:
+        returnData.append(item/numActiveArticleDict.get(date))
+    return returnData
 
 
-#Receives targetTitle, the target article's title, and returns a dictionary
-#Where the key is a date, and the value is the set of editors that edits in
-#the target article on that date.
-#Firstday and lastday represents the start and end of analysis for sanity check
-def returnTargetDict(article, firstDay, lastDay):
-    dailyEditorSet = set()
-    sizeOfArticle = article.shape[0]
-    targetDict = dict()
-    #Setup
-    currDate=firstDay
-    while(currDate<=lastDay):
-        targetDict[currDate] = set()
-        currDate+=timedelta(days=1)
-    currDate = firstDay
-    for index, rowData in article.iterrows():
-        editDay = dt.strptime(rowData['timestamp'], "%Y-%m-%dT%H:%M:%SZ").date()
-        if(currDate == editDay):
-
-            if(rowData['userid'] == 0): #anon
-                p = 0
-                #dailyEditorSet.add("ANON " + rowData['user'])
-            else: #registered user
-                dailyEditorSet.add(rowData['userid'])
+#For Nomalization of Data - produces a dictionary of the number of active articles each day
+start = "2009-01-10"
+end = "2019-12-10"
+startDate = dt.fromtimestamp(int(time.mktime(dt.strptime(start, "%Y-%m-%d").timetuple()))).date()
+endDate = dt.fromtimestamp(int(time.mktime(dt.strptime(end, "%Y-%m-%d").timetuple()))).date()
+numActiveArticleDict = dict()
+for title in revisionDict.keys():
+    article = revisionDict[title]
+    rowData = article.loc[0]
+    time = dt.strptime(rowData['timestamp'], "%Y-%m-%dT%H:%M:%SZ").date()
+    while(time <= endDate):
+        if(numActiveArticleDict.get(time)==None):
+            numActiveArticleDict[time] = 1
         else:
-            while(currDate<firstDay):
-                currDate += timedelta(days=1)
-            while(currDate<editDay):
-                targetDict[currDate] = dailyEditorSet
-                dailyEditorSet = set()
-                currDate += timedelta(days=1)
-            if(rowData['userid'] == 0): #anon
-                p = 0
-                #dailyEditorSet.add("ANON " + rowData['user'])
-            else: #registered user
-                dailyEditorSet.add(rowData['userid'])
-        if(index == (sizeOfArticle-1)):
-            targetDict[currDate] = dailyEditorSet
-            dailyEditorSet = set()
-    return targetDict
+            numActiveArticleDict[time] = numActiveArticleDict.get(time)+1
+        time += timedelta(days=1)
 
-#Using the parameters, calculates the Jaccard score for the target articles
-#And returns a list of Jaccard score corresponding to the order of the dates in
-#input "days"
-def calculateAndPrintJaccard(days, targetDict, allOtherDict, firstDay, lastDay):
-    jaccard = []
-    jaccardAndEditor = [] #compiles a list of [date/jaccardScore/NumUniqueEditorsOfTargetArticle/NumUniqueEditorsOfOtherArticles] items
-    currItem = []
-    setB = set()
-    for day in days:
-        setA = targetDict[day]
-        setB = setB.union(allOtherDict[day])
-        if(len(setA.union(setB))==0):
-            jScore = 0
-        else:
-            jScore = len(setA.intersection(setB))/len(setA.union(setB))*100
-        jaccard.append(jScore)
-        currItem.append(day)
-        currItem.append(jScore)
-        currItem.append(len(setA))
-        currItem.append(len(setB))
-        jaccardAndEditor.append(currItem)
-        currItem = []
-        setA = set()
-    return jaccard
 
-'''Testing below'''
-makeTop10Figures()
+#MultiLineGraph Code Below - moved here due to global variable problems
+graphColor = ['#000000','#003300','#005900','#198c19','#7fbf7f','#e5f2e5',    #green
+              '#330033', '#590059', '#800080', '#a64ca6', '#cc99cc', '#f2e5f2'] #purple
+'''
+start = "2009-01-10"
+end = "2019-12-10"
+startDate = dt.fromtimestamp(int(time.mktime(dt.strptime(start, "%Y-%m-%d").timetuple()))).date()
+endDate = dt.fromtimestamp(int(time.mktime(dt.strptime(end, "%Y-%m-%d").timetuple()))).date()'''
+
+for i in range (0, 12):
+    data = getPlotData()
+    xAxis = normalize(data[0], endDate)
+    yAxis = logTransform(data[1])
+    plt.plot(xAxis, yAxis,graphColor[i],label= endDate)
+    plt.gcf().set_size_inches(15,7)
+    endDate -= relativedelta(months=+1)
+figureTitle = "Normalized - Page Count vs Number Editors"
+plt.title(figureTitle)
+plt.xlabel("Pages Editted/Active Pages")
+plt.ylabel("Number of Editors (in log base 10)")
+
+subpath = "Jaccard"
+ax = plt.subplot(111)
+box = ax.get_position()
+ax.set_position([box.x0, box.y0, box.width * 0.5, box.height])
+plt.legend(bbox_to_anchor=(1.01, 1), loc='upper left', borderaxespad=0.)
+if (not os.path.isfile(os.path.join(plotPath, subpath, figureTitle + ".png"))):
+    plt.savefig(os.path.join(plotPath, subpath, figureTitle + ".png"), bbox_inches="tight")
+plt.close()
+#MultiLineGraph Code ends
 
 sys.exit(0)

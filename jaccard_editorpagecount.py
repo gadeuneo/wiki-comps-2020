@@ -15,11 +15,7 @@ from datetime import timedelta
 from dateutil.relativedelta import relativedelta
 import time
 import matplotlib.pyplot as plt
-import numpy as np
 import matplotlib.dates as mdates
-import matplotlib.cbook as cbook
-import matplotlib.ticker as ticker
-import copy
 from static_helpers import *
 import math
 
