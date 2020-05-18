@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 from static_helpers import *
 import matplotlib.pyplot as plt
+import networkx as nx
 import scipy.spatial.distance as ssd
 from scipy.cluster import hierarchy
 
@@ -25,6 +26,11 @@ def make_table(file):
     table_df = pd.read_csv(file)
     mirror_df = mirror_table(table_df)
     full_table_df = pd.concat([table_df, mirror_df], ignore_index=True, sort=False)
+    # Formats title inconsistencies found in some of our csv files. Removes
+    # '_' from article titles.
+    for column in full_table_df[["Article 1", "Article 2"]]:
+        for article in full_table_df[column]:
+            full_table_df = full_table_df.replace(article, prettyPrint(article))
     # Convert dataframe to n x n table where articles are the rows/columns and
     # correlation values are values.
     # Source: https://stackoverflow.com/questions/47683642/how-to-create-a-square-dataframe-matrix-given-3-columns-python
@@ -39,7 +45,7 @@ def main():
     pageViewsCorrelations = "allRevisionCorr.csv"
     pageRevisionsCorrelations = "allPageViewCorr.csv"
     # Creates n x n matrix of article correlation values.
-    df = make_table(pageRevisionsCorrelations)
+    df = make_table(pageViewsCorrelations)
     # Negate the values in the correlation, then add 1 so that the highest
     # correlation values will be considered the ones with minimum distance
     # between them by the single-linkage algorithm.
@@ -53,7 +59,15 @@ def main():
     Z = hierarchy.linkage(distArray, 'single')
     hierarchy.dendrogram(Z, leaf_rotation=90, leaf_font_size=8, labels=df.index)
     plt.gcf().subplots_adjust(bottom=0.65)
-    plt.savefig("figures/Page Revision Correlation Dendrogram")
+    # Code to manipulated ticks on graph. Specifically removes major and minor
+    # ticks along with removing the y axis label.
+    plt.tick_params(
+    axis='y',          # changes apply to the y-axis
+    which='both',      # both major and minor ticks are affected
+    left=False,      # ticks along the left edge are off
+    top=False,         # ticks along the top edge are off
+    labelleft=False) # labels along the left edge are off
+    plt.savefig("figures/Page Revision Correlation Dendrogram", bbox_inches='tight')
     plt.show()
     return
 
